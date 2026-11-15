@@ -64,15 +64,15 @@
   /* ---------- type styles ---------- */
   html[data-type='grotesk']{
     --word-font:'Archivo Black','Archivo',sans-serif;
-    --word-weight:400; --wsize:13.5vw; --wmin:58px; --wls:.015em;
+    --word-weight:400; --wsize:20cqw; --wmin:58px; --wls:.015em;
   }
   html[data-type='serif']{
     --word-font:'Playfair Display',Georgia,serif;
-    --word-weight:800; --wsize:12.6vw; --wmin:54px; --wls:.005em;
+    --word-weight:800; --wsize:19cqw; --wmin:54px; --wls:.005em;
   }
   html[data-type='mono']{
     --word-font:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
-    --word-weight:700; --wsize:10.6vw; --wmin:38px; --wls:0em;
+    --word-weight:700; --wsize:16cqw; --wmin:38px; --wls:0em;
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -101,39 +101,116 @@
     font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);
     font-weight:500;
   }
-  .head-right{margin-left:auto;display:flex;align-items:center}
+  .tagline{margin-left:auto}
   @media (max-width:680px){ .tagline{display:none} header{padding:16px 20px;gap:12px} }
 
-  /* ---------- ui switcher ---------- */
-  .switcher{display:flex;align-items:center;gap:12px}
-  .sw-group{display:flex;align-items:center;gap:7px}
-  .sw-sep{width:1px;height:18px;background:var(--line)}
-  .sw-dot{
-    width:17px;height:17px;border-radius:50%;
-    background:var(--dot);
-    border:1px solid var(--line-strong);
-    cursor:pointer;padding:0;
-    transition:transform .15s, box-shadow .15s;
+  /* ---------- layout: side panels + centre ---------- */
+  .layout{display:flex;flex:1;min-height:0}
+  .centre{display:flex;flex-direction:column;flex:1;min-width:0}
+  .panel{
+    flex:0 0 auto;display:flex;flex-direction:column;min-height:0;
+    background:var(--bar);backdrop-filter:blur(10px);
   }
-  .sw-dot:hover{transform:scale(1.15)}
-  .sw-dot.active{box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--accent)}
-  .sw-type{
-    font-family:inherit;font-size:11px;font-weight:600;
-    letter-spacing:.08em;text-transform:uppercase;
-    color:var(--mute);background:transparent;
-    border:1px solid transparent;border-radius:999px;
-    padding:6px 9px;cursor:pointer;
-    transition:color .18s, border-color .18s, background .18s;
+  .panel-left{width:248px;border-right:1px solid var(--line)}
+  .panel-right{width:216px;border-left:1px solid var(--line)}
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 16px 8px;
   }
-  .sw-type:hover{color:var(--ink)}
-  .sw-type.active{color:var(--ink);border-color:var(--line);background:var(--bar)}
-  @media (max-width:680px){ .sw-type{padding:5px 7px;font-size:10px} .sw-dot{width:15px;height:15px} }
+  .panel-head h3{
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:800;
+  }
+  .panel-head .fx-count{color:var(--accent)}
+  .panel-collapse{
+    width:24px;height:24px;border-radius:50%;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    background:transparent;border:1px solid var(--line);
+    color:var(--mute);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;
+    transition:color .15s, border-color .15s;
+  }
+  .panel-collapse:hover{color:var(--ink);border-color:var(--line-strong)}
+  .panel-body{flex:1;overflow-y:auto;padding:2px 12px 16px;scrollbar-width:thin}
+
+  /* ui option rows (right panel) */
+  .opt-group{margin-bottom:20px}
+  .opt-group h4{
+    font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--mute);font-weight:700;margin:2px 2px 8px;
+  }
+  .theme-row,.type-row,.stage-btn{
+    display:flex;align-items:center;gap:10px;width:100%;
+    text-align:left;color:var(--ink);font-family:inherit;
+    font-size:13px;font-weight:600;letter-spacing:.02em;
+    background:transparent;border:1px solid var(--line);border-radius:10px;
+    padding:9px 11px;margin-bottom:6px;cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .theme-row:hover,.type-row:hover,.stage-btn:hover{border-color:var(--line-strong);background:var(--tile-hover)}
+  .theme-row.active,.type-row.active{border-color:var(--accent);background:var(--tile-hover)}
+  .t-dot{
+    width:15px;height:15px;border-radius:50%;flex:0 0 auto;
+    background:var(--dot);border:1px solid var(--line-strong);
+  }
+  .stage-btn{justify-content:center;font-size:12.5px}
+
+  /* desktop collapse edge tabs */
+  .edge-tab{
+    position:fixed;top:50%;transform:translateY(-50%);z-index:30;
+    display:none;width:22px;height:64px;
+    align-items:center;justify-content:center;
+    background:var(--bar);border:1px solid var(--line);
+    color:var(--mute);font-size:15px;cursor:pointer;font-family:inherit;
+  }
+  #lpTab{left:0;border-left:none;border-radius:0 10px 10px 0}
+  #rpTab{right:0;border-right:none;border-radius:10px 0 0 10px}
+  .edge-tab:hover{color:var(--ink)}
+  @media (min-width:821px){
+    body.lp-closed .panel-left{display:none}
+    body.rp-closed .panel-right{display:none}
+    body.lp-closed #lpTab{display:flex}
+    body.rp-closed #rpTab{display:flex}
+  }
+
+  /* drawer buttons + backdrop (phone) */
+  .drawer-row{display:none}
+  .backdrop{display:none}
+  @media (max-width:820px){
+    .panel{
+      position:fixed;top:0;bottom:0;z-index:60;
+      width:min(84vw,300px);background:var(--bg);
+      transition:transform .32s ease;
+    }
+    .panel-left{left:0;transform:translateX(-105%)}
+    .panel-right{right:0;transform:translateX(105%)}
+    body.drawer-l .panel-left{transform:none}
+    body.drawer-r .panel-right{transform:none}
+    .backdrop{
+      display:block;position:fixed;inset:0;z-index:55;
+      background:rgba(0,0,0,.5);
+      opacity:0;pointer-events:none;transition:opacity .3s;
+    }
+    body.drawer-l .backdrop, body.drawer-r .backdrop{opacity:1;pointer-events:auto}
+    .drawer-row{
+      display:flex;justify-content:space-between;gap:10px;
+      width:min(100%,760px);
+    }
+    .drawer-btn{
+      display:flex;align-items:center;gap:8px;
+      font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--ink);background:transparent;
+      border:1px solid var(--line);border-radius:999px;
+      padding:8px 16px;cursor:pointer;
+    }
+    .drawer-btn:active{transform:scale(.96)}
+    .drawer-btn svg{width:14px;height:14px;display:block}
+  }
 
   /* ---------- stage ---------- */
   main{
     position:relative;flex:1;
     display:flex;align-items:center;justify-content:center;
     overflow:hidden;
+    container-type:inline-size;
   }
   .glow{
     position:absolute;left:50%;top:52%;
@@ -180,7 +257,7 @@
     font-size:clamp(var(--wmin),var(--wsize),176px);
     line-height:1.02;letter-spacing:var(--wls);text-transform:uppercase;
     background:transparent;border:none;outline:none;color:var(--ink);
-    text-align:center;width:92vw;
+    text-align:center;width:min(92vw,880px);
     border-bottom:2px solid var(--line-strong);
   }
 
@@ -198,58 +275,36 @@
   }
   #feedback b{color:var(--ink);font-weight:700}
 
-  /* effects toggle + panel */
-  .fx-row{display:flex;justify-content:center}
-  .fx-toggle{
-    display:flex;align-items:center;gap:8px;
-    font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-    color:var(--ink);background:var(--bar);
-    border:1px solid var(--line);border-radius:999px;
-    padding:8px 16px;cursor:pointer;
-    transition:border-color .18s, background .18s;
-  }
-  .fx-toggle:hover{border-color:var(--line-strong)}
-  .fx-toggle:active{transform:scale(.96)}
-  .fx-toggle svg{width:14px;height:14px;display:block}
-  .fx-toggle .fx-count{color:var(--accent);font-weight:800}
-  .fx-panel{
-    width:min(92vw,620px);
-    background:var(--bar);
-    border:1px solid var(--line);border-radius:18px;
-    padding:14px 16px 4px;
-    backdrop-filter:blur(12px);
-    max-height:44vh;overflow-y:auto;
-    scrollbar-width:thin;
-  }
-  .fx-panel[hidden]{display:none}
+  /* effects groups + tiles (left panel) */
   .fx-group h4{
     font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
     color:var(--mute);font-weight:700;
-    margin:8px 2px 8px;
+    margin:10px 2px 8px;
   }
   .fx-group:first-child h4{margin-top:2px}
   .fx-grid{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));
-    gap:8px;margin-bottom:12px;
+    display:grid;grid-template-columns:1fr;
+    gap:6px;margin-bottom:12px;
   }
   .fx-tile{
+    display:flex;align-items:baseline;gap:8px;
     text-align:left;
     background:transparent;
-    border:1px solid var(--line);border-radius:12px;
-    padding:9px 11px;cursor:pointer;
+    border:1px solid var(--line);border-radius:10px;
+    padding:8px 10px;cursor:pointer;
     color:var(--ink);font-family:inherit;
     transition:border-color .15s, background .15s, transform .1s;
   }
   .fx-tile:hover{border-color:var(--line-strong);background:var(--tile-hover)}
-  .fx-tile:active{transform:scale(.96)}
-  .fx-tile b{display:block;font-size:13px;font-weight:700;letter-spacing:.02em}
+  .fx-tile:active{transform:scale(.97)}
+  .fx-tile b{font-size:12.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
   .fx-tile span{
-    display:block;margin-top:2px;
-    font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);
+    margin-left:auto;text-align:right;
+    font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
   }
 
   .chips{
-    display:flex;gap:8px;max-width:min(92vw,860px);
+    display:flex;gap:8px;max-width:100%;
     overflow-x:auto;padding:2px 2px 4px;
     scrollbar-width:none;-ms-overflow-style:none;
   }
@@ -266,7 +321,7 @@
   .chip:active{transform:scale(.96)}
   .bar-row{
     display:flex;align-items:stretch;gap:10px;
-    width:min(92vw,760px);
+    width:min(100%,760px);
     justify-content:center;
   }
   .promptbar{
@@ -327,24 +382,18 @@
 <header>
   <div class="logo">MOT<span>I</span>Q</div>
   <div class="tagline">prompt-driven motion — no keyframes</div>
-  <div class="head-right">
-    <div class="switcher" aria-label="Interface options">
-      <div class="sw-group" id="themeSw" role="group" aria-label="Theme">
-        <button type="button" class="sw-dot active" data-theme="midnight" style="--dot:#101013" aria-label="Midnight theme"></button>
-        <button type="button" class="sw-dot" data-theme="bone" style="--dot:#e9e4da" aria-label="Bone theme"></button>
-        <button type="button" class="sw-dot" data-theme="forest" style="--dot:#0d2013" aria-label="Forest theme"></button>
-        <button type="button" class="sw-dot" data-theme="cobalt" style="--dot:#0d1a3a" aria-label="Cobalt theme"></button>
-      </div>
-      <div class="sw-sep"></div>
-      <div class="sw-group" id="typeSw" role="group" aria-label="Type style">
-        <button type="button" class="sw-type active" data-type="grotesk">Grotesk</button>
-        <button type="button" class="sw-type" data-type="serif">Serif</button>
-        <button type="button" class="sw-type" data-type="mono">Mono</button>
-      </div>
-    </div>
-  </div>
 </header>
 
+<div class="layout">
+  <aside class="panel panel-left" id="panelLeft" aria-label="Effects library">
+    <div class="panel-head">
+      <h3>Effects <span class="fx-count" id="fxCount"></span></h3>
+      <button type="button" class="panel-collapse" id="lpCollapse" aria-label="Hide effects panel">‹</button>
+    </div>
+    <div class="panel-body" id="fxPanel"></div>
+  </aside>
+
+  <div class="centre">
 <main id="stage">
   <div class="glow" id="glow"></div>
   <div class="stage-word" id="stageWord">
@@ -361,13 +410,13 @@
 
 <div class="controls">
   <div id="feedback">type a command — or tap one below</div>
-  <div class="fx-row">
-    <button type="button" class="fx-toggle" id="fxToggle" aria-expanded="false" aria-controls="fxPanel">
+  <div class="drawer-row">
+    <button type="button" class="drawer-btn" id="drawerFx">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
-      Effects <span class="fx-count" id="fxCount"></span>
+      Effects
     </button>
+    <button type="button" class="drawer-btn" id="drawerStyle">Style</button>
   </div>
-  <div class="fx-panel" id="fxPanel" hidden></div>
   <div class="chips" id="chips"></div>
   <div class="bar-row">
     <form class="promptbar" id="promptForm" autocomplete="off">
@@ -381,6 +430,39 @@
     </button>
   </div>
 </div>
+  </div><!-- /centre -->
+
+  <aside class="panel panel-right" id="panelRight" aria-label="Interface options">
+    <div class="panel-head">
+      <h3>UI Options</h3>
+      <button type="button" class="panel-collapse" id="rpCollapse" aria-label="Hide options panel">›</button>
+    </div>
+    <div class="panel-body">
+      <div class="opt-group" id="themeSw" role="group" aria-label="Theme">
+        <h4>Theme</h4>
+        <button type="button" class="theme-row active" data-theme="midnight"><span class="t-dot" style="--dot:#101013"></span>Midnight</button>
+        <button type="button" class="theme-row" data-theme="bone"><span class="t-dot" style="--dot:#e9e4da"></span>Bone</button>
+        <button type="button" class="theme-row" data-theme="forest"><span class="t-dot" style="--dot:#0d2013"></span>Forest</button>
+        <button type="button" class="theme-row" data-theme="cobalt"><span class="t-dot" style="--dot:#0d1a3a"></span>Cobalt</button>
+      </div>
+      <div class="opt-group" id="typeSw" role="group" aria-label="Type style">
+        <h4>Type</h4>
+        <button type="button" class="type-row active" data-type="grotesk" style="font-family:'Archivo Black','Archivo',sans-serif">Grotesk</button>
+        <button type="button" class="type-row" data-type="serif" style="font-family:'Playfair Display',Georgia,serif;font-weight:800">Serif</button>
+        <button type="button" class="type-row" data-type="mono" style="font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:700">Mono</button>
+      </div>
+      <div class="opt-group">
+        <h4>Stage</h4>
+        <button type="button" class="stage-btn" id="stageColor">Splash of color</button>
+        <button type="button" class="stage-btn" id="stageReset">Reset stage</button>
+      </div>
+    </div>
+  </aside>
+</div><!-- /layout -->
+
+<button type="button" class="edge-tab" id="lpTab" aria-label="Show effects panel">›</button>
+<button type="button" class="edge-tab" id="rpTab" aria-label="Show options panel">‹</button>
+<div class="backdrop" id="backdrop"></div>
 
 <script src="vendor/gsap.min.js"></script>
 <script>
@@ -397,7 +479,6 @@
   var wordIn   = document.getElementById('wordInput');
   var editHint = document.getElementById('editHint');
   var fxPanel  = document.getElementById('fxPanel');
-  var fxToggle = document.getElementById('fxToggle');
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------------- themes (JS mirror of the CSS variables) ---------------- */
@@ -759,7 +840,7 @@
     gsap.to(document.body, { backgroundColor: THEMES[name].bg, duration:.7, ease:'power2.inOut' });
     gsap.to(glow, { background: glowGradient(THEMES[name].glow), duration:.7, ease:'power2.inOut' });
     if (state.neon) paintNeon(false);
-    Array.prototype.forEach.call(document.querySelectorAll('#themeSw .sw-dot'), function(d){
+    Array.prototype.forEach.call(document.querySelectorAll('#themeSw .theme-row'), function(d){
       d.classList.toggle('active', d.getAttribute('data-theme') === name);
     });
     say('<b>theme — ' + THEMES[name].label.toLowerCase() + '.</b>');
@@ -768,16 +849,16 @@
     if (!TYPES[name]) return;
     state.type = name;
     document.documentElement.setAttribute('data-type', name);
-    Array.prototype.forEach.call(document.querySelectorAll('#typeSw .sw-type'), function(b){
+    Array.prototype.forEach.call(document.querySelectorAll('#typeSw .type-row'), function(b){
       b.classList.toggle('active', b.getAttribute('data-type') === name);
     });
     say('<b>type — ' + TYPES[name].toLowerCase() + '.</b>');
   }
   document.getElementById('themeSw').addEventListener('click', function(e){
-    var d = e.target.closest('.sw-dot'); if (d) applyTheme(d.getAttribute('data-theme'));
+    var d = e.target.closest('.theme-row'); if (d) applyTheme(d.getAttribute('data-theme'));
   });
   document.getElementById('typeSw').addEventListener('click', function(e){
-    var b = e.target.closest('.sw-type'); if (b) applyType(b.getAttribute('data-type'));
+    var b = e.target.closest('.type-row'); if (b) applyType(b.getAttribute('data-type'));
   });
 
   /* ---------------- record / export ---------------- */
@@ -974,7 +1055,7 @@
       var bold = document.createElement('b'); bold.textContent = it[0];
       var sub = document.createElement('span'); sub.textContent = it[2];
       b.appendChild(bold); b.appendChild(sub);
-      b.addEventListener('click', function(){ runCommand(it[1]); setPanel(false); input.focus(); });
+      b.addEventListener('click', function(){ runCommand(it[1]); closeDrawers(); input.focus(); });
       grid.appendChild(b);
     });
     wrap.appendChild(grid);
@@ -982,21 +1063,34 @@
   });
   document.getElementById('fxCount').textContent = fxTotal;
 
-  var panelOpen = false;
-  function setPanel(open){
-    panelOpen = open;
-    fxToggle.setAttribute('aria-expanded', String(open));
-    if (open){
-      fxPanel.hidden = false;
-      gsap.fromTo(fxPanel, { opacity:0, y:8 }, { opacity:1, y:0, duration:.28, ease:'power2.out' });
-    } else {
-      gsap.to(fxPanel, { opacity:0, y:6, duration:.18, ease:'power2.in',
-        onComplete:function(){ fxPanel.hidden = true; } });
-    }
+  /* ---------------- side panels: permanent on desktop, drawers on phone ---------------- */
+  var mqPhone = window.matchMedia('(max-width: 820px)');
+  function openDrawer(which){
+    document.body.classList.toggle('drawer-l', which === 'left');
+    document.body.classList.toggle('drawer-r', which === 'right');
   }
-  fxToggle.addEventListener('click', function(){ setPanel(!panelOpen); });
+  function closeDrawers(){
+    document.body.classList.remove('drawer-l', 'drawer-r');
+  }
+  function setPanel(open){
+    if (mqPhone.matches){ if (open) openDrawer('left'); else closeDrawers(); }
+    else document.body.classList.toggle('lp-closed', !open);
+  }
+  document.getElementById('drawerFx').addEventListener('click', function(){ openDrawer('left'); });
+  document.getElementById('drawerStyle').addEventListener('click', function(){ openDrawer('right'); });
+  document.getElementById('backdrop').addEventListener('click', closeDrawers);
+  document.getElementById('lpCollapse').addEventListener('click', function(){
+    if (mqPhone.matches) closeDrawers(); else document.body.classList.add('lp-closed');
+  });
+  document.getElementById('rpCollapse').addEventListener('click', function(){
+    if (mqPhone.matches) closeDrawers(); else document.body.classList.add('rp-closed');
+  });
+  document.getElementById('lpTab').addEventListener('click', function(){ document.body.classList.remove('lp-closed'); });
+  document.getElementById('rpTab').addEventListener('click', function(){ document.body.classList.remove('rp-closed'); });
+  document.getElementById('stageColor').addEventListener('click', function(){ runCommand('splash of color'); });
+  document.getElementById('stageReset').addEventListener('click', function(){ runCommand('reset'); });
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && panelOpen) setPanel(false);
+    if (e.key === 'Escape') closeDrawers();
   });
 
   /* ---------------- wiring ---------------- */
@@ -1005,7 +1099,7 @@
     var v = input.value.trim();
     if (!v) return;
     input.value = '';
-    if (panelOpen) setPanel(false);
+    closeDrawers();
     runCommand(v);
     input.focus();
   });
@@ -1046,7 +1140,8 @@
   startAmbient();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ /* metrics settle */ });
   window.__motiq = { run: runCommand, state: state, setTheme: applyTheme, setType: applyType,
-                     setPanel: setPanel, actions: actions,
+                     setPanel: setPanel, openDrawer: openDrawer, closeDrawers: closeDrawers,
+                     actions: actions,
                      isRecording: function(){ return rec.on; } };
 })();
 </script>
