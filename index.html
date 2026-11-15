@@ -515,6 +515,23 @@
   .tl-lab-in input:focus{outline:none;border-color:var(--line-strong)}
   .tl-scroll{overflow-x:auto;margin-top:9px;scrollbar-width:thin}
   .tl-body{position:relative;margin-left:36px;min-width:600px}
+  /* ---------- stage-first sizing: the preview keeps its space ---------- */
+  main{min-height:150px}
+  .controls{gap:8px}
+  #feedback{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .tl-transport{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .tl-transport::-webkit-scrollbar{display:none}
+  .timeline{display:flex;flex-direction:column;max-height:40vh}
+  .tl-scroll{overflow:auto;flex:1;min-height:0}
+  @media (max-height:740px){
+    .tl-lane{height:20px}
+    .clip{height:16px;font-size:9.5px}
+    .tl-ruler{height:19px}
+    .timeline{padding:8px 12px 10px}
+  }
+  @container (max-width:520px){
+    .word, #wordInput{--wmin:30px}
+  }
   .tl-ruler{
     position:relative;height:22px;cursor:crosshair;touch-action:none;
     border-bottom:1px solid var(--line);
