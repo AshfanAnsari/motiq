@@ -713,6 +713,8 @@
     </div>
     <button type="button" data-add="circle">● Circle</button>
     <button type="button" data-add="rect">■ Rectangle</button>
+    <button type="button" data-add="pill">▬ Pill</button>
+    <button type="button" data-add="soft">◍ Soft glow</button>
   </div>
   <input type="file" id="elFile" accept="image/*" hidden>
   <input type="file" id="bgFile" accept="image/*" hidden>
@@ -1094,12 +1096,12 @@
       /* wing-beats: the letters flap in a staggered wave for the whole flight */
       tl.to(els, { y:'-0.16em', duration:.2, ease:'sine.inOut', stagger:.045,
           yoyo:true, repeat:9 }, 0);
-      /* take-off: climb, bank, drift across */
-      tl.to(wordEl, { y:'-0.85em', x:'0.55em', rotation:-5, duration:.75, ease:'power2.out' }, 0);
+      /* take-off: climb, bank, drift across — shrinking a touch, like a bird pulling away */
+      tl.to(wordEl, { y:'-0.42em', x:'0.25em', rotation:-7, scale:.93, duration:.75, ease:'power2.out' }, 0);
       /* glide: level out, bank the other way */
-      tl.to(wordEl, { y:'-0.68em', x:'1.15em', rotation:4, duration:.85, ease:'sine.inOut' }, .75);
-      /* come home: swoop back down to rest */
-      tl.to(wordEl, { y:0, x:0, rotation:0, duration:.9, ease:'power2.inOut' }, 1.6);
+      tl.to(wordEl, { y:'-0.45em', x:'0.35em', rotation:6, scale:.88, duration:.85, ease:'sine.inOut' }, .75);
+      /* come home: swoop back down to rest, full size again */
+      tl.to(wordEl, { y:0, x:0, rotation:0, scale:1, duration:.9, ease:'power2.inOut' }, 1.6);
       tl.to(els, { y:0, duration:.3, ease:'power2.out', overwrite:'auto' }, 2.3);
       say('<b>flying.</b> up, across, and home — like a bird.');
     },
@@ -1441,6 +1443,9 @@
     if ((m = low.match(/^add\s+(?:a\s+|an\s+)?(circle|rectangle|rect|square)$/))){
       return { kind:'addel', spec:{ kind:'shape', shape: m[1] === 'circle' ? 'circle' : 'rect' } };
     }
+    if ((m = low.match(/^add\s+(?:a\s+|an\s+)?(pill|soft circle|glow disc|soft disc|glow circle)$/))){
+      return { kind:'addel', spec:{ kind:'shape', shape: m[1] === 'pill' ? 'pill' : 'soft' } };
+    }
     if (/^add\s+(?:a\s+|an\s+)?(logo|image|picture|photo)/.test(low)){
       return { kind:'note', msg:'<b>images:</b> use + Element, Image / logo to add one — then control it here.' };
     }
@@ -1524,6 +1529,47 @@
       }
     }
 
+    /* element upgrades: count-ups, fades, gradient, glow, bold / italic */
+    el = resolveElementRef(pl);
+    if (el){
+      var plow = ' ' + low.replace(/\s+/g, ' ') + ' ';
+      var cntM = plow.match(/ count (?:up )?(?:from (-?[\d,]+(?:\.\d+)?) )?to (-?[\d,]+(?:\.\d+)?)(?:\s|%)/);
+      if (cntM){
+        var cTo = parseFloat(cntM[2].replace(/,/g, ''));
+        if (isFinite(cTo)) return { kind:'elcount', el:el, from: cntM[1] ? parseFloat(cntM[1].replace(/,/g, '')) : 0, to:cTo,
+          suffix: /%| percent/.test(plow) ? '%' : '', prefix: /\+/.test(plow) ? '+' : '' };
+      }
+      if (/ fade/.test(pl)){
+        var fpatch = {};
+        var hasIn = / fade in/.test(pl), hasOut = / fade out| and out/.test(pl);
+        if (hasIn || !hasOut) fpatch.fadeIn = 0.45;
+        if (hasOut || !hasIn) fpatch.fadeOut = 0.45;
+        return { kind:'elstyle', el:el, patch:fpatch };
+      }
+      if (/ gradient/.test(pl)){
+        if (/ no gradient| remove gradient| without gradient/.test(pl)) return { kind:'elstyle', el:el, patch:{ grad:null } };
+        var gfound = [];
+        Object.keys(COLOR_NAMES).forEach(function(nm){
+          var ix = pl.indexOf(' ' + nm + ' ');
+          if (ix !== -1) gfound.push({ ix:ix, hex:COLOR_NAMES[nm] });
+        });
+        gfound.sort(function(x, y){ return x.ix - y.ix; });
+        var ghexes = low.match(/#[0-9a-f]{6}\b/g);
+        var gcols = ghexes && ghexes.length >= 2 ? ghexes.slice(0, 2) : gfound.map(function(g){ return g.hex; });
+        if (gcols.length >= 2) return { kind:'elstyle', el:el, patch:{ grad:[gcols[0], gcols[1]] } };
+        if (gcols.length === 1) return { kind:'elstyle', el:el, patch:{ grad:[gcols[0], el.color || '#000000'] } };
+      }
+      if (/ glow/.test(pl)){
+        if (/ no glow| remove glow| without glow/.test(pl)) return { kind:'elstyle', el:el, patch:{ glow:null } };
+        var glHex = low.match(/#([0-9a-f]{6}|[0-9a-f]{3})\b/);
+        var glName = pl.match(/ (crimson|coral|orange|golden|gold|yellow|lime|green|teal|cyan|sky blue|blue|purple|violet|lavender|hot pink|magenta|pink|mint|peach|silver|white|black|red) /);
+        var glc = glHex ? ('#' + glHex[1]) : glName ? COLOR_NAMES[glName[1].trim()] : (el.color || '#ffffff');
+        return { kind:'elstyle', el:el, patch:{ glow: glc } };
+      }
+      if (/ bold/.test(pl)) return { kind:'elstyle', el:el, patch:{ weight: / not bold| unbold| regular/.test(pl) ? null : 800 } };
+      if (/ italic/.test(pl)) return { kind:'elstyle', el:el, patch:{ italic: !/ not italic| unitalic/.test(pl) } };
+    }
+
     /* typewriter guard: "type it out" is an effect, not a word change */
     if (/^typewriter\b/.test(low) || low === 'type it' || low === 'type out' || /^typing\b/.test(low)){
       return { kind:'effect', name:'typewriter' };
@@ -1595,6 +1641,7 @@
       case 'wait': return 'wait ' + st.seconds + 's';
       case 'wordpos': return 'move word';
       case 'elstyle': return 'style element';
+      case 'elcount': return 'count up';
     }
     return st.kind;
   }
@@ -1602,6 +1649,7 @@
   function parseSequence(raw){
     var s = String(raw || '').trim();
     if (!s) return null;
+    s = s.replace(/(\d),(\d)/g, '$1$2'); /* "1,250" is one number, not two segments */
     var m;
     /* "change the word motion to Ashfan after the bounce" — the after-part runs first */
     if ((m = s.match(/^([\s\S]*?)\s+after\s+(?:the\s+)?([a-z][a-z ]*)$/i))){
@@ -1967,16 +2015,32 @@
         var sh = document.createElement('div');
         sh.className = 'el-shape';
         var sz = 90 * el.scale;
-        sh.style.width = sz + 'px'; sh.style.height = sz + 'px';
-        sh.style.background = el.color || theme().neon;
-        sh.style.borderRadius = el.shape === 'rect' ? '12px' : '50%';
+        var wid = sz * (el.shape === 'pill' ? (el.w || 3.2) : (el.w || 1));
+        sh.style.width = wid + 'px'; sh.style.height = sz + 'px';
+        if (el.shape === 'soft'){
+          sh.style.background = 'radial-gradient(circle at center, ' + (el.color || theme().neon) + ' 0%, transparent 68%)';
+        } else if (el.grad && el.grad.length === 2){
+          sh.style.background = 'linear-gradient(180deg, ' + el.grad[0] + ', ' + el.grad[1] + ')';
+        } else {
+          sh.style.background = el.color || theme().neon;
+        }
+        sh.style.borderRadius = el.shape === 'rect' ? '12px' : el.shape === 'pill' ? '999px' : '50%';
+        if (el.glow) sh.style.boxShadow = '0 0 ' + Math.round(sz * 0.45) + 'px ' + el.glow;
         inner.appendChild(sh);
       } else {
         var tx = document.createElement('span');
         tx.className = 'el-text';
-        tx.textContent = el.text || 'LABEL';
+        tx.textContent = el.count ? formatCount(el.count.from, el.count) : (el.text || 'LABEL');
         tx.style.fontSize = (30 * el.scale) + 'px';
-        if (el.color) tx.style.color = el.color;
+        if (el.weight) tx.style.fontWeight = el.weight;
+        if (el.italic) tx.style.fontStyle = 'italic';
+        if (el.grad && el.grad.length === 2){
+          tx.style.backgroundImage = 'linear-gradient(180deg, ' + el.grad[0] + ', ' + el.grad[1] + ')';
+          tx.style.webkitBackgroundClip = 'text';
+          tx.style.backgroundClip = 'text';
+          tx.style.color = 'transparent';
+        } else if (el.color) tx.style.color = el.color;
+        if (el.glow) tx.style.textShadow = '0 0 18px ' + el.glow + ', 0 0 46px ' + el.glow;
         inner.appendChild(tx);
       }
       d.appendChild(inner);
@@ -2061,6 +2125,15 @@
       a: r.a, b: r.b,
       motions: Array.isArray(spec.motions) ? spec.motions : []
     };
+    if (spec.fadeIn != null) el.fadeIn = clamp(+spec.fadeIn, 0, 2);
+    if (spec.fadeOut != null) el.fadeOut = clamp(+spec.fadeOut, 0, 2);
+    if (Array.isArray(spec.grad) && spec.grad.length === 2) el.grad = [String(spec.grad[0]), String(spec.grad[1])];
+    if (spec.glow) el.glow = String(spec.glow);
+    if (spec.weight) el.weight = +spec.weight;
+    if (spec.italic) el.italic = true;
+    if (spec.w != null) el.w = clamp(+spec.w, 0.5, 8);
+    if (spec.opacity != null) el.opacity = clamp(+spec.opacity, 0, 1);
+    if (spec.count && isFinite(+spec.count.to)) el.count = sanitizeCount(spec.count);
     proj.elements.push(el);
     selEl = el.id;
     renderElements(); renderTimeline(); syncElPanel();
@@ -2068,11 +2141,26 @@
     say('<b>element added.</b> drag it inside the stage.');
     return el.id;
   }
+  function sanitizeCount(c){
+    c = c || {};
+    return { from: isFinite(+c.from) ? +c.from : 0, to: isFinite(+c.to) ? +c.to : 0,
+             decimals: clamp(Math.round(+c.decimals || 0), 0, 3),
+             prefix: String(c.prefix || '').slice(0, 6), suffix: String(c.suffix || '').slice(0, 6),
+             commas: c.commas !== false };
+  }
   function updateElement(id, patch){
     var el = findEl(id); if (!el || !patch) return;
     ['text','src','shape','color','depth'].forEach(function(k){
       if (patch[k] != null) el[k] = patch[k];
     });
+    if ('grad' in patch) el.grad = (Array.isArray(patch.grad) && patch.grad.length === 2) ? [String(patch.grad[0]), String(patch.grad[1])] : null;
+    if ('glow' in patch) el.glow = patch.glow ? String(patch.glow) : null;
+    if ('weight' in patch) el.weight = patch.weight ? +patch.weight : null;
+    if ('italic' in patch) el.italic = !!patch.italic;
+    if (patch.fadeIn != null) el.fadeIn = clamp(+patch.fadeIn, 0, 2);
+    if (patch.fadeOut != null) el.fadeOut = clamp(+patch.fadeOut, 0, 2);
+    if (patch.w != null) el.w = clamp(+patch.w, 0.5, 8);
+    if ('count' in patch) el.count = patch.count ? sanitizeCount(patch.count) : null;
     if (patch.x != null) el.x = clamp01(+patch.x);
     if (patch.y != null) el.y = clamp01(+patch.y);
     if (patch.scale != null) el.scale = clamp(+patch.scale, 0.1, 5);
@@ -2590,6 +2678,10 @@
       case 'elstyle':
         if (st.el){ updateElement(st.el.id, st.patch); say('<b>styled.</b> the ' + elLabel(st.el) + ' element.'); }
         return;
+      case 'elcount':
+        if (st.el){ updateElement(st.el.id, { count:{ from:st.from, to:st.to, suffix:st.suffix || '', prefix:st.prefix || '' } });
+          say('<b>count-up.</b> the ' + elLabel(st.el) + ' counts across its time on stage.'); }
+        return;
     }
   }
   function scheduleRepeats(name, times){
@@ -2772,12 +2864,45 @@
     tlPlayhead.style.left = (proj.duration ? (pb.t / proj.duration) * 100 : 0) + '%';
     tlTime.textContent = fmtT(pb.t) + ' / ' + proj.duration + 's';
   }
+  function formatCount(v, c){
+    var dec = c.decimals || 0;
+    var str = v.toFixed(dec);
+    if (c.commas !== false){
+      var parts = str.split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      str = parts.join('.');
+    }
+    return (c.prefix || '') + str + (c.suffix || '');
+  }
+  function applyElementDynamics(t){
+    proj.elements.forEach(function(el){
+      var d = elNodes[el.id];
+      if (!d || d.style.display === 'none') return;
+      if (el.fadeIn > 0 || el.fadeOut > 0){
+        var base = (el.opacity != null) ? el.opacity : 1;
+        var f = 1;
+        if (el.fadeIn > 0) f *= smooth01((t - el.a) / el.fadeIn);
+        if (el.fadeOut > 0) f *= smooth01((el.b - t) / el.fadeOut);
+        d.style.opacity = (base * f).toFixed(3);
+      }
+      if (el.count && el.kind === 'text'){
+        var inner = elInnerNodes[el.id];
+        var span = inner ? inner.firstChild : null;
+        if (!span) return;
+        var len = Math.max(0.01, (el.b - el.a) * 0.92);
+        var pr = clamp01((t - el.a) / len);
+        var e = pr >= 1 ? 1 : 1 - Math.pow(2, -10 * pr);
+        span.textContent = formatCount(el.count.from + (el.count.to - el.count.from) * e, el.count);
+      }
+    });
+  }
   function applyFrame(t, now){
     applyBgAt(t);
     applyWordAt(t);
     applyMotion(t, now || performance.now());
     applyElementMotion(t);
     updateElementVisibility(t);
+    applyElementDynamics(t);
     updatePlayheadUI();
   }
   function play(){
