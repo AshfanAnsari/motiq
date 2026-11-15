@@ -475,7 +475,8 @@
   /* ---------- auto-hide chrome during playback / recording ---------- */
   header,.panel,.controls,.timeline,.edge-tab{transition:opacity .45s ease}
   body.ui-hidden header, body.ui-hidden .panel, body.ui-hidden .controls,
-  body.ui-hidden .timeline, body.ui-hidden .edge-tab{opacity:0;pointer-events:none}
+  body.ui-hidden .timeline, body.ui-hidden .edge-tab, body.ui-hidden .edit-hint,
+  body.word-gone .edit-hint{opacity:0;pointer-events:none}
 
   /* ---------- timeline ---------- */
   .timeline{
@@ -856,6 +857,18 @@
     return 'radial-gradient(ellipse at center, ' + col + ' 0%, transparent 68%)';
   }
   function letters(){ return wordEl.querySelectorAll('.ch'); }
+  function colorIsInvisible(c){
+    if (!c) return false;
+    c = String(c).trim().toLowerCase();
+    if (c === 'transparent') return true;
+    if (/^#[0-9a-f]{8}$/.test(c)) return c.slice(7) === '00';
+    var m = /^(?:rgba|hsla)\([^)]*,\s*(0(?:\.0+)?)\s*\)$/.exec(c);
+    return !!m;
+  }
+  function syncWordGone(){
+    var gone = (typeof wordColor !== 'undefined') && colorIsInvisible(wordColor);
+    document.body.classList.toggle('word-gone', !!gone);
+  }
 
   function buildWord(text){
     killActions();
@@ -870,6 +883,7 @@
     if (typeof wordColor !== 'undefined' && wordColor && !state.neon && !state.rainbow){
       Array.prototype.forEach.call(wordEl.querySelectorAll('.ch'), function(sp){ sp.style.color = wordColor; });
     }
+    syncWordGone();
     if (typeof wordShadow !== 'undefined' && wordShadow && WORD_SHADOWS[wordShadow]){
       Array.prototype.forEach.call(wordEl.querySelectorAll('.ch'), function(sp){ sp.style.textShadow = WORD_SHADOWS[wordShadow]; });
     }
@@ -1072,6 +1086,23 @@
         .to(wordEl, { rotation:0, duration:.5, ease:'sine.inOut' });
       say('<b>swinging.</b> a pendulum, losing steam.');
     },
+    fly: function(){
+      prepLetters();
+      var els = letters();
+      gsap.set(wordEl, { transformOrigin:'50% 50%' });
+      var tl = gsap.timeline();
+      /* wing-beats: the letters flap in a staggered wave for the whole flight */
+      tl.to(els, { y:'-0.16em', duration:.2, ease:'sine.inOut', stagger:.045,
+          yoyo:true, repeat:9 }, 0);
+      /* take-off: climb, bank, drift across */
+      tl.to(wordEl, { y:'-0.85em', x:'0.55em', rotation:-5, duration:.75, ease:'power2.out' }, 0);
+      /* glide: level out, bank the other way */
+      tl.to(wordEl, { y:'-0.68em', x:'1.15em', rotation:4, duration:.85, ease:'sine.inOut' }, .75);
+      /* come home: swoop back down to rest */
+      tl.to(wordEl, { y:0, x:0, rotation:0, duration:.9, ease:'power2.inOut' }, 1.6);
+      tl.to(els, { y:0, duration:.3, ease:'power2.out', overwrite:'auto' }, 2.3);
+      say('<b>flying.</b> up, across, and home — like a bird.');
+    },
     zoom: function(){
       killActions();
       gsap.timeline()
@@ -1175,7 +1206,7 @@
     reset: function(){
       killActions(); resetLetters(.45);
       clearLetterFx();
-      gsap.set(wordEl, { x:0, rotation:0, scale:1, filter:'blur(0px)' });
+      gsap.set(wordEl, { x:0, y:0, rotation:0, scale:1, filter:'blur(0px)' });
       state.italic = false; state.scale = 1; state.speed = 1; state.colorIdx = -1;
       if (typeof wordColor !== 'undefined' && wordColor){ wordColor = null; Array.prototype.forEach.call(letters(), function(sp){ sp.style.color = ''; }); }
       if (typeof wordShadow !== 'undefined' && wordShadow){ wordShadow = null; Array.prototype.forEach.call(letters(), function(sp){ sp.style.textShadow = ''; }); }
@@ -1330,7 +1361,7 @@
      "change the word motion to Ashfan after the bounce", and effects can
      aim at a selected element: "bounce the circle", "move it up". */
   var SUGGESTIONS = ['bounce','drop','glitch','scramble','neon','rainbow','flip','stretch',
-                     'typewriter','melt','explode','spin','splash of color','swing','make it big',
+                     'typewriter','melt','explode','spin','splash of color','swing','make it big','fly like a bird',
                      'bounce then say ASHFAN','change the word to ASHFAN after the bounce'];
   var suggIdx = 0;
 
@@ -1350,6 +1381,7 @@
     if (/( bounce| jump| hop )/.test(t)) return 'bounce';
     if (/( drop| fall| falling| fell )/.test(t)) return 'drop';
     if (/( rise| arise| emerge)/.test(t)) return 'rise';
+    if (/( fly| flying| bird| soar| flap| take off| take flight)/.test(t)) return 'fly';
     if (/ flip/.test(t)) return 'flip';
     if (/( spin| rotate| twirl)/.test(t)) return 'spin';
     if (/( glitch| static| distort| corrupt)/.test(t)) return 'glitch';
@@ -1643,6 +1675,7 @@
       ['Rise','rise','from below'], ['Explode','explode','shatter + return'],
       ['Spin','spin','full turn'], ['Flip','flip','3d cascade'],
       ['Wave','wave','sine cascade'], ['Swing','swing','pendulum'],
+      ['Fly like a bird','fly','take off & glide'],
       ['Shake','shake','quick tremble'], ['Zoom punch','zoom','toward you']
     ]},
     { name:'Style', items:[
@@ -2079,7 +2112,7 @@
 
   /* ---------- fx clips: prompt/panel effects become clips when a range is selected ---------- */
   var CLIP_KEYS = { bounce:1, melt:1, explode:1, spin:1, wave:1, shake:1, drop:1, rise:1,
-                    flip:1, swing:1, zoom:1, stretch:1, blur:1, glitch:1, typewriter:1, scramble:1 };
+                    flip:1, swing:1, fly:1, zoom:1, stretch:1, blur:1, glitch:1, typewriter:1, scramble:1 };
   var rawFx = {};
   function addFxClip(name, range, target){
     if (!actions[name] && name.indexOf('wordcolor:') !== 0 && name.indexOf('wordshadow:') !== 0) return;
@@ -2116,7 +2149,7 @@
 
   /* ---------- effect durations (sequence timing) ---------- */
   var FX_DUR = { bounce:1.35, melt:2.45, explode:2.0, spin:1.25, wave:1.35, shake:0.4,
-    drop:1.5, rise:1.1, flip:1.05, swing:2.85, zoom:0.85, stretch:1.5, blur:1.4,
+    drop:1.5, rise:1.1, flip:1.05, swing:2.85, fly:2.6, zoom:0.85, stretch:1.5, blur:1.4,
     glitch:0.75, typewriter:1.35, scramble:1.1, italics:0.7, upright:0.7, big:0.85,
     small:0.7, slow:0.3, fast:0.3, neon:0.5, plain:0.4, rainbow:0.6, color:0.9, reset:0.6 };
   function fxDur(name){ return FX_DUR[name] || 0.9; }
@@ -2209,6 +2242,15 @@
           .to(node, { rotation:-9, duration:.65, ease:'sine.inOut' })
           .to(node, { rotation:5, duration:.6, ease:'sine.inOut' })
           .to(node, { rotation:0, duration:.55, ease:'sine.inOut' }); break;
+      case 'fly':
+        /* a bird's flight: climb with flap-beats, glide across, swoop home */
+        gsap.timeline({ onComplete:done })
+          .to(node, { y:-56, x:24, rotation:-6, duration:.55, ease:'power2.out' })
+          .to(node, { y:-72, x:48, rotation:3, duration:.3, ease:'sine.inOut' })
+          .to(node, { y:-56, x:72, rotation:6, duration:.3, ease:'sine.inOut' })
+          .to(node, { y:-70, x:88, rotation:2, duration:.3, ease:'sine.inOut' })
+          .to(node, { y:-52, x:56, rotation:-3, duration:.4, ease:'sine.inOut' })
+          .to(node, { y:0, x:0, rotation:0, duration:.7, ease:'power2.inOut' }); break;
       case 'typewriter': case 'scramble':
         elementTextFx(name, el, node, done); break;
       case 'big':
@@ -2320,10 +2362,10 @@
   /* ---------- parallel prompts: effect + letter conversion at the same time ----------
      "bounce and keep changing the letters to ASHFAN one by one while bouncing"
      The conversion is letter-by-letter and finishes BEFORE the effect ends. */
-  var PARALLEL_FX = ['bounce', 'spin', 'wave', 'drop', 'swing', 'shake', 'flip', 'rise', 'blur', 'stretch', 'glitch', 'zoom'];
+  var PARALLEL_FX = ['bounce', 'spin', 'wave', 'drop', 'swing', 'shake', 'flip', 'rise', 'blur', 'stretch', 'glitch', 'zoom', 'fly'];
   var FX_GERUNDS = { bouncing:'bounce', spinning:'spin', waving:'wave', dropping:'drop',
     swinging:'swing', shaking:'shake', flipping:'flip', rising:'rise', blurring:'blur',
-    stretching:'stretch', glitching:'glitch', zooming:'zoom' };
+    stretching:'stretch', glitching:'glitch', zooming:'zoom', flying:'fly' };
   var convTween = null;
   function matchParallelFxWord(raw){
     var c = ' ' + String(raw).toLowerCase().replace(/\s+/g, ' ') + ' ';
@@ -2415,6 +2457,7 @@
   var wordPos = { x:0, y:0 };
   function setWordColor(hex){
     wordColor = hex || null;
+    syncWordGone();
     if (!wordColor){
       Array.prototype.forEach.call(letters(), function(sp){ sp.style.color = ''; });
       say('<b>word colour cleared.</b> back to the piece theme ink.');
