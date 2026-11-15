@@ -145,6 +145,9 @@
   .inbox-text{flex:1;font-size:12px;line-height:1.4;word-break:break-word}
   .inbox-x{background:none;border:none;color:var(--mute);cursor:pointer;font-size:15px;line-height:1;padding:0}
   .inbox-x:hover{color:var(--ink)}
+  .inbox-text{display:block}
+  .inbox-status{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-top:3px}
+  .inbox-reply{font-size:11.5px;color:var(--mute);margin-top:3px;line-height:1.45}
   .opt-group{margin-bottom:20px}
   .opt-group h4{
     font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
@@ -772,12 +775,12 @@
       </div>
       <div class="opt-group" id="jarvisBox">
         <h4>Jarvis</h4>
-        <p class="opt-note" style="margin-bottom:8px">This page is connected to Jarvis. Type anything in the prompt bar — if MOTIQ can't do it yet, it lands in this inbox. Send it, and Jarvis extends MOTIQ's code so the same prompt works. You can also start a prompt with "Jarvis," to send it straight here.</p>
+        <p class="opt-note" style="margin-bottom:8px">This page is connected to Jarvis through a live backend. Type anything in the prompt bar — if MOTIQ can't do it yet, it's sent to Jarvis instantly and his reply lands right here. Start a prompt with "Jarvis," to send it straight to him.</p>
         <div id="inboxList"></div>
         <p class="opt-note" id="inboxEmpty">Inbox empty — try something impossible.</p>
         <div class="row">
-          <button type="button" class="mini-btn" id="inboxSend">Send to Jarvis</button>
-          <button type="button" class="mini-btn" id="inboxClear">Clear sent</button>
+          <button type="button" class="mini-btn" id="inboxSend">Connected to Jarvis</button>
+          <button type="button" class="mini-btn" id="inboxClear">Clear finished</button>
         </div>
       </div>
     </div>
@@ -1572,7 +1575,7 @@
     var jx = String(raw).trim().match(/^jarvis[:,]?\s+(.+)$/i);
     if (jx){
       inboxAdd(jx[1].trim());
-      say('<b>saved to your Jarvis inbox.</b> send it from the right panel — Jarvis extends MOTIQ so it works here.');
+      say('<b>sent straight to Jarvis.</b> watch the Jarvis inbox (right panel) — his reply lands there, and he builds it into MOTIQ.');
       return;
     }
     var par = null;
@@ -1586,7 +1589,7 @@
     if (!steps || !steps.length){
       unknownCommand();
       inboxAdd(String(raw).trim());
-      say('hmm — MOTIQ can\'t do that <b>yet</b>. saved to your <b>Jarvis inbox</b> (right panel) — send it from there and Jarvis extends MOTIQ so the same prompt works.');
+      say('hmm — MOTIQ can\'t do that <b>yet</b>. sent straight to <b>Jarvis</b> — watch the inbox (right panel) for his reply; he\'ll build it into MOTIQ so the same prompt works.');
       return;
     }
     if (steps.length === 1){ execStepNow(steps[0]); return; }
@@ -3044,7 +3047,16 @@
   buildWord('MOTION');
   startAmbient();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ /* metrics settle */ });
-  /* ---------- Jarvis inbox: prompts MOTIQ can't do yet, routed to Jarvis ---------- */
+  /* ---------- Jarvis backend: prompts MOTIQ can't do yet go straight to Jarvis ----------
+     Transport: the dedicated "motiq" Supabase project. The publishable key is
+     public by design; its table policies only let it create fresh 'pending'
+     requests, read rows and delete rows. Jarvis watches the table, builds the
+     capability, and replies by updating the row — the inbox polls every 5s
+     and shows his status + reply live. */
+  var MOTIQ_API = {
+    url: 'https://jlvbetakxfxfwjrcvbib.supabase.co/rest/v1/motiq_requests',
+    key: 'sb_publishable_mJmPDrEZ-g8lb2I6j8yGiw_2_YLOdIO'
+  };
   var INBOX_KEY = 'motiq-inbox-v1';
   function inboxLoad(){
     try { return JSON.parse(localStorage.getItem(INBOX_KEY) || '[]'); } catch (e) { return []; }
@@ -3052,14 +3064,82 @@
   function inboxSave(list){
     try { localStorage.setItem(INBOX_KEY, JSON.stringify(list.slice(0, 30))); } catch (e) {}
   }
+  function motiqHeaders(){
+    return { 'apikey': MOTIQ_API.key, 'Authorization': 'Bearer ' + MOTIQ_API.key, 'Content-Type': 'application/json' };
+  }
+  function motiqSend(item){
+    fetch(MOTIQ_API.url, {
+      method: 'POST',
+      headers: Object.assign(motiqHeaders(), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify({ prompt: item.text })
+    }).then(function(r){ if (!r.ok) throw new Error('send ' + r.status); return r.json(); })
+      .then(function(rows){
+        if (rows && rows[0] && rows[0].id != null){
+          var list = inboxLoad();
+          list.forEach(function(x){
+            if (x.text === item.text && x.reqId == null){ x.reqId = rows[0].id; x.status = 'pending'; }
+          });
+          inboxSave(list);
+          renderInbox();
+        }
+      })
+      .catch(function(){ /* stays queued; retried automatically */ });
+  }
+  function motiqPoll(){
+    fetch(MOTIQ_API.url + '?select=id,prompt,status,reply,created_at&order=id.desc&limit=30', { headers: motiqHeaders() })
+      .then(function(r){ if (!r.ok) throw new Error('poll ' + r.status); return r.json(); })
+      .then(function(rows){
+        var list = inboxLoad();
+        var changed = false;
+        rows.forEach(function(row){
+          var found = null;
+          list.forEach(function(x){ if (x.reqId === row.id) found = x; });
+          if (!found){
+            list.forEach(function(x){ if (!x.reqId && x.text === row.prompt) found = x; });
+            if (found){ found.reqId = row.id; changed = true; }
+          }
+          if (!found){
+            list.unshift({ text: row.prompt, at: Date.parse(row.created_at) || Date.now(),
+              status: row.status, reply: row.reply || null, reqId: row.id });
+            changed = true;
+            return;
+          }
+          if (found.status !== row.status || (found.reply || null) !== (row.reply || null)){
+            found.status = row.status;
+            found.reply = row.reply || null;
+            changed = true;
+          }
+        });
+        list.forEach(function(x){ if (x.status === 'queued') motiqSend(x); });
+        if (changed){ inboxSave(list); renderInbox(); }
+      })
+      .catch(function(){});
+  }
   function inboxAdd(text){
     text = String(text || '').trim();
     if (!text) return;
     var list = inboxLoad();
-    var dup = list.some(function(x){ return x.text === text && x.status === 'pending'; });
-    if (!dup){ list.unshift({ text:text, at:Date.now(), status:'pending' }); inboxSave(list); }
+    var existing = null;
+    list.forEach(function(x){
+      if (x.text === text && x.status !== 'done' && x.status !== 'failed') existing = x;
+    });
+    if (!existing){
+      existing = { text: text, at: Date.now(), status: 'queued', reply: null, reqId: null };
+      list.unshift(existing);
+      inboxSave(list);
+    }
     renderInbox();
+    if (!existing.reqId) motiqSend(existing);
   }
+  var INBOX_STATUS = {
+    queued: 'queued — sending…',
+    pending: 'with Jarvis — waiting',
+    seen: 'Jarvis has it — working on it',
+    building: 'Jarvis is building it',
+    done: 'done',
+    question: 'Jarvis needs one answer',
+    failed: 'could not be built'
+  };
   function renderInbox(){
     var box = document.getElementById('inboxList');
     if (!box) return;
@@ -3069,48 +3149,68 @@
     if (empty) empty.style.display = list.length ? 'none' : '';
     list.forEach(function(item, idx){
       var d = document.createElement('div');
-      d.className = 'inbox-item' + (item.status === 'sent' ? ' sent' : '');
+      d.className = 'inbox-item' + (item.status === 'done' ? ' sent' : '');
+      var main = document.createElement('div');
+      main.style.flex = '1';
       var t = document.createElement('span');
       t.className = 'inbox-text';
-      t.textContent = item.text + (item.status === 'sent' ? ' — sent' : '');
+      t.textContent = item.text;
+      main.appendChild(t);
+      var st = document.createElement('div');
+      st.className = 'inbox-status';
+      st.textContent = INBOX_STATUS[item.status] || item.status;
+      main.appendChild(st);
+      if (item.reply){
+        var rp = document.createElement('div');
+        rp.className = 'inbox-reply';
+        rp.textContent = 'Jarvis: ' + item.reply;
+        main.appendChild(rp);
+      }
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'inbox-x'; b.textContent = '\u00d7'; b.title = 'Remove';
       b.setAttribute('aria-label', 'Remove from inbox');
       b.addEventListener('click', function(){
-        var l = inboxLoad(); l.splice(idx, 1); inboxSave(l); renderInbox();
+        var l = inboxLoad();
+        var it = l[idx];
+        l.splice(idx, 1);
+        inboxSave(l);
+        renderInbox();
+        if (it && it.reqId != null){
+          fetch(MOTIQ_API.url + '?id=eq.' + it.reqId, { method: 'DELETE', headers: motiqHeaders() }).catch(function(){});
+        }
       });
-      d.appendChild(t); d.appendChild(b);
+      d.appendChild(main);
+      d.appendChild(b);
       box.appendChild(d);
     });
     var send = document.getElementById('inboxSend');
     if (send){
-      var pend = list.filter(function(x){ return x.status === 'pending'; }).length;
-      send.textContent = pend ? ('Send to Jarvis (' + pend + ')') : 'Send to Jarvis';
-      send.disabled = !pend;
+      var q = list.filter(function(x){ return x.status === 'queued'; }).length;
+      send.textContent = q ? ('Retry send (' + q + ')') : 'Connected to Jarvis';
+      send.disabled = !q;
     }
   }
   var inboxSendBtn = document.getElementById('inboxSend');
   if (inboxSendBtn) inboxSendBtn.addEventListener('click', function(){
-    var list = inboxLoad();
-    var pend = list.filter(function(x){ return x.status === 'pending'; });
-    if (!pend.length) return;
-    var body = 'MOTIQ capability request(s) from the prompt bar:\n\n'
-      + pend.map(function(x, i){ return (i + 1) + '. ' + x.text; }).join('\n')
-      + '\n\nPlease extend MOTIQ so these prompts work.';
-    var url = 'https://github.com/AshfanAnsari/motiq/issues/new?title='
-      + encodeURIComponent('MOTIQ request: ' + (pend.length === 1 ? pend[0].text.slice(0, 60) : pend.length + ' prompts'))
-      + '&body=' + encodeURIComponent(body);
-    window.open(url, '_blank');
-    list.forEach(function(x){ if (x.status === 'pending') x.status = 'sent'; });
-    inboxSave(list); renderInbox();
-    say('<b>sent to Jarvis.</b> the request opens in a new tab — press Submit there and Jarvis builds it into MOTIQ.');
+    inboxLoad().forEach(function(x){ if (x.status === 'queued') motiqSend(x); });
   });
   var inboxClearBtn = document.getElementById('inboxClear');
   if (inboxClearBtn) inboxClearBtn.addEventListener('click', function(){
-    inboxSave(inboxLoad().filter(function(x){ return x.status !== 'sent'; }));
+    inboxSave(inboxLoad().filter(function(x){ return x.status !== 'done' && x.status !== 'failed'; }));
     renderInbox();
   });
+  /* migrate pre-backend items: anything unsent goes to the backend now */
+  (function(){
+    var list = inboxLoad();
+    var dirty = false;
+    list.forEach(function(x){
+      if (!x.reqId && (x.status === 'sent' || x.status === 'pending')){ x.status = 'queued'; dirty = true; }
+    });
+    if (dirty) inboxSave(list);
+  })();
   renderInbox();
+  motiqPoll();
+  setInterval(motiqPoll, 5000);
 
   window.__motiq = {
     /* legacy surface */
