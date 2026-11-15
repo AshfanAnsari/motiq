@@ -90,7 +90,7 @@
   header{
     position:relative;z-index:5;
     display:flex;align-items:center;gap:18px;flex-wrap:wrap;
-    padding:20px 28px;
+    padding:11px 22px;
   }
   .logo{
     font-weight:800;font-stretch:118%;
@@ -111,8 +111,8 @@
     flex:0 0 auto;display:flex;flex-direction:column;min-height:0;
     background:var(--bar);backdrop-filter:blur(10px);
   }
-  .panel-left{width:248px;border-right:1px solid var(--line)}
-  .panel-right{width:216px;border-left:1px solid var(--line)}
+  .panel-left{width:224px;border-right:1px solid var(--line)}
+  .panel-right{width:198px;border-left:1px solid var(--line)}
   .panel-head{
     display:flex;align-items:center;justify-content:space-between;
     padding:16px 16px 8px;
@@ -265,7 +265,7 @@
   .controls{
     position:relative;z-index:5;
     display:flex;flex-direction:column;align-items:center;
-    padding:0 20px calc(26px + env(safe-area-inset-bottom));
+    padding:0 20px calc(12px + env(safe-area-inset-bottom));
     gap:12px;
   }
   #feedback{
@@ -376,6 +376,23 @@
   @media (prefers-reduced-motion: reduce){ .rec-btn.recording .rec-dot{animation:none} }
   @media (max-width:560px){ .rec-btn{padding:0 13px;font-size:11px} }
 
+
+  /* element inner wrapper: effects animate this, outer keeps position */
+  .el-inner{display:block;will-change:transform,opacity,filter}
+  .clip[data-track="words"]{background:color-mix(in srgb, var(--accent) 78%, transparent);color:#fff}
+  #targetChip{
+    font-family:inherit;font-size:11.5px;font-weight:600;letter-spacing:.08em;
+    color:var(--mute);background:transparent;border:1px solid var(--line);
+    border-radius:999px;padding:5px 13px;cursor:pointer;
+  }
+  #targetChip b{color:var(--accent);letter-spacing:.1em}
+  #targetChip:hover{border-color:var(--line-strong);color:var(--ink)}
+  /* big preview: chrome collapses, stage frame takes the space */
+  body.preview-big header, body.preview-big .panel, body.preview-big .edge-tab{display:none}
+  body.preview-big .controls .chips, body.preview-big .controls #feedback{display:none}
+  body.preview-big .controls{padding-top:2px;gap:6px}
+  body.preview-big .timeline{padding:6px 12px 8px}
+  body.preview-big .tl-scroll{display:none}
   /* ================= STUDIO ================= */
   /* ---------- stage frame: the bounded motion area ---------- */
   .frame{
@@ -493,7 +510,7 @@
     transform:translateX(2px);font-variant-numeric:tabular-nums;pointer-events:none;
   }
   .tl-lane{
-    position:relative;height:26px;
+    position:relative;height:23px;
     border-bottom:1px solid var(--line);
   }
   .tl-lab{
@@ -502,7 +519,7 @@
     font-size:9.5px;letter-spacing:.14em;color:var(--mute);font-weight:700;
   }
   .clip{
-    position:absolute;top:3px;height:20px;border-radius:5px;
+    position:absolute;top:2px;height:19px;border-radius:5px;
     display:flex;align-items:center;padding:0 6px;
     font-size:10px;font-weight:700;letter-spacing:.03em;
     white-space:nowrap;overflow:hidden;cursor:pointer;
@@ -626,6 +643,7 @@
   <div class="tl-transport">
     <button type="button" class="tp-btn" id="tpPlay" aria-label="Play or pause">▶ Play</button>
     <button type="button" class="tp-btn" id="tpStop" aria-label="Stop">■ Stop</button>
+    <button type="button" class="tp-btn" id="previewBigBtn" aria-pressed="false">⛶ Big preview</button>
     <span class="tl-time" id="tlTime">0.0 / 10s</span>
     <label class="tl-lab-in">Len
       <input id="durInput" type="number" min="5" max="30" step="1" value="10" aria-label="Timeline length in seconds">s
@@ -638,6 +656,7 @@
     <button type="button" class="tp-btn" id="motRecBtn" aria-pressed="false">● Motion</button>
     <button type="button" class="tp-btn" id="elAddBtn" aria-expanded="false">＋ Element</button>
     <button type="button" class="tp-btn small" id="clipDelBtn" hidden>✕ Remove clip</button>
+    <button type="button" id="targetChip" title="What the prompt bar controls — click to reset to the word">Target: <b>WORD</b></button>
   </div>
   <div class="tl-scroll" id="tlScroll">
     <div class="tl-body" id="tlBody">
@@ -645,6 +664,7 @@
       <div class="tl-lane" data-track="bg"><span class="tl-lab">BG</span></div>
       <div class="tl-lane" data-track="motion"><span class="tl-lab">MO</span></div>
       <div class="tl-lane" data-track="fx"><span class="tl-lab">FX</span></div>
+      <div class="tl-lane" data-track="words"><span class="tl-lab">WD</span></div>
       <div class="tl-lane" data-track="elements"><span class="tl-lab">EL</span></div>
       <div class="tl-rangehl" id="tlRangeHl" hidden></div>
       <div class="tl-playhead" id="tlPlayhead"></div>
@@ -781,6 +801,9 @@
   ];
   var RAINBOW = ['#ff5252','#ff9f43','#f5cf4d','#57c96b','#4d9fff','#9b6bff'];
   var currentText = 'MOTION';
+  var baseWord = 'MOTION';       /* the word before any timeline word clips */
+  var targetElId = null;         /* element the prompt bar controls; null = the word */
+  var seqToken = 0;              /* cancels a running live sequence on a new command */
   var scrambleTween = null;
 
   function theme(){ return THEMES[state.theme]; }
@@ -1246,47 +1269,226 @@
     startRecording();
   });
 
-  /* ---------------- parser ---------------- */
+  /* ---------------- parser ----------------
+     Commands can CHAIN: "bounce then change the word to ASHFAN",
+     "change the word motion to Ashfan after the bounce", and effects can
+     aim at a selected element: "bounce the circle", "move it up". */
   var SUGGESTIONS = ['bounce','drop','glitch','scramble','neon','rainbow','flip','stretch',
-                     'typewriter','melt','explode','spin','splash of color','swing','make it big'];
+                     'typewriter','melt','explode','spin','splash of color','swing','make it big',
+                     'bounce then say ASHFAN','change the word to ASHFAN after the bounce'];
   var suggIdx = 0;
 
-  function runCommand(raw){
-    var t = ' ' + raw.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ') + ' ';
-    var m;
-    if ((m = raw.match(/^\s*(?:say|write|text|type)\s+(.+)$/i))){
-      var w = m[1].replace(/[^a-zA-Z0-9 ]/g,'').trim().slice(0,14);
-      if (w){ buildWord(w.toUpperCase()); say('<b>new words.</b> “' + w.toUpperCase() + '” — now move it.'); }
-      return;
+  function padLow(s){
+    return ' ' + String(s).toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ') + ' ';
+  }
+  function cleanWordIn(s){
+    return String(s || '').replace(/[^a-zA-Z0-9 ]/g,'').replace(/\s+/g,' ').trim().slice(0,14);
+  }
+  function detectEffect(t){
+    if (/( reset | normal | default | start over )/.test(t)) return 'reset';
+    if (/( glow off| neon off| no glow| plain )/.test(t)) return 'plain';
+    if (/ slow/.test(t)) return 'slow';
+    if (/( fast | speed| quicker| hurry)/.test(t)) return 'fast';
+    if (/( melt| drip| liquid)/.test(t)) return 'melt';
+    if (/( explode| shatter| burst| break| blast)/.test(t)) return 'explode';
+    if (/( bounce| jump| hop )/.test(t)) return 'bounce';
+    if (/( drop| fall| falling| fell )/.test(t)) return 'drop';
+    if (/( rise| arise| emerge)/.test(t)) return 'rise';
+    if (/ flip/.test(t)) return 'flip';
+    if (/( spin| rotate| twirl)/.test(t)) return 'spin';
+    if (/( glitch| static| distort| corrupt)/.test(t)) return 'glitch';
+    if (/( blur| foggy| unfocus| refocus| focus)/.test(t)) return 'blur';
+    if (/( stretch| rubber| elongate)/.test(t)) return 'stretch';
+    if (/( swing| pendulum| sway)/.test(t)) return 'swing';
+    if (/( scramble| shuffle| decode| random)/.test(t)) return 'scramble';
+    if (/( typewriter| typing| type it| type out)/.test(t)) return 'typewriter';
+    if (/( rainbow| colourful| colorful| pride)/.test(t)) return 'rainbow';
+    if (/( neon| glow)/.test(t)) return 'neon';
+    if (/( italic| slant| tilt| lean)/.test(t)) return 'italics';
+    if (/ upright| straighten/.test(t)) return 'upright';
+    if (/( big| bigger| grow| enlarge| huge| larger)/.test(t)) return 'big';
+    if (/( small| smaller| shrink| tiny)/.test(t)) return 'small';
+    if (/( zoom| punch| closer)/.test(t)) return 'zoom';
+    if (/( color| colour| splash| paint| flood)/.test(t)) return 'color';
+    if (/ wave| ripple/.test(t)) return 'wave';
+    if (/( shake| vibrate| tremble)/.test(t)) return 'shake';
+    return null;
+  }
+  function elLabel(el){
+    if (!el) return 'element';
+    return el.kind === 'text' ? (el.text || 'text') : el.kind === 'image' ? 'image' : (el.shape || 'shape');
+  }
+  function resolveElementRef(pl){
+    if (typeof proj === 'undefined' || !proj || !proj.elements || !proj.elements.length) return null;
+    var i, el;
+    for (i = 0; i < proj.elements.length; i++){
+      el = proj.elements[i];
+      if (el.kind === 'text' && el.text && pl.indexOf(' ' + el.text.toLowerCase() + ' ') !== -1) return el;
     }
-    if (/( reset | normal | default | start over )/.test(t)) return actions.reset();
-    if (/( glow off| neon off| no glow| plain )/.test(t)) return actions.plain();
-    if (/ slow/.test(t)) return actions.slow();
-    if (/( fast | speed| quicker| hurry)/.test(t)) return actions.fast();
-    if (/( melt| drip| liquid)/.test(t)) return actions.melt();
-    if (/( explode| shatter| burst| break| blast)/.test(t)) return actions.explode();
-    if (/( bounce| jump| hop )/.test(t)) return actions.bounce();
-    if (/( drop| fall| falling| fell )/.test(t)) return actions.drop();
-    if (/( rise| arise| emerge)/.test(t)) return actions.rise();
-    if (/ flip/.test(t)) return actions.flip();
-    if (/( spin| rotate| twirl)/.test(t)) return actions.spin();
-    if (/( glitch| static| distort| corrupt)/.test(t)) return actions.glitch();
-    if (/( blur| foggy| unfocus| refocus| focus)/.test(t)) return actions.blur();
-    if (/( stretch| rubber| elongate)/.test(t)) return actions.stretch();
-    if (/( swing| pendulum| sway)/.test(t)) return actions.swing();
-    if (/( scramble| shuffle| decode| random)/.test(t)) return actions.scramble();
-    if (/( typewriter| typing| type it| type out)/.test(t)) return actions.typewriter();
-    if (/( rainbow| colourful| colorful| pride)/.test(t)) return actions.rainbow();
-    if (/( neon| glow)/.test(t)) return actions.neon();
-    if (/( italic| slant| tilt| lean)/.test(t)) return actions.italics();
-    if (/ upright| straighten/.test(t)) return actions.upright();
-    if (/( big| bigger| grow| enlarge| huge| larger)/.test(t)) return actions.big();
-    if (/( small| smaller| shrink| tiny)/.test(t)) return actions.small();
-    if (/( zoom| punch| closer)/.test(t)) return actions.zoom();
-    if (/( color| colour| splash| paint| flood)/.test(t)) return actions.color();
-    if (/ wave| ripple/.test(t)) return actions.wave();
-    if (/( shake| vibrate| tremble)/.test(t)) return actions.shake();
-    unknownCommand();
+    function firstOf(pred){
+      for (var j = 0; j < proj.elements.length; j++) if (pred(proj.elements[j])) return proj.elements[j];
+      return null;
+    }
+    if (/ circle/.test(pl)) { el = firstOf(function(e){ return e.kind === 'shape' && e.shape === 'circle'; }); if (el) return el; }
+    if (/ rect| rectangle| square/.test(pl)) { el = firstOf(function(e){ return e.kind === 'shape' && e.shape === 'rect'; }); if (el) return el; }
+    if (/ logo| image| picture| photo/.test(pl)) { el = firstOf(function(e){ return e.kind === 'image'; }); if (el) return el; }
+    if (/ label| text element/.test(pl)) { el = firstOf(function(e){ return e.kind === 'text'; }); if (el) return el; }
+    if (targetElId){ el = findEl(targetElId); if (el) return el; }
+    if (/ element| it | this | that /.test(pl)) return proj.elements[proj.elements.length - 1];
+    return null;
+  }
+
+  function parseSegment(segRaw){
+    var seg = String(segRaw || '').trim();
+    if (!seg) return null;
+    var low = seg.toLowerCase();
+    var pl = padLow(seg);
+    var m, el, eff;
+
+    /* add an element */
+    if ((m = low.match(/^add\s+(?:a\s+|an\s+)?(?:text|label)\s*(?::\s*|\s+saying\s+|\s+that says\s+)?(.+)?$/))){
+      var txt = (cleanWordIn(m[1] || 'LABEL').toUpperCase() || 'LABEL').slice(0, 24);
+      return { kind:'addel', spec:{ kind:'text', text:txt } };
+    }
+    if ((m = low.match(/^add\s+(?:a\s+|an\s+)?(circle|rectangle|rect|square)$/))){
+      return { kind:'addel', spec:{ kind:'shape', shape: m[1] === 'circle' ? 'circle' : 'rect' } };
+    }
+    if (/^add\s+(?:a\s+|an\s+)?(logo|image|picture|photo)/.test(low)){
+      return { kind:'note', msg:'<b>images:</b> use + Element, Image / logo to add one — then control it here.' };
+    }
+    /* remove an element */
+    if (/( remove| delete)/.test(pl) && / element| circle| rect| rectangle| logo| image| label| it | this/.test(pl)){
+      el = resolveElementRef(pl);
+      if (el) return { kind:'removeel', el:el };
+    }
+    /* bring element to front / send to back */
+    if ((m = pl.match(/ bring .* (front|back) /)) || (m = pl.match(/ send .* (back) /))){
+      el = resolveElementRef(pl);
+      if (el) return { kind:'eldepth', el:el, depth: m[1] === 'front' ? 'front' : 'back' };
+    }
+    /* move an element */
+    if (/ move/.test(pl) || /^(up|down|left|right) /.test(pl)){
+      if (/ word/.test(pl)) return { kind:'note', msg:'<b>the word</b> moves with the Motion button — record a cursor path and it follows.' };
+      el = resolveElementRef(pl);
+      var dirM = pl.match(/ (up|down|left|right) /);
+      if (el && dirM){
+        var amt = / a lot| far/.test(pl) ? 0.22 : / a little| slightly| bit/.test(pl) ? 0.04 : 0.09;
+        var numM = pl.match(/ (\d+(?:\.\d+)?)\s*(%|percent)/);
+        if (numM) amt = Math.min(0.6, parseFloat(numM[1]) / 100);
+        return { kind:'moveel', el:el, dir:dirM[1], amt:amt };
+      }
+      if (el && / (center|centre|middle) /.test(pl)) return { kind:'moveel', el:el, dir:'center', amt:0 };
+    }
+    /* typewriter guard: "type it out" is an effect, not a word change */
+    if (/^typewriter\b/.test(low) || low === 'type it' || low === 'type out' || /^typing\b/.test(low)){
+      return { kind:'effect', name:'typewriter' };
+    }
+    /* change a text element's words (explicit element/label mention only) */
+    if ((m = seg.match(/(?:change|set|rename)\b[\s\S]*?\b(?:element|label)\b[\s\S]*?\bto\s+(.+)$/i))){
+      el = null;
+      if (typeof proj !== 'undefined' && proj && proj.elements){
+        for (var ei = 0; ei < proj.elements.length; ei++){
+          if (proj.elements[ei].kind === 'text'){ el = proj.elements[ei]; break; }
+        }
+        if (targetElId){
+          var tel2 = findEl(targetElId);
+          if (tel2 && tel2.kind === 'text') el = tel2;
+        }
+      }
+      if (el){
+        var et = cleanWordIn(m[1]).toUpperCase();
+        if (et) return { kind:'eltext', el:el, text:et.slice(0, 24) };
+      }
+    }
+    /* effect aimed at an element (explicit element mention) */
+    if (/ element| circle| rect| rectangle| logo| image| label/.test(pl)){
+      eff = detectEffect(pl);
+      el = resolveElementRef(pl);
+      if (eff && el) return { kind:'effect', name:eff, target:el.id };
+    }
+    /* change the main word */
+    if (!/ background| theme/.test(pl) && (!/ color| colour/.test(pl) || / word/.test(pl))){
+      if ((m = seg.match(/^(?:change|switch|set|turn|replace)(?:\s+the)?(?:\s+word|\s+text)?(?:\s+[a-z0-9]+)?\s+to\s+(.+)$/i))){
+        var w1 = cleanWordIn(m[1]).toUpperCase();
+        if (w1) return { kind:'word', text:w1 };
+      }
+      if ((m = seg.match(/^(?:become|turn into)\s+(.+)$/i))){
+        var w2 = cleanWordIn(m[1]).toUpperCase();
+        if (w2) return { kind:'word', text:w2 };
+      }
+      if ((m = seg.match(/^(?:say|write|text|type|show|display)\s+(.+)$/i))){
+        var w3 = cleanWordIn(m[1]).toUpperCase();
+        if (w3) return { kind:'word', text:w3 };
+      }
+    }
+    /* plain effect — goes to the selected element when one is targeted */
+    eff = detectEffect(pl);
+    if (eff){
+      var step = { kind:'effect', name:eff };
+      if (targetElId && !/ word/.test(pl)){
+        el = findEl(targetElId);
+        if (el) step.target = el.id;
+      }
+      return step;
+    }
+    return null;
+  }
+
+  function stepLabel(st){
+    if (!st) return '?';
+    switch (st.kind){
+      case 'word': return 'word to "' + st.text + '"';
+      case 'effect': return st.name + (st.target ? ' (element)' : '');
+      case 'eltext': return 'element text to "' + st.text + '"';
+      case 'addel': return st.spec.kind === 'text' ? 'add text "' + st.spec.text + '"' : 'add ' + st.spec.shape;
+      case 'removeel': return 'remove element';
+      case 'moveel': return 'move element ' + st.dir;
+      case 'eldepth': return 'element to ' + st.depth;
+      case 'note': return 'note';
+    }
+    return st.kind;
+  }
+
+  function parseSequence(raw){
+    var s = String(raw || '').trim();
+    if (!s) return null;
+    var m;
+    /* "change the word motion to Ashfan after the bounce" — the after-part runs first */
+    if ((m = s.match(/^([\s\S]*?)\s+after\s+(?:the\s+)?([a-z][a-z ]*)$/i))){
+      var headStep = parseSegment(m[1]);
+      var tailEff = detectEffect(padLow(m[2]));
+      if (headStep && tailEff) return [{ kind:'effect', name:tailEff }, headStep];
+    }
+    /* "after the bounce, change the word to Ashfan" */
+    if ((m = s.match(/^after\s+(?:the\s+)?([a-z][a-z ]*?)\s*(?:,|\bthen\b)\s*([\s\S]+)$/i))){
+      var firstEff = detectEffect(padLow(m[1]));
+      var restStep = parseSegment(m[2]);
+      if (firstEff && restStep) return [{ kind:'effect', name:firstEff }, restStep];
+    }
+    var parts = s.split(/\s*(?:,|;|\bthen\b|\bafter that\b|->)\s*/i).filter(function(x){ return x.trim(); });
+    var segs = [];
+    for (var i = 0; i < parts.length; i++){
+      var sub = parts[i].split(/\s+\band\b\s+/i);
+      if (sub.length > 1){
+        var parsed = sub.map(parseSegment);
+        if (parsed.every(function(x){ return !!x; })){ segs.push.apply(segs, parsed); continue; }
+      }
+      var one = parseSegment(parts[i]);
+      if (!one) return null;
+      segs.push(one);
+    }
+    return segs.length ? segs : null;
+  }
+
+  function runCommand(raw){
+    if (!raw || !String(raw).trim()) return;
+    seqToken++;
+    var steps = null;
+    try { steps = parseSequence(raw); } catch (e) { steps = null; }
+    if (!steps || !steps.length){ unknownCommand(); return; }
+    if (steps.length === 1){ execStepNow(steps[0]); return; }
+    if (selRange){ layStepsOnRange(steps, selRange); return; }
+    runLiveSequence(steps);
   }
 
   function unknownCommand(){
@@ -1386,7 +1588,7 @@
   var CHIP_DEFS = [
     ['bounce','bounce'], ['melt','melt'], ['explode','explode'], ['spin','spin'],
     ['wave','wave'], ['italics','italics'], ['go big','big'], ['splash of color','splash of color'],
-    ['slow down','slow down'], ['shake','shake'], ['reset','reset']
+    ['slow down','slow down'], ['shake','shake'], ['bounce → Ashfan','bounce then say ASHFAN'], ['reset','reset']
   ];
   var chipsEl = document.getElementById('chips');
   CHIP_DEFS.forEach(function(d){
@@ -1398,6 +1600,7 @@
 
   /* click the word → edit it inline */
   wordEl.addEventListener('click', function(){
+    targetElId = null; syncTargetUI();
     wordIn.value = wordEl.textContent;
     wordEl.style.visibility = 'hidden';
     editHint.style.visibility = 'hidden';
@@ -1409,7 +1612,7 @@
     wordIn.style.display = 'none';
     wordEl.style.visibility = 'visible';
     editHint.style.visibility = 'visible';
-    if (w) { buildWord(w.toUpperCase()); say('<b>new words.</b> now give them a move.'); }
+    if (w) { baseWord = w.toUpperCase(); buildWord(baseWord); say('<b>new words.</b> now give them a move.'); }
   }
   wordIn.addEventListener('blur', commitWord);
   wordIn.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); wordIn.blur(); } });
@@ -1442,12 +1645,13 @@
   var elFile     = document.getElementById('elFile');
   var bgFile     = document.getElementById('bgFile');
 
-  var proj = { duration:10, bg:[], motion:[], fx:[], elements:[] };
+  var proj = { duration:10, bg:[], motion:[], fx:[], elements:[], words:[] };
   var selRange = null;            // {a,b} | null
   var selClip  = null;            // {track, index} | null
   var selEl    = null;            // element id | null
   var elSeq    = 1;
   var elNodes  = {};
+  var elInnerNodes = {};
   var pb = { playing:false, t:0, raf:0, last:0, fired:{} };
 
   function clamp(v, a, b){ return Math.min(b, Math.max(a, v)); }
@@ -1459,7 +1663,7 @@
   function fitFrame(){
     var r = stageMain.getBoundingClientRect();
     if (r.width < 10 || r.height < 10) return;
-    var w = Math.min(r.width, r.height * 16 / 9);
+    var w = Math.max(120, Math.min(r.width - 6, (r.height - 6) * 16 / 9));
     frame.style.width = w + 'px';
     frame.style.height = (w * 9 / 16) + 'px';
   }
@@ -1571,18 +1775,20 @@
   }
   function renderElements(){
     [layerBack, layerMid, layerFront].forEach(function(c){ c.innerHTML = ''; });
-    elNodes = {};
+    elNodes = {}; elInnerNodes = {};
     proj.elements.forEach(function(el){
       var d = document.createElement('div');
       d.className = 'el' + (el.id === selEl ? ' sel' : '');
       d.setAttribute('data-id', el.id);
       d.style.left = (el.x * 100) + '%';
       d.style.top = (el.y * 100) + '%';
+      var inner = document.createElement('div');
+      inner.className = 'el-inner';
       if (el.kind === 'image'){
         var img = document.createElement('img');
         img.src = el.src || ''; img.alt = '';
         img.style.width = (150 * el.scale) + 'px';
-        d.appendChild(img);
+        inner.appendChild(img);
       } else if (el.kind === 'shape'){
         var sh = document.createElement('div');
         sh.className = 'el-shape';
@@ -1590,14 +1796,16 @@
         sh.style.width = sz + 'px'; sh.style.height = sz + 'px';
         sh.style.background = el.color || theme().neon;
         sh.style.borderRadius = el.shape === 'rect' ? '12px' : '50%';
-        d.appendChild(sh);
+        inner.appendChild(sh);
       } else {
         var tx = document.createElement('span');
         tx.className = 'el-text';
         tx.textContent = el.text || 'LABEL';
         tx.style.fontSize = (30 * el.scale) + 'px';
-        d.appendChild(tx);
+        inner.appendChild(tx);
       }
+      d.appendChild(inner);
+      elInnerNodes[el.id] = inner;
       d.addEventListener('pointerdown', function(e){ startElDrag(e, el.id); });
       planeFor(el.depth).appendChild(d);
       elNodes[el.id] = d;
@@ -1631,8 +1839,21 @@
   }
   function selectElement(id){
     selEl = id;
+    targetElId = id;
     renderElements();
     syncElPanel();
+    syncTargetUI();
+  }
+  function syncTargetUI(){
+    var chip = document.getElementById('targetChip');
+    if (!chip) return;
+    var el = targetElId ? findEl(targetElId) : null;
+    if (!el){
+      targetElId = null;
+      chip.innerHTML = 'Target: <b>WORD</b>';
+      return;
+    }
+    chip.innerHTML = 'Target: <b>' + elLabel(el).toUpperCase().slice(0, 18) + '</b> element';
   }
   function syncElPanel(){
     var g = document.getElementById('elGroup');
@@ -1662,7 +1883,8 @@
       y: spec.y != null ? clamp01(+spec.y) : 0.42,
       scale: spec.scale != null ? clamp(+spec.scale, 0.1, 5) : 1,
       depth: ['back','mid','front'].indexOf(spec.depth) !== -1 ? spec.depth : 'mid',
-      a: r.a, b: r.b
+      a: r.a, b: r.b,
+      motions: Array.isArray(spec.motions) ? spec.motions : []
     };
     proj.elements.push(el);
     selEl = el.id;
@@ -1685,9 +1907,16 @@
   }
   function removeElement(id){
     proj.elements = proj.elements.filter(function(e){ return e.id !== id; });
+    proj.fx = proj.fx.filter(function(c){ return c.target !== id; });
     if (selEl === id) selEl = null;
+    if (targetElId === id){ targetElId = null; syncTargetUI(); }
     renderElements(); renderTimeline(); syncElPanel();
   }
+  document.getElementById('targetChip').addEventListener('click', function(){
+    targetElId = null; selEl = null;
+    renderElements(); syncElPanel(); syncTargetUI();
+    say('<b>target: the word.</b> click any element to control it instead.');
+  });
   document.getElementById('elDepthRow').addEventListener('click', function(e){
     var b = e.target.closest('.depth-btn');
     if (b && selEl) updateElement(selEl, { depth: b.getAttribute('data-depth') });
@@ -1701,7 +1930,7 @@
   frame.addEventListener('pointerdown', function(e){
     if (cap.on) return;
     if (!e.target.closest('.el') && !e.target.closest('.stage-word')){
-      if (selEl){ selEl = null; renderElements(); syncElPanel(); }
+      if (selEl){ selEl = null; targetElId = null; renderElements(); syncElPanel(); syncTargetUI(); }
     }
   });
 
@@ -1709,13 +1938,16 @@
   var CLIP_KEYS = { bounce:1, melt:1, explode:1, spin:1, wave:1, shake:1, drop:1, rise:1,
                     flip:1, swing:1, zoom:1, stretch:1, blur:1, glitch:1, typewriter:1, scramble:1 };
   var rawFx = {};
-  function addFxClip(name, range){
+  function addFxClip(name, range, target){
     if (!actions[name]) return;
     var r = normRange(range);
-    proj.fx.push({ a:r.a, b:r.b, name:name });
+    var clip = { a:r.a, b:r.b, name:name };
+    if (target) clip.target = target;
+    proj.fx.push(clip);
     proj.fx.sort(function(x, y){ return x.a - y.a; });
     renderTimeline();
-    say('<b>fx clip added.</b> ' + name + ' at ' + fmtT(r.a) + '–' + fmtT(r.b) + 's — press play.');
+    say('<b>fx clip added.</b> ' + name + (target ? ' on an element' : '') +
+        ' at ' + fmtT(r.a) + '–' + fmtT(r.b) + 's — press play.');
   }
   Object.keys(CLIP_KEYS).forEach(function(k){
     rawFx[k] = actions[k];
@@ -1724,25 +1956,312 @@
       rawFx[k]();
     };
   });
-  function addEffectClip(name, range){ addFxClip(name, range); }
+  function addEffectClip(name, range, target){ addFxClip(name, range, target); }
   function applyEffect(name, opts){
-    if (opts && opts.range){ addFxClip(name, opts.range); return; }
+    if (opts && opts.range){ addFxClip(name, opts.range, opts.target); return; }
+    if (opts && opts.target){
+      var el = findEl(opts.target);
+      if (el){ runElementEffect(name, el); return; }
+    }
     if (rawFx[name]) rawFx[name]();
     else if (actions[name]) actions[name]();
     else runCommand(name);
   }
 
+
+  /* ---------- effect durations (sequence timing) ---------- */
+  var FX_DUR = { bounce:1.35, melt:2.45, explode:2.0, spin:1.25, wave:1.35, shake:0.4,
+    drop:1.5, rise:1.1, flip:1.05, swing:2.85, zoom:0.85, stretch:1.5, blur:1.4,
+    glitch:0.75, typewriter:1.35, scramble:1.1, italics:0.7, upright:0.7, big:0.85,
+    small:0.7, slow:0.3, fast:0.3, neon:0.5, plain:0.4, rainbow:0.6, color:0.9, reset:0.6 };
+  function fxDur(name){ return FX_DUR[name] || 0.9; }
+
+  /* ---------- effects on ELEMENTS (the element's inner wrapper animates) ---------- */
+  function elementTextFx(name, el, node, done){
+    var span = node.querySelector('.el-text');
+    if (!span){ gsap.fromTo(node, { opacity:.15 }, { opacity:1, duration:.8, ease:'power2.out', onComplete:done }); return; }
+    var orig = el.text || span.textContent;
+    var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$';
+    var o = { p:0 };
+    gsap.to(o, { p:1, duration: name === 'scramble' ? 1.05 : 0.9, ease:'power2.inOut',
+      onUpdate:function(){
+        if (name === 'scramble'){
+          var res = Math.floor(o.p * (orig.length + 3));
+          span.textContent = orig.split('').map(function(c, i){
+            return i < res ? c : GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+          }).join('');
+        } else {
+          span.textContent = orig.slice(0, Math.ceil(o.p * orig.length));
+        }
+      },
+      onComplete:function(){ span.textContent = orig; if (done) done(); } });
+  }
+  function runElementEffect(name, el){
+    if (!el) return;
+    var node = elInnerNodes[el.id];
+    if (!node) return;
+    gsap.killTweensOf(node);
+    var done = function(){ gsap.set(node, { clearProps:'transform,opacity,filter' }); };
+    switch (name){
+      case 'bounce':
+        gsap.timeline({ onComplete:done })
+          .to(node, { y:-34, duration:.28, ease:'power2.out' })
+          .to(node, { y:0, duration:.9, ease:'bounce.out' }); break;
+      case 'drop':
+        gsap.timeline({ onComplete:done })
+          .fromTo(node, { y:-70, opacity:0 }, { y:0, opacity:1, duration:.5, ease:'power2.in' })
+          .to(node, { scaleY:.78, scaleX:1.15, duration:.07, yoyo:true, repeat:1 })
+          .to(node, { y:-14, duration:.14, ease:'power2.out' })
+          .to(node, { y:0, duration:.4, ease:'bounce.out' }); break;
+      case 'rise':
+        gsap.fromTo(node, { y:44, opacity:0 }, { y:0, opacity:1, duration:.8, ease:'power3.out', onComplete:done }); break;
+      case 'spin':
+        gsap.to(node, { rotation:'+=360', duration:.9, ease:'power2.inOut', onComplete:done }); break;
+      case 'flip':
+        gsap.fromTo(node, { rotationX:-92, opacity:0 }, { rotationX:0, opacity:1, duration:.7, ease:'back.out(1.5)', onComplete:done }); break;
+      case 'wave':
+        gsap.timeline({ onComplete:done })
+          .to(node, { y:-16, duration:.25, ease:'sine.inOut' })
+          .to(node, { y:0, duration:.3, ease:'sine.inOut' })
+          .to(node, { y:-10, duration:.22, ease:'sine.inOut' })
+          .to(node, { y:0, duration:.3, ease:'sine.inOut' }); break;
+      case 'shake':
+        gsap.timeline({ onComplete:done })
+          .to(node, { x:-9, duration:.05 }).to(node, { x:8, duration:.06 })
+          .to(node, { x:-5, duration:.05 }).to(node, { x:0, duration:.06 }); break;
+      case 'zoom':
+        gsap.timeline({ onComplete:done })
+          .to(node, { scale:1.3, duration:.16, ease:'power3.out' })
+          .to(node, { scale:1, duration:.6, ease:'back.out(2.2)' }); break;
+      case 'stretch':
+        gsap.timeline({ onComplete:done })
+          .to(node, { scaleX:1.6, scaleY:.8, duration:.3, ease:'power3.out' })
+          .to(node, { scaleX:1, scaleY:1, duration:.95, ease:'elastic.out(1, 0.32)' }); break;
+      case 'blur':
+        gsap.timeline({ onComplete:done })
+          .to(node, { filter:'blur(10px)', scale:1.05, duration:.45, ease:'power2.in' })
+          .to(node, { filter:'blur(0px)', scale:1, duration:.8, ease:'power2.out' }, '+=0.15'); break;
+      case 'glitch': {
+        var tl = gsap.timeline({ onComplete:done });
+        for (var gi = 0; gi < 7; gi++){
+          tl.to(node, { x:gsap.utils.random(-7, 7), skewX:gsap.utils.random(-12, 12),
+            duration:.055, ease:'steps(1)' }, gi * 0.07);
+        }
+        tl.to(node, { x:0, skewX:0, duration:.06 });
+        break; }
+      case 'melt':
+        gsap.timeline({ onComplete:done })
+          .to(node, { y:16, scaleY:.5, scaleX:1.18, opacity:.88, duration:.85, ease:'power2.in' })
+          .to(node, { y:0, scaleY:1, scaleX:1, opacity:1, duration:1, ease:'elastic.out(1, 0.5)' }, '+=0.5'); break;
+      case 'explode':
+        gsap.timeline({ onComplete:done })
+          .to(node, { scale:1.7, rotation:24, opacity:0, duration:.5, ease:'power3.out' })
+          .to(node, { scale:1, rotation:0, opacity:1, duration:.9, ease:'elastic.out(1, 0.55)' }, '+=0.15'); break;
+      case 'swing':
+        gsap.timeline({ onComplete:done })
+          .set(node, { transformOrigin:'50% -35%' })
+          .to(node, { rotation:13, duration:.5, ease:'sine.out' })
+          .to(node, { rotation:-9, duration:.65, ease:'sine.inOut' })
+          .to(node, { rotation:5, duration:.6, ease:'sine.inOut' })
+          .to(node, { rotation:0, duration:.55, ease:'sine.inOut' }); break;
+      case 'typewriter': case 'scramble':
+        elementTextFx(name, el, node, done); break;
+      case 'big':
+        updateElement(el.id, { scale: Math.min(5, +(el.scale * 1.3).toFixed(3)) }); break;
+      case 'small':
+        updateElement(el.id, { scale: Math.max(0.1, +(el.scale / 1.3).toFixed(3)) }); break;
+      case 'italics':
+        gsap.to(node, { skewX:-11, duration:.6, ease:'power3.out' }); break;
+      case 'upright':
+        gsap.to(node, { skewX:0, duration:.6, ease:'power3.out', onComplete:done }); break;
+      case 'neon':
+        if (el.kind === 'text'){ node.style.color = theme().neon; node.style.textShadow = neonShadow(theme().neon, true); }
+        else if (el.kind === 'shape' && node.firstChild){ node.firstChild.style.boxShadow = '0 0 24px ' + theme().neon; }
+        break;
+      case 'rainbow':
+        if (el.kind === 'text') node.style.color = RAINBOW[0];
+        break;
+      case 'plain':
+        node.style.color = ''; node.style.textShadow = '';
+        if (el.kind === 'shape' && node.firstChild) node.firstChild.style.boxShadow = '';
+        break;
+      default:
+        gsap.fromTo(node, { opacity:.25 }, { opacity:1, duration:.7, ease:'power2.out', onComplete:done });
+    }
+    say('<b>' + name + '.</b> on the ' + elLabel(el) + ' element.');
+  }
+
+  /* ---------- word clips: the word itself changes on the timeline ---------- */
+  function cleanWordText(s){ return cleanWordIn(s).toUpperCase(); }
+  function normalizeWordClips(){
+    proj.words.sort(function(x, y){ return x.a - y.a; });
+    proj.words.forEach(function(c, i){
+      c.b = (i + 1 < proj.words.length) ? proj.words[i + 1].a : proj.duration;
+      if (c.b <= c.a) c.b = Math.min(proj.duration, c.a + 0.1);
+    });
+  }
+  function addWordClip(text, timeOrRange){
+    var w = cleanWordText(text);
+    if (!w) return null;
+    var a;
+    if (typeof timeOrRange === 'number') a = timeOrRange;
+    else if (timeOrRange && timeOrRange.a != null) a = +timeOrRange.a;
+    else if (selRange) a = selRange.a;
+    else a = pb.t;
+    a = clamp(a, 0, proj.duration);
+    proj.words = proj.words.filter(function(c){ return Math.abs(c.a - a) > 0.001; });
+    var clip = { a:a, b:proj.duration, text:w };
+    proj.words.push(clip);
+    normalizeWordClips();
+    renderTimeline();
+    applyWordAt(pb.t);
+    say('<b>word clip.</b> becomes "' + w + '" at ' + fmtT(a) + 's — press play.');
+    return clip;
+  }
+  function wordAt(t){
+    var txt = baseWord;
+    for (var i = 0; i < proj.words.length; i++) if (t >= proj.words[i].a) txt = proj.words[i].text;
+    return txt;
+  }
+  function applyWordAt(t){
+    var txt = wordAt(t);
+    if (txt && txt !== currentText) buildWord(txt);
+  }
+
+  /* ---------- element motion paths during playback ---------- */
+  function applyElementMotion(t){
+    proj.elements.forEach(function(el){
+      var node = elNodes[el.id];
+      if (!node) return;
+      var clip = (el.motions && el.motions.length) ? clipAt(el.motions, t) : null;
+      if (!clip || !clip.points || !clip.points.length){
+        if (node.style.transform) node.style.transform = '';
+        return;
+      }
+      var pt = pathPointAt(clip, t - clip.a);
+      if (!pt){ node.style.transform = ''; return; }
+      var len = clip.b - clip.a;
+      var fade = Math.min(0.25, len / 2);
+      var env = fade > 0 ? smooth01((t - clip.a) / fade) * smooth01((clip.b - t) / fade) : 1;
+      var r = frame.getBoundingClientRect();
+      var dx = (pt.x - 0.5) * r.width * env;
+      var dy = (pt.y - 0.5) * r.height * env;
+      node.style.transform = 'translate(calc(-50% + ' + dx.toFixed(1) + 'px), calc(-50% + ' + dy.toFixed(1) + 'px))';
+    });
+  }
+
+  /* ---------- sequence execution ---------- */
+  function execStepNow(st){
+    switch (st.kind){
+      case 'word':
+        if (selRange) addWordClip(st.text, selRange.a);
+        else { setWord(st.text); say('<b>new words.</b> "' + st.text + '" — now move it.'); }
+        return;
+      case 'effect':
+        if (st.target){
+          if (selRange) addFxClip(st.name, selRange, st.target);
+          else { var el1 = findEl(st.target); if (el1) runElementEffect(st.name, el1); }
+        } else if (actions[st.name]) actions[st.name]();
+        return;
+      case 'addel': addElement(st.spec); return;
+      case 'removeel':
+        if (st.el){ removeElement(st.el.id); say('<b>element removed.</b>'); }
+        return;
+      case 'moveel':
+        if (st.el){
+          var patch = {};
+          if (st.dir === 'up') patch.y = st.el.y - st.amt;
+          else if (st.dir === 'down') patch.y = st.el.y + st.amt;
+          else if (st.dir === 'left') patch.x = st.el.x - st.amt;
+          else if (st.dir === 'right') patch.x = st.el.x + st.amt;
+          else if (st.dir === 'center'){ patch.x = 0.5; patch.y = 0.5; }
+          updateElement(st.el.id, patch);
+          say('<b>moved.</b> the ' + elLabel(st.el) + ' element ' + st.dir + '.');
+        }
+        return;
+      case 'eldepth':
+        if (st.el){ updateElement(st.el.id, { depth: st.depth }); say('<b>depth.</b> element on the ' + st.depth + ' plane.'); }
+        return;
+      case 'eltext':
+        if (st.el){ updateElement(st.el.id, { text: st.text }); say('<b>element text.</b> now "' + st.text + '".'); }
+        return;
+      case 'note': say(st.msg); return;
+    }
+  }
+  function execStepLive(st){
+    switch (st.kind){
+      case 'word':
+        setWord(st.text);
+        say('<b>word: "' + st.text + '"</b>');
+        return 0.45;
+      case 'effect':
+        if (st.target){ var el = findEl(st.target); if (el) runElementEffect(st.name, el); }
+        else if (rawFx[st.name]) rawFx[st.name]();
+        else if (actions[st.name]) actions[st.name]();
+        return fxDur(st.name);
+      default:
+        execStepNow(st);
+        return 0.5;
+    }
+  }
+  function runLiveSequence(steps){
+    var my = ++seqToken;
+    say('<b>sequence:</b> ' + steps.map(stepLabel).join(' → '));
+    var i = 0;
+    function next(){
+      if (my !== seqToken) return;
+      if (i >= steps.length){ say('<b>sequence done.</b>'); return; }
+      var st = steps[i++];
+      var wait = execStepLive(st);
+      gsap.delayedCall(Math.max(0.12, wait), next);
+    }
+    gsap.delayedCall(0.35, next);
+  }
+  function layStepsOnRange(steps, range){
+    var total = 0;
+    steps.forEach(function(st){ total += st.kind === 'effect' ? fxDur(st.name) : 0.5; });
+    if (!total) total = 1;
+    var len = range.b - range.a;
+    var t = range.a;
+    steps.forEach(function(st){
+      var share = ((st.kind === 'effect' ? fxDur(st.name) : 0.5) / total) * len;
+      var sub = { a:t, b:Math.min(range.b, t + share) };
+      if (st.kind === 'effect') addFxClip(st.name, sub, st.target);
+      else if (st.kind === 'word') addWordClip(st.text, t);
+      else execStepNow(st);
+      t += share;
+    });
+    say('<b>sequence on the timeline.</b> ' + fmtT(range.a) + '–' + fmtT(range.b) + 's — press play.');
+  }
+
+  /* ---------- big preview ---------- */
+  function setPreviewBig(on){
+    if (on == null) on = !document.body.classList.contains('preview-big');
+    document.body.classList.toggle('preview-big', !!on);
+    var btn = document.getElementById('previewBigBtn');
+    if (btn){
+      btn.setAttribute('aria-pressed', String(!!on));
+      btn.textContent = on ? '⤢ Exit big preview' : '⛶ Big preview';
+    }
+    setTimeout(fitFrame, 60);
+    setTimeout(fitFrame, 340);
+    return !!on;
+  }
+  document.getElementById('previewBigBtn').addEventListener('click', function(){ setPreviewBig(); });
+
   /* ---------- cursor motion capture ---------- */
-  var cap = { on:false, a:0, b:0, start:0, pts:[], last:0, raf:0 };
+  var cap = { on:false, a:0, b:0, start:0, pts:[], last:0, raf:0, target:null };
   function startCapture(){
     var r = selRange ? { a:selRange.a, b:selRange.b } : { a:pb.t, b:proj.duration };
     if (r.b - r.a < 0.2){ say('<b>pick a longer range</b> to record motion into.'); return; }
-    cap = { on:true, a:r.a, b:r.b, start:performance.now(), pts:[], last:0, raf:0 };
+    cap = { on:true, a:r.a, b:r.b, start:performance.now(), pts:[], last:0, raf:0,
+            target: (targetElId && findEl(targetElId)) ? targetElId : null };
     motRecBtn.classList.add('active');
     motRecBtn.setAttribute('aria-pressed', 'true');
     capBadge.hidden = false;
     frame.classList.add('capturing');
-    say('<b>recording motion…</b> move your cursor over the stage.');
+    say(cap.target ? '<b>recording motion for the element…</b> move your cursor over the stage.'
+                   : '<b>recording motion…</b> move your cursor over the stage.');
     capTick();
   }
   function capTick(){
@@ -1761,11 +2280,22 @@
     capBadge.hidden = true;
     frame.classList.remove('capturing');
     if (save && cap.pts.length > 2){
-      proj.motion = proj.motion.filter(function(c){ return !(c.a === cap.a && c.b === cap.b); });
-      proj.motion.push({ a:cap.a, b:cap.b, points:cap.pts.slice() });
-      proj.motion.sort(function(x, y){ return x.a - y.a; });
-      say('<b>motion captured.</b> ' + cap.pts.length + ' points over ' +
-          fmtT(cap.b - cap.a) + 's — now add an effect to ride it.');
+      var newClip = { a:cap.a, b:cap.b, points:cap.pts.slice() };
+      var capEl = cap.target ? findEl(cap.target) : null;
+      if (capEl){
+        if (!Array.isArray(capEl.motions)) capEl.motions = [];
+        capEl.motions = capEl.motions.filter(function(c){ return !(c.a === cap.a && c.b === cap.b); });
+        capEl.motions.push(newClip);
+        capEl.motions.sort(function(x, y){ return x.a - y.a; });
+        say('<b>element motion captured.</b> ' + cap.pts.length + ' points over ' +
+            fmtT(cap.b - cap.a) + 's — the element follows this path on playback.');
+      } else {
+        proj.motion = proj.motion.filter(function(c){ return !(c.a === cap.a && c.b === cap.b); });
+        proj.motion.push(newClip);
+        proj.motion.sort(function(x, y){ return x.a - y.a; });
+        say('<b>motion captured.</b> ' + cap.pts.length + ' points over ' +
+            fmtT(cap.b - cap.a) + 's — now add an effect to ride it.');
+      }
     }
     renderTimeline();
     applyMotion(pb.t, performance.now());
@@ -1784,15 +2314,23 @@
   motRecBtn.addEventListener('click', function(){
     if (cap.on) stopCapture(true); else startCapture();
   });
-  function recordPath(points, range){
+  function recordPath(points, range, elementId){
     if (!points || !points.length) return;
     var r = normRange(range);
     var pts = points.map(function(p){
       return { t: Math.max(0, +p.t || 0), x: clamp01(+p.x || 0), y: clamp01(+p.y || 0) };
     }).sort(function(x, y){ return x.t - y.t; });
-    proj.motion = proj.motion.filter(function(c){ return !(c.a === r.a && c.b === r.b); });
-    proj.motion.push({ a:r.a, b:r.b, points:pts });
-    proj.motion.sort(function(x, y){ return x.a - y.a; });
+    var el = elementId ? findEl(elementId) : null;
+    if (el){
+      if (!Array.isArray(el.motions)) el.motions = [];
+      el.motions = el.motions.filter(function(c){ return !(c.a === r.a && c.b === r.b); });
+      el.motions.push({ a:r.a, b:r.b, points:pts });
+      el.motions.sort(function(x, y){ return x.a - y.a; });
+    } else {
+      proj.motion = proj.motion.filter(function(c){ return !(c.a === r.a && c.b === r.b); });
+      proj.motion.push({ a:r.a, b:r.b, points:pts });
+      proj.motion.sort(function(x, y){ return x.a - y.a; });
+    }
     renderTimeline();
   }
 
@@ -1803,7 +2341,9 @@
   }
   function applyFrame(t, now){
     applyBgAt(t);
+    applyWordAt(t);
     applyMotion(t, now || performance.now());
+    applyElementMotion(t);
     updateElementVisibility(t);
     updatePlayheadUI();
   }
@@ -1825,13 +2365,17 @@
     pb.last = now;
     var prev = pb.t;
     pb.t = Math.min(proj.duration, pb.t + dt);
+    applyFrame(pb.t, now);
     proj.fx.forEach(function(c, i){
       if (!pb.fired[i] && prev <= c.a && pb.t >= c.a){
         pb.fired[i] = 1;
-        if (rawFx[c.name]) rawFx[c.name]();
+        if (c.target && c.target !== 'word'){
+          var el = findEl(c.target);
+          if (el) runElementEffect(c.name, el);
+        }
+        else if (rawFx[c.name]) rawFx[c.name]();
       }
     });
-    applyFrame(pb.t, now);
     if (pb.t >= proj.duration){ pausePlayback(); return; }
     pb.raf = requestAnimationFrame(tick);
   }
@@ -1926,7 +2470,17 @@
     });
     var fxLane = laneEl('fx'); clearLane(fxLane);
     proj.fx.forEach(function(c, i){
-      fxLane.appendChild(makeClip('fx', i, c, c.name, null));
+      var lab = c.name;
+      if (c.target && c.target !== 'word'){
+        var tel = findEl(c.target);
+        lab = c.name + ' → ' + (tel ? elLabel(tel) : 'element');
+      }
+      fxLane.appendChild(makeClip('fx', i, c, lab, null));
+    });
+    var wdLane = laneEl('words'); clearLane(wdLane);
+    normalizeWordClips();
+    proj.words.forEach(function(c, i){
+      wdLane.appendChild(makeClip('words', i, c, c.text, null));
     });
     var elLane = laneEl('elements'); clearLane(elLane);
     proj.elements.forEach(function(el, i){
@@ -2006,10 +2560,16 @@
     if (!list || index < 0 || index >= list.length) return;
     var removed = list.splice(index, 1)[0];
     if (key === 'elements' && removed && selEl === removed.id){ selEl = null; syncElPanel(); }
+    if (key === 'elements' && removed){
+      proj.fx = proj.fx.filter(function(c){ return c.target !== removed.id; });
+      if (targetElId === removed.id){ targetElId = null; syncTargetUI(); }
+    }
+    if (key === 'words'){ normalizeWordClips(); applyWordAt(pb.t); }
     renderElements(); renderTimeline();
   }
   function setDuration(sec){
     proj.duration = clamp(Math.round(+sec || 10), 5, 30);
+    normalizeWordClips();
     if (selRange) selRange = { a: clamp(selRange.a, 0, proj.duration), b: clamp(selRange.b, 0, proj.duration) };
     renderTimeline();
     seek(Math.min(pb.t, proj.duration));
@@ -2076,12 +2636,15 @@
   /* ---------- project state: get / load ---------- */
   function setWord(text){
     var w = String(text || '').replace(/[^a-zA-Z0-9 ]/g, '').trim().slice(0, 14);
-    if (w) buildWord(w.toUpperCase());
+    if (!w) return;
+    baseWord = w.toUpperCase();
+    buildWord(baseWord);
+    applyWordAt(pb ? pb.t : 0);
   }
   function getState(){
     return JSON.parse(JSON.stringify({
       version: 2,
-      word: currentText,
+      word: baseWord,
       theme: state.theme,
       type: state.type,
       duration: proj.duration,
@@ -2089,6 +2652,7 @@
       bg: proj.bg,
       motion: proj.motion,
       fx: proj.fx,
+      words: proj.words,
       elements: proj.elements,
       ui: { italic: state.italic, scale: state.scale, speed: state.speed,
             neon: state.neon, rainbow: state.rainbow, colorIdx: state.colorIdx }
@@ -2104,11 +2668,14 @@
     proj.bg = Array.isArray(s.bg) ? s.bg : [];
     proj.motion = Array.isArray(s.motion) ? s.motion : [];
     proj.fx = Array.isArray(s.fx) ? s.fx : [];
+    proj.words = Array.isArray(s.words) ? s.words : [];
     proj.elements = Array.isArray(s.elements) ? s.elements : [];
     proj.elements.forEach(function(el){
+      if (!Array.isArray(el.motions)) el.motions = [];
       var m = /^el(\d+)$/.exec(el.id || '');
       if (m) elSeq = Math.max(elSeq, +m[1] + 1);
     });
+    normalizeWordClips();
     selRange = (s.selection && s.selection.b != null) ? normRange(s.selection) : null;
     if (selRange && selRange.b - selRange.a < 0.05) selRange = null;
     selEl = null; selClip = null; clipDelBtn.hidden = true;
@@ -2122,6 +2689,7 @@
   setTimeout(fitFrame, 350);
   renderElements();
   renderTimeline();
+  syncTargetUI();
   applyFrame(0);
 
   /* ---------------- init ---------------- */
@@ -2136,6 +2704,8 @@
     isRecording: function(){ return rec.on; },
     /* studio API (see API.md) */
     setWord: setWord,
+    addWordClip: addWordClip,
+    setWordAt: addWordClip,
     applyEffect: applyEffect,
     setDuration: setDuration,
     selectRange: selectRange,
@@ -2146,6 +2716,13 @@
     removeElement: removeElement,
     recordPath: recordPath,
     addEffectClip: addEffectClip,
+    runElementEffect: function(name, id){ var el = findEl(id); if (el) runElementEffect(name, el); },
+    selectElement: function(id){
+      if (id && findEl(id)) selectElement(id);
+      else { selEl = null; targetElId = null; renderElements(); syncElPanel(); syncTargetUI(); }
+    },
+    getTarget: function(){ return targetElId || 'word'; },
+    setPreviewBig: setPreviewBig,
     removeClip: removeClip,
     play: play,
     pause: pause,
