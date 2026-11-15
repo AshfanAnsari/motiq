@@ -853,6 +853,9 @@
     if (typeof wordColor !== 'undefined' && wordColor && !state.neon && !state.rainbow){
       Array.prototype.forEach.call(wordEl.querySelectorAll('.ch'), function(sp){ sp.style.color = wordColor; });
     }
+    if (typeof wordShadow !== 'undefined' && wordShadow && WORD_SHADOWS[wordShadow]){
+      Array.prototype.forEach.call(wordEl.querySelectorAll('.ch'), function(sp){ sp.style.textShadow = WORD_SHADOWS[wordShadow]; });
+    }
     if (state.neon) paintNeon(false);
     if (state.rainbow) paintRainbow();
   }
@@ -1158,6 +1161,7 @@
       gsap.set(wordEl, { x:0, rotation:0, scale:1, filter:'blur(0px)' });
       state.italic = false; state.scale = 1; state.speed = 1; state.colorIdx = -1;
       if (typeof wordColor !== 'undefined' && wordColor){ wordColor = null; Array.prototype.forEach.call(letters(), function(sp){ sp.style.color = ''; }); }
+      if (typeof wordShadow !== 'undefined' && wordShadow){ wordShadow = null; Array.prototype.forEach.call(letters(), function(sp){ sp.style.textShadow = ''; }); }
       if (typeof wordPos !== 'undefined'){ wordPos.x = 0; wordPos.y = 0; if (typeof applyWordPos === 'function') applyWordPos(); }
       gsap.to(persist, { scale:1, skewX:0, duration:.6, ease:'power3.out' });
       var bb2 = document.getElementById('bgBase');
@@ -1417,6 +1421,15 @@
     if ((m = low.match(/^wait\s+(\d+(?:\.\d+)?)\s*(?:s|sec|secs|seconds)?$/))
         || (m = low.match(/^pause\s+(\d+(?:\.\d+)?)\s*(?:s|sec|secs|seconds)?$/))){
       return { kind:'wait', seconds: Math.min(10, parseFloat(m[1])) };
+    }
+    /* drop shadow on the word — "add a drop shadow to the word", "soft shadow", "remove the shadow" */
+    if (/ shadow/.test(pl) && !/ circle| rect| rectangle| element| logo| image/.test(pl)){
+      if (/ remove| no shadow| without shadow| shadow off/.test(pl)) return { kind:'effect', name:'wordshadow:' };
+      var shKey = 'default';
+      if (/ soft/.test(pl)) shKey = 'soft';
+      else if (/ hard| sharp/.test(pl)) shKey = 'hard';
+      else if (/ big| large| huge| deep/.test(pl)) shKey = 'big';
+      return { kind:'effect', name:'wordshadow:' + shKey };
     }
     /* word colour, by name or hex — "make the word gold", "word in #ffcc00" */
     if ((!targetElId || / word| letters| text/.test(pl)) && !/ circle| rect| rectangle| element| logo| image| label/.test(pl)){
@@ -1697,7 +1710,7 @@
     ['slow down','slow down'], ['shake','shake'], ['bounce → Ashfan','bounce then say ASHFAN'],
     ['bounce → Ashfan, letter by letter','bounce and change the letters to ASHFAN one by one while bouncing'],
     ['bounce + spin together','bounce and spin at the same time'], ['word in gold','make the word gold'],
-    ['word to top left','move the word to the top left'], ['reset','reset']
+    ['word to top left','move the word to the top left'], ['drop shadow','add a drop shadow to the word'], ['reset','reset']
   ];
   var chipsEl = document.getElementById('chips');
   CHIP_DEFS.forEach(function(d){
@@ -2052,7 +2065,7 @@
                     flip:1, swing:1, zoom:1, stretch:1, blur:1, glitch:1, typewriter:1, scramble:1 };
   var rawFx = {};
   function addFxClip(name, range, target){
-    if (!actions[name] && name.indexOf('wordcolor:') !== 0) return;
+    if (!actions[name] && name.indexOf('wordcolor:') !== 0 && name.indexOf('wordshadow:') !== 0) return;
     var r = normRange(range);
     var clip = { a:r.a, b:r.b, name:name };
     if (target) clip.target = target;
@@ -2077,6 +2090,7 @@
       if (el){ runElementEffect(name, el); return; }
     }
     if (name.indexOf('wordcolor:') === 0){ setWordColor(name.slice(10)); return; }
+    if (name.indexOf('wordshadow:') === 0){ setWordShadow(name.slice(11) || null); return; }
     if (rawFx[name]) rawFx[name]();
     else if (actions[name]) actions[name]();
     else runCommand(name);
@@ -2393,6 +2407,20 @@
     gsap.to(letters(), { color:hex, duration:.5, ease:'power2.out', stagger:0.03 });
     say('<b>word colour.</b> now <b>' + hex + '</b>.');
   }
+  var WORD_SHADOWS = {
+    soft: '0 8px 28px rgba(0,0,0,.38)',
+    default: '0 12px 22px rgba(0,0,0,.45)',
+    hard: '0 6px 0 rgba(0,0,0,.5)',
+    big: '0 22px 48px rgba(0,0,0,.5)'
+  };
+  var wordShadow = null;
+  function setWordShadow(key){
+    wordShadow = (key && WORD_SHADOWS[key]) ? key : null;
+    var css = wordShadow ? WORD_SHADOWS[wordShadow] : '';
+    Array.prototype.forEach.call(letters(), function(sp){ sp.style.textShadow = css; });
+    say(wordShadow ? '<b>drop shadow on.</b> a ' + wordShadow + ' shadow under the word.'
+                   : '<b>shadow off.</b> the word sits flat again.');
+  }
   function applyWordPos(){
     var sw = document.getElementById('stageWord');
     if (!sw || !frame) return;
@@ -2453,6 +2481,11 @@
         if (st.name.indexOf('wordcolor:') === 0){
           if (selRange) addFxClip(st.name, selRange);
           else setWordColor(st.name.slice(10) || null);
+          return;
+        }
+        if (st.name.indexOf('wordshadow:') === 0){
+          if (selRange) addFxClip(st.name, selRange);
+          else setWordShadow(st.name.slice(11) || null);
           return;
         }
         if (st.repeat > 1 && selRange && !st.target){
@@ -2521,6 +2554,7 @@
         return 0.45;
       case 'effect':
         if (st.name.indexOf('wordcolor:') === 0){ setWordColor(st.name.slice(10) || null); return 0.5; }
+        if (st.name.indexOf('wordshadow:') === 0){ setWordShadow(st.name.slice(11) || null); return 0.5; }
         if (st.target){ var el = findEl(st.target); if (el) runElementEffect(st.name, el); }
         else if (rawFx[st.name]) rawFx[st.name]();
         else if (actions[st.name]) actions[st.name]();
@@ -2713,6 +2747,7 @@
           if (el) runElementEffect(c.name, el);
         }
         else if (c.name.indexOf('wordcolor:') === 0) setWordColor(c.name.slice(10));
+        else if (c.name.indexOf('wordshadow:') === 0) setWordShadow(c.name.slice(11) || null);
         else if (rawFx[c.name]) rawFx[c.name]();
       }
     });
@@ -2997,6 +3032,7 @@
       ui: { italic: state.italic, scale: state.scale, speed: state.speed,
             neon: state.neon, rainbow: state.rainbow, colorIdx: state.colorIdx,
             wordColor: (typeof wordColor !== 'undefined' ? wordColor : null),
+            wordShadow: (typeof wordShadow !== 'undefined' ? wordShadow : null),
             wordPos: (typeof wordPos !== 'undefined' ? wordPos : { x:0, y:0 }) }
     }));
   }
@@ -3014,6 +3050,10 @@
     if (typeof wordColor !== 'undefined'){
       wordColor = (s.ui && s.ui.wordColor) || null;
       if (wordColor) buildWord(baseWord);
+    }
+    if (typeof wordShadow !== 'undefined'){
+      wordShadow = (s.ui && s.ui.wordShadow) || null;
+      if (wordShadow) buildWord(baseWord);
     }
     proj.duration = clamp(Math.round(+s.duration || 10), 5, 30);
     proj.bg = Array.isArray(s.bg) ? s.bg : [];
