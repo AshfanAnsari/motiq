@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="midnight" data-type="grotesk">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -31,46 +31,44 @@
     font-display:swap;
   }
 
-  /* ---------- themes ---------- */
-  :root, html[data-theme='midnight']{
+  /* ---------- app palette: MOTIQ's own UI — fixed, never themed ---------- */
+  :root{
     --bg:#101013; --ink:#f2efe9; --mute:#8b877f;
     --line:rgba(242,239,233,.14); --line-strong:rgba(242,239,233,.45);
     --glow:#5c130c; --bar:rgba(255,255,255,.055);
     --accent:#e0492e; --btn-ink:#101013; --pool:rgba(224,73,46,.5); --rec:#ff453a;
     --tile-hover:rgba(255,255,255,.05);
   }
-  html[data-theme='bone']{
-    --bg:#e9e4da; --ink:#16130d; --mute:#7d7462;
-    --line:rgba(22,19,13,.16); --line-strong:rgba(22,19,13,.42);
-    --glow:#d8c096; --bar:rgba(22,19,13,.05);
-    --accent:#b3351f; --btn-ink:#efe9dc; --pool:rgba(179,53,31,.42); --rec:#cf2413;
-    --tile-hover:rgba(22,19,13,.05);
+  /* ---------- piece themes: the look of the MOTION being made ----------
+     Scoped to the stage frame only. Picking one restyles the piece (and its
+     export/render, which is the frame) — MOTIQ's own UI never changes. */
+  .frame{
+    --s-bg:#101013; --s-ink:#f2efe9; --s-glow:#5c130c;
+    --s-accent:#e0492e; --s-pool:rgba(224,73,46,.5);
   }
-  html[data-theme='forest']{
-    --bg:#0a120d; --ink:#ece7d8; --mute:#7e8b7c;
-    --line:rgba(236,231,216,.14); --line-strong:rgba(236,231,216,.42);
-    --glow:#14401f; --bar:rgba(255,255,255,.05);
-    --accent:#8fce6e; --btn-ink:#0a120d; --pool:rgba(143,206,110,.4); --rec:#ff5147;
-    --tile-hover:rgba(255,255,255,.05);
+  .frame[data-theme='bone']{
+    --s-bg:#e9e4da; --s-ink:#16130d; --s-glow:#d8c096;
+    --s-accent:#b3351f; --s-pool:rgba(179,53,31,.42);
   }
-  html[data-theme='cobalt']{
-    --bg:#0a1226; --ink:#f4f6fb; --mute:#8494b3;
-    --line:rgba(244,246,251,.15); --line-strong:rgba(244,246,251,.45);
-    --glow:#173a75; --bar:rgba(255,255,255,.06);
-    --accent:#6ea8ff; --btn-ink:#0a1226; --pool:rgba(110,168,255,.45); --rec:#ff5147;
-    --tile-hover:rgba(255,255,255,.05);
+  .frame[data-theme='forest']{
+    --s-bg:#0a120d; --s-ink:#ece7d8; --s-glow:#14401f;
+    --s-accent:#8fce6e; --s-pool:rgba(143,206,110,.4);
+  }
+  .frame[data-theme='cobalt']{
+    --s-bg:#0a1226; --s-ink:#f4f6fb; --s-glow:#173a75;
+    --s-accent:#6ea8ff; --s-pool:rgba(110,168,255,.45);
   }
 
   /* ---------- type styles ---------- */
-  html[data-type='grotesk']{
+  .frame[data-type='grotesk']{
     --word-font:'Archivo Black','Archivo',sans-serif;
     --word-weight:400; --wsize:20cqw; --wmin:58px; --wls:.015em;
   }
-  html[data-type='serif']{
+  .frame[data-type='serif']{
     --word-font:'Playfair Display',Georgia,serif;
     --word-weight:800; --wsize:19cqw; --wmin:54px; --wls:.005em;
   }
-  html[data-type='mono']{
+  .frame[data-type='mono']{
     --word-font:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
     --word-weight:700; --wsize:16cqw; --wmin:38px; --wls:0em;
   }
@@ -132,6 +130,21 @@
   .panel-body{flex:1;overflow-y:auto;padding:2px 12px 16px;scrollbar-width:thin}
 
   /* ui option rows (right panel) */
+  #jarvisBox .row{display:flex;gap:8px}
+  .mini-btn{
+    background:var(--bar);border:1px solid var(--line);color:var(--ink);
+    border-radius:8px;padding:6px 10px;font-size:11.5px;font-family:inherit;cursor:pointer;
+  }
+  .mini-btn:hover{border-color:var(--line-strong)}
+  .mini-btn:disabled{opacity:.45;cursor:default}
+  .inbox-item{
+    display:flex;gap:8px;align-items:flex-start;background:var(--bar);
+    border:1px solid var(--line);border-radius:9px;padding:7px 9px;margin-bottom:6px;
+  }
+  .inbox-item.sent{opacity:.45}
+  .inbox-text{flex:1;font-size:12px;line-height:1.4;word-break:break-word}
+  .inbox-x{background:none;border:none;color:var(--mute);cursor:pointer;font-size:15px;line-height:1;padding:0}
+  .inbox-x:hover{color:var(--ink)}
   .opt-group{margin-bottom:20px}
   .opt-group h4{
     font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
@@ -216,7 +229,7 @@
     position:absolute;left:50%;top:52%;
     width:min(88vw,880px);height:min(58vh,480px);
     transform:translate(-50%,-50%);
-    background:radial-gradient(ellipse at center, var(--glow) 0%, transparent 68%);
+    background:radial-gradient(ellipse at center, var(--s-glow) 0%, transparent 68%);
     opacity:.55;pointer-events:none;
   }
   .stage-word{position:relative;z-index:2;text-align:center;padding:0 16px}
@@ -235,19 +248,19 @@
   .word .sp{display:inline-block;width:.34em}
   .word .caret{
     display:inline-block;width:.5em;height:.8em;
-    background:var(--accent);
+    background:var(--s-accent);
     margin-left:.07em;vertical-align:-.06em;
   }
   .pool{
     position:absolute;left:50%;bottom:-4.2vh;
     width:56%;height:20px;border-radius:50%;
-    background:radial-gradient(ellipse at center, var(--pool) 0%, transparent 70%);
+    background:radial-gradient(ellipse at center, var(--s-pool) 0%, transparent 70%);
     transform:translateX(-50%) scaleX(.2);
     opacity:0;pointer-events:none;filter:blur(2px);
   }
   .edit-hint{
     margin-top:22px;
-    font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute);
+    font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:color-mix(in srgb, var(--s-ink) 52%, transparent);
     font-weight:500;
   }
   #wordInput{
@@ -256,9 +269,9 @@
     font-weight:var(--word-weight);
     font-size:clamp(var(--wmin),var(--wsize),176px);
     line-height:1.02;letter-spacing:var(--wls);text-transform:uppercase;
-    background:transparent;border:none;outline:none;color:var(--ink);
+    background:transparent;border:none;outline:none;color:var(--s-ink);
     text-align:center;width:min(92vw,880px);
-    border-bottom:2px solid var(--line-strong);
+    border-bottom:2px solid var(--s-accent);
   }
 
   /* ---------- controls ---------- */
@@ -398,12 +411,13 @@
   .frame{
     position:relative;flex:0 0 auto;
     border:1px solid var(--line-strong);border-radius:16px;
-    overflow:hidden;background:var(--bg);
+    overflow:hidden;background:var(--s-bg);color:var(--s-ink);
+    transition:background .3s;
     box-shadow:0 30px 80px rgba(0,0,0,.35);
     container-type:inline-size;
   }
   .bg-inner{position:absolute;inset:0;z-index:0;will-change:transform}
-  .bg-base{position:absolute;inset:0;background:var(--bg);transition:background .3s}
+  .bg-base{position:absolute;inset:0;background:var(--s-bg);transition:background .3s}
   .bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .bg-grad{
     position:absolute;inset:-25%;
@@ -449,7 +463,7 @@
   .el.sel{outline:2px dashed var(--accent);outline-offset:3px}
   .el img{display:block;pointer-events:none}
   .el-text{
-    font-weight:700;letter-spacing:.04em;color:var(--ink);
+    font-weight:700;letter-spacing:.04em;color:inherit;
     white-space:nowrap;pointer-events:none;line-height:1.1;
     text-shadow:0 1px 8px rgba(0,0,0,.25);
   }
@@ -612,7 +626,7 @@
 
   <div class="centre">
 <main id="stage">
-  <div class="frame" id="frame">
+  <div class="frame" id="frame" data-theme="midnight" data-type="grotesk">
     <div class="bg-inner" id="bgInner">
       <div class="bg-base" id="bgBase"></div>
       <img class="bg-img" id="bgImg" alt="" hidden>
@@ -690,7 +704,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
       Effects
     </button>
-    <button type="button" class="drawer-btn" id="drawerStyle">Style</button>
+    <button type="button" class="drawer-btn" id="drawerStyle">Look</button>
   </div>
   <div class="chips" id="chips"></div>
   <div class="bar-row">
@@ -707,21 +721,22 @@
 </div>
   </div><!-- /centre -->
 
-  <aside class="panel panel-right" id="panelRight" aria-label="Interface options">
+  <aside class="panel panel-right" id="panelRight" aria-label="Motion look options">
     <div class="panel-head">
-      <h3>UI Options</h3>
+      <h3>Motion Look</h3>
       <button type="button" class="panel-collapse" id="rpCollapse" aria-label="Hide options panel">›</button>
     </div>
     <div class="panel-body">
-      <div class="opt-group" id="themeSw" role="group" aria-label="Theme">
-        <h4>Theme</h4>
+      <div class="opt-group" id="themeSw" role="group" aria-label="Piece theme">
+        <h4>Piece theme</h4>
+        <p class="opt-note" style="margin-bottom:8px">The look of the motion you're making — it applies to the stage and the export. MOTIQ itself doesn't change.</p>
         <button type="button" class="theme-row active" data-theme="midnight"><span class="t-dot" style="--dot:#101013"></span>Midnight</button>
         <button type="button" class="theme-row" data-theme="bone"><span class="t-dot" style="--dot:#e9e4da"></span>Bone</button>
         <button type="button" class="theme-row" data-theme="forest"><span class="t-dot" style="--dot:#0d2013"></span>Forest</button>
         <button type="button" class="theme-row" data-theme="cobalt"><span class="t-dot" style="--dot:#0d1a3a"></span>Cobalt</button>
       </div>
-      <div class="opt-group" id="typeSw" role="group" aria-label="Type style">
-        <h4>Type</h4>
+      <div class="opt-group" id="typeSw" role="group" aria-label="Piece type style">
+        <h4>Piece type</h4>
         <button type="button" class="type-row active" data-type="grotesk" style="font-family:'Archivo Black','Archivo',sans-serif">Grotesk</button>
         <button type="button" class="type-row" data-type="serif" style="font-family:'Playfair Display',Georgia,serif;font-weight:800">Serif</button>
         <button type="button" class="type-row" data-type="mono" style="font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:700">Mono</button>
@@ -754,6 +769,16 @@
           <input type="range" id="elScale" min="0.3" max="3" step="0.05" value="1" aria-label="Element size">
         </label>
         <button type="button" class="stage-btn danger" id="elDelete">Delete element</button>
+      </div>
+      <div class="opt-group" id="jarvisBox">
+        <h4>Jarvis</h4>
+        <p class="opt-note" style="margin-bottom:8px">This page is connected to Jarvis. Type anything in the prompt bar — if MOTIQ can't do it yet, it lands in this inbox. Send it, and Jarvis extends MOTIQ's code so the same prompt works. You can also start a prompt with "Jarvis," to send it straight here.</p>
+        <div id="inboxList"></div>
+        <p class="opt-note" id="inboxEmpty">Inbox empty — try something impossible.</p>
+        <div class="row">
+          <button type="button" class="mini-btn" id="inboxSend">Send to Jarvis</button>
+          <button type="button" class="mini-btn" id="inboxClear">Clear sent</button>
+        </div>
       </div>
     </div>
   </aside>
@@ -822,6 +847,9 @@
       else { s.className = 'ch'; s.textContent = c; }
       wordEl.appendChild(s);
     });
+    if (typeof wordColor !== 'undefined' && wordColor && !state.neon && !state.rainbow){
+      Array.prototype.forEach.call(wordEl.querySelectorAll('.ch'), function(sp){ sp.style.color = wordColor; });
+    }
     if (state.neon) paintNeon(false);
     if (state.rainbow) paintRainbow();
   }
@@ -960,7 +988,8 @@
     color: function(){
       state.colorIdx = (state.colorIdx + 1) % PALETTE.length;
       var c = PALETTE[state.colorIdx];
-      gsap.to(document.body, { backgroundColor: c.bg, duration:.9, ease:'power2.inOut' });
+      var bb1 = document.getElementById('bgBase');
+      if (bb1) gsap.to(bb1, { backgroundColor: c.bg, duration:.9, ease:'power2.inOut' });
       gsap.to(glow, { background: glowGradient(c.glow), duration:.9, ease:'power2.inOut' });
       say('<b>splash of ' + c.name + '.</b> again for the next colour.');
     },
@@ -1125,8 +1154,11 @@
       clearLetterFx();
       gsap.set(wordEl, { x:0, rotation:0, scale:1, filter:'blur(0px)' });
       state.italic = false; state.scale = 1; state.speed = 1; state.colorIdx = -1;
+      if (typeof wordColor !== 'undefined' && wordColor){ wordColor = null; Array.prototype.forEach.call(letters(), function(sp){ sp.style.color = ''; }); }
+      if (typeof wordPos !== 'undefined'){ wordPos.x = 0; wordPos.y = 0; if (typeof applyWordPos === 'function') applyWordPos(); }
       gsap.to(persist, { scale:1, skewX:0, duration:.6, ease:'power3.out' });
-      gsap.to(document.body, { backgroundColor: theme().bg, duration:.8, ease:'power2.inOut' });
+      var bb2 = document.getElementById('bgBase');
+      if (bb2) gsap.to(bb2, { backgroundColor: theme().bg, duration:.8, ease:'power2.inOut' });
       gsap.to(glow, { background: glowGradient(theme().glow), duration:.8, ease:'power2.inOut' });
       applySpeed();
       say('<b>reset.</b> back to the default state.');
@@ -1138,23 +1170,23 @@
     if (!THEMES[name]) return;
     state.theme = name;
     state.colorIdx = -1;
-    document.documentElement.setAttribute('data-theme', name);
-    gsap.to(document.body, { backgroundColor: THEMES[name].bg, duration:.7, ease:'power2.inOut' });
+    document.getElementById('frame').setAttribute('data-theme', name);
+    if (typeof applyBgAt === 'function' && typeof pb !== 'undefined' && pb) applyBgAt(pb.t);
     gsap.to(glow, { background: glowGradient(THEMES[name].glow), duration:.7, ease:'power2.inOut' });
     if (state.neon) paintNeon(false);
     Array.prototype.forEach.call(document.querySelectorAll('#themeSw .theme-row'), function(d){
       d.classList.toggle('active', d.getAttribute('data-theme') === name);
     });
-    say('<b>theme — ' + THEMES[name].label.toLowerCase() + '.</b>');
+    say('<b>piece theme — ' + THEMES[name].label.toLowerCase() + '.</b> the motion wears it; MOTIQ doesn\'t.');
   }
   function applyType(name){
     if (!TYPES[name]) return;
     state.type = name;
-    document.documentElement.setAttribute('data-type', name);
+    document.getElementById('frame').setAttribute('data-type', name);
     Array.prototype.forEach.call(document.querySelectorAll('#typeSw .type-row'), function(b){
       b.classList.toggle('active', b.getAttribute('data-type') === name);
     });
-    say('<b>type — ' + TYPES[name].toLowerCase() + '.</b>');
+    say('<b>piece type — ' + TYPES[name].toLowerCase() + '.</b>');
   }
   document.getElementById('themeSw').addEventListener('click', function(e){
     var d = e.target.closest('.theme-row'); if (d) applyTheme(d.getAttribute('data-theme'));
@@ -1368,8 +1400,7 @@
     }
     /* move an element */
     if (/ move/.test(pl) || /^(up|down|left|right) /.test(pl)){
-      if (/ word/.test(pl)) return { kind:'note', msg:'<b>the word</b> moves with the Motion button — record a cursor path and it follows.' };
-      el = resolveElementRef(pl);
+      el = / word/.test(pl) ? null : resolveElementRef(pl);
       var dirM = pl.match(/ (up|down|left|right) /);
       if (el && dirM){
         var amt = / a lot| far/.test(pl) ? 0.22 : / a little| slightly| bit/.test(pl) ? 0.04 : 0.09;
@@ -1379,6 +1410,55 @@
       }
       if (el && / (center|centre|middle) /.test(pl)) return { kind:'moveel', el:el, dir:'center', amt:0 };
     }
+    /* wait / pause */
+    if ((m = low.match(/^wait\s+(\d+(?:\.\d+)?)\s*(?:s|sec|secs|seconds)?$/))
+        || (m = low.match(/^pause\s+(\d+(?:\.\d+)?)\s*(?:s|sec|secs|seconds)?$/))){
+      return { kind:'wait', seconds: Math.min(10, parseFloat(m[1])) };
+    }
+    /* word colour, by name or hex — "make the word gold", "word in #ffcc00" */
+    if ((!targetElId || / word| letters| text/.test(pl)) && !/ circle| rect| rectangle| element| logo| image| label/.test(pl)){
+      var hexM = pl.match(/#([0-9a-f]{6}|[0-9a-f]{3})\b/);
+      var nameM = pl.match(/ (crimson|coral|orange|golden|gold|yellow|lime|green|teal|cyan|sky blue|blue|purple|violet|lavender|hot pink|magenta|pink|mint|peach|silver|white|black|red) /);
+      if (hexM && / word| color| colour| make| paint/.test(pl)){
+        var hx = hexM[1]; if (hx.length === 3) hx = hx.split('').map(function(ch){ return ch + ch; }).join('');
+        return { kind:'effect', name:'wordcolor:#' + hx };
+      }
+      if (nameM && / word| color| colour| make| paint/.test(pl)){
+        return { kind:'effect', name:'wordcolor:' + COLOR_NAMES[nameM[1].trim()] };
+      }
+      if (/ (default|theme) color| colour| no color| no colour/.test(pl) && / word/.test(pl)){
+        return { kind:'effect', name:'wordcolor:' };
+      }
+    }
+    /* move the WORD itself — free positioning */
+    if ((/ move| put| place| shift/.test(pl)) && (/ word| text/.test(pl) || !resolveElementRef(pl))){
+      var posM = pl.match(/ (top left|top right|bottom left|bottom right|top|bottom|left|right|center|centre|middle) /);
+      var dirW = pl.match(/ (up|down|left|right) /);
+      if (posM) return { kind:'wordpos', pos: posM[1].trim() };
+      if (dirW){
+        var amtW = / a lot| far/.test(pl) ? 0.22 : / a little| slightly| bit/.test(pl) ? 0.05 : 0.12;
+        var numW = pl.match(/ (\d+(?:\.\d+)?)\s*(%|percent)/);
+        if (numW) amtW = Math.min(0.7, parseFloat(numW[1]) / 100);
+        return { kind:'wordpos', dir: dirW[1].trim(), amt: amtW };
+      }
+    }
+    /* element colour / opacity — "make the circle gold", "make it half transparent" */
+    el = resolveElementRef(pl);
+    if (el){
+      var eHex = pl.match(/#([0-9a-f]{6}|[0-9a-f]{3})\b/);
+      var eName = pl.match(/ (crimson|coral|orange|golden|gold|yellow|lime|green|teal|cyan|sky blue|blue|purple|violet|lavender|hot pink|magenta|pink|mint|peach|silver|white|black|red) /);
+      if ((eHex || eName) && / make| paint| color| colour| fill/.test(pl)){
+        var eh = eHex ? ('#' + eHex[1]) : COLOR_NAMES[eName[1].trim()];
+        if (eHex && eHex[1].length === 3) eh = '#' + eHex[1].split('').map(function(ch){ return ch + ch; }).join('');
+        return { kind:'elstyle', el:el, patch:{ color: eh } };
+      }
+      var opM = pl.match(/ opacity\s*(\d{1,3})\s*%?/) || (/ half transparent| half visible/.test(pl) ? [0, 50] : null)
+        || (/ fully transparent| invisible/.test(pl) ? [0, 0] : null) || (/ fully visible| opaque/.test(pl) ? [0, 100] : null);
+      if (opM && / opacity| transparent| visible| invisible| opaque/.test(pl)){
+        return { kind:'elstyle', el:el, patch:{ opacity: clamp(parseFloat(opM[1]) / 100, 0, 1) } };
+      }
+    }
+
     /* typewriter guard: "type it out" is an effect, not a word change */
     if (/^typewriter\b/.test(low) || low === 'type it' || low === 'type out' || /^typing\b/.test(low)){
       return { kind:'effect', name:'typewriter' };
@@ -1425,6 +1505,8 @@
     eff = detectEffect(pl);
     if (eff){
       var step = { kind:'effect', name:eff };
+      var repM = pl.match(/ (\d+)\s*(?:times|x) /) || (/ twice /.test(pl) ? [0, 2] : null) || (/ thrice /.test(pl) ? [0, 3] : null);
+      if (repM) step.repeat = Math.min(6, parseInt(repM[1], 10) || 1);
       if (targetElId && !/ word/.test(pl)){
         el = findEl(targetElId);
         if (el) step.target = el.id;
@@ -1445,6 +1527,9 @@
       case 'moveel': return 'move element ' + st.dir;
       case 'eldepth': return 'element to ' + st.depth;
       case 'note': return 'note';
+      case 'wait': return 'wait ' + st.seconds + 's';
+      case 'wordpos': return 'move word';
+      case 'elstyle': return 'style element';
     }
     return st.kind;
   }
@@ -1483,9 +1568,27 @@
   function runCommand(raw){
     if (!raw || !String(raw).trim()) return;
     seqToken++;
+    if (convTween){ convTween.kill(); convTween = null; }
+    var jx = String(raw).trim().match(/^jarvis[:,]?\s+(.+)$/i);
+    if (jx){
+      inboxAdd(jx[1].trim());
+      say('<b>saved to your Jarvis inbox.</b> send it from the right panel — Jarvis extends MOTIQ so it works here.');
+      return;
+    }
+    var par = null;
+    try { par = matchParallelFxWord(raw); } catch (e) { par = null; }
+    if (par){ execParallelFxWord(par); return; }
+    var parFx = null;
+    try { parFx = matchParallelFxFx(raw); } catch (e) { parFx = null; }
+    if (parFx){ execParallelFxFx(parFx); return; }
     var steps = null;
     try { steps = parseSequence(raw); } catch (e) { steps = null; }
-    if (!steps || !steps.length){ unknownCommand(); return; }
+    if (!steps || !steps.length){
+      unknownCommand();
+      inboxAdd(String(raw).trim());
+      say('hmm — MOTIQ can\'t do that <b>yet</b>. saved to your <b>Jarvis inbox</b> (right panel) — send it from there and Jarvis extends MOTIQ so the same prompt works.');
+      return;
+    }
     if (steps.length === 1){ execStepNow(steps[0]); return; }
     if (selRange){ layStepsOnRange(steps, selRange); return; }
     runLiveSequence(steps);
@@ -1588,7 +1691,10 @@
   var CHIP_DEFS = [
     ['bounce','bounce'], ['melt','melt'], ['explode','explode'], ['spin','spin'],
     ['wave','wave'], ['italics','italics'], ['go big','big'], ['splash of color','splash of color'],
-    ['slow down','slow down'], ['shake','shake'], ['bounce → Ashfan','bounce then say ASHFAN'], ['reset','reset']
+    ['slow down','slow down'], ['shake','shake'], ['bounce → Ashfan','bounce then say ASHFAN'],
+    ['bounce → Ashfan, letter by letter','bounce and change the letters to ASHFAN one by one while bouncing'],
+    ['bounce + spin together','bounce and spin at the same time'], ['word in gold','make the word gold'],
+    ['word to top left','move the word to the top left'], ['reset','reset']
   ];
   var chipsEl = document.getElementById('chips');
   CHIP_DEFS.forEach(function(d){
@@ -1666,6 +1772,7 @@
     var w = Math.max(120, Math.min(r.width - 6, (r.height - 6) * 16 / 9));
     frame.style.width = w + 'px';
     frame.style.height = (w * 9 / 16) + 'px';
+    if (typeof applyWordPos === 'function') applyWordPos();
   }
   if (window.ResizeObserver) new ResizeObserver(fitFrame).observe(stageMain);
   window.addEventListener('resize', fitFrame);
@@ -1782,6 +1889,7 @@
       d.setAttribute('data-id', el.id);
       d.style.left = (el.x * 100) + '%';
       d.style.top = (el.y * 100) + '%';
+      if (el.opacity != null) d.style.opacity = el.opacity;
       var inner = document.createElement('div');
       inner.className = 'el-inner';
       if (el.kind === 'image'){
@@ -1802,6 +1910,7 @@
         tx.className = 'el-text';
         tx.textContent = el.text || 'LABEL';
         tx.style.fontSize = (30 * el.scale) + 'px';
+        if (el.color) tx.style.color = el.color;
         inner.appendChild(tx);
       }
       d.appendChild(inner);
@@ -1901,6 +2010,7 @@
     if (patch.x != null) el.x = clamp01(+patch.x);
     if (patch.y != null) el.y = clamp01(+patch.y);
     if (patch.scale != null) el.scale = clamp(+patch.scale, 0.1, 5);
+    if (patch.opacity != null) el.opacity = clamp(+patch.opacity, 0, 1);
     if (patch.a != null) el.a = clamp(+patch.a, 0, proj.duration);
     if (patch.b != null) el.b = clamp(+patch.b, 0, proj.duration);
     renderElements(); renderTimeline(); syncElPanel();
@@ -1939,7 +2049,7 @@
                     flip:1, swing:1, zoom:1, stretch:1, blur:1, glitch:1, typewriter:1, scramble:1 };
   var rawFx = {};
   function addFxClip(name, range, target){
-    if (!actions[name]) return;
+    if (!actions[name] && name.indexOf('wordcolor:') !== 0) return;
     var r = normRange(range);
     var clip = { a:r.a, b:r.b, name:name };
     if (target) clip.target = target;
@@ -1963,6 +2073,7 @@
       var el = findEl(opts.target);
       if (el){ runElementEffect(name, el); return; }
     }
+    if (name.indexOf('wordcolor:') === 0){ setWordColor(name.slice(10)); return; }
     if (rawFx[name]) rawFx[name]();
     else if (actions[name]) actions[name]();
     else runCommand(name);
@@ -2096,11 +2207,18 @@
   function normalizeWordClips(){
     proj.words.sort(function(x, y){ return x.a - y.a; });
     proj.words.forEach(function(c, i){
-      c.b = (i + 1 < proj.words.length) ? proj.words[i + 1].a : proj.duration;
-      if (c.b <= c.a) c.b = Math.min(proj.duration, c.a + 0.1);
+      var nextA = (i + 1 < proj.words.length) ? proj.words[i + 1].a : proj.duration;
+      if (c.progressive){
+        /* b is the moment the letter-by-letter conversion completes */
+        if (!(c.b > c.a)) c.b = c.a + Math.max(0.3, (nextA - c.a) * 0.85);
+        c.b = clamp(c.b, c.a + 0.05, Math.max(c.a + 0.05, nextA));
+      } else {
+        c.b = nextA;
+        if (c.b <= c.a) c.b = Math.min(proj.duration, c.a + 0.1);
+      }
     });
   }
-  function addWordClip(text, timeOrRange){
+  function addWordClip(text, timeOrRange, opts){
     var w = cleanWordText(text);
     if (!w) return null;
     var a;
@@ -2111,6 +2229,10 @@
     a = clamp(a, 0, proj.duration);
     proj.words = proj.words.filter(function(c){ return Math.abs(c.a - a) > 0.001; });
     var clip = { a:a, b:proj.duration, text:w };
+    if (opts && opts.progressive){
+      clip.progressive = true;
+      if (opts.end != null) clip.b = clamp(+opts.end, a + 0.05, proj.duration);
+    }
     proj.words.push(clip);
     normalizeWordClips();
     renderTimeline();
@@ -2123,9 +2245,176 @@
     for (var i = 0; i < proj.words.length; i++) if (t >= proj.words[i].a) txt = proj.words[i].text;
     return txt;
   }
+  /* the word with a fraction of its letters swapped from -> to, left to right */
+  function partialWord(from, to, p){
+    var steps = Math.max(from.length, to.length);
+    if (!steps) return to;
+    var done = Math.floor(clamp(p, 0, 1) * steps + 1e-6);
+    if (done >= steps) return to;
+    var out = '';
+    for (var i = 0; i < steps; i++){
+      if (i < done){ if (i < to.length) out += to[i]; }
+      else if (i < from.length) out += from[i];
+    }
+    return out;
+  }
+  /* swap the rendered letters WITHOUT rebuilding the word, so an effect that
+     is animating the letter spans (bounce & co.) keeps running untouched */
+  function mutateWordInPlace(txt){
+    var spans = wordEl.querySelectorAll('.ch, .sp');
+    if (spans.length !== txt.length){ buildWord(txt); return; }
+    for (var i = 0; i < txt.length; i++){
+      if (spans[i].textContent !== txt[i]) spans[i].textContent = txt[i];
+    }
+    currentText = txt;
+    if (state.neon) paintNeon(false);
+    if (state.rainbow) paintRainbow();
+  }
   function applyWordAt(t){
-    var txt = wordAt(t);
-    if (txt && txt !== currentText) buildWord(txt);
+    var clip = null, prev = baseWord;
+    for (var i = 0; i < proj.words.length; i++){
+      if (t >= proj.words[i].a){ prev = clip ? clip.text : baseWord; clip = proj.words[i]; }
+      else break;
+    }
+    if (!clip){ if (currentText !== baseWord) mutateWordInPlace(baseWord); return; }
+    if (clip.progressive && t < clip.b){
+      var txt = partialWord(prev, clip.text, (t - clip.a) / Math.max(0.05, clip.b - clip.a));
+      if (txt !== currentText) mutateWordInPlace(txt);
+    } else if (currentText !== clip.text) mutateWordInPlace(clip.text);
+  }
+
+  /* ---------- parallel prompts: effect + letter conversion at the same time ----------
+     "bounce and keep changing the letters to ASHFAN one by one while bouncing"
+     The conversion is letter-by-letter and finishes BEFORE the effect ends. */
+  var PARALLEL_FX = ['bounce', 'spin', 'wave', 'drop', 'swing', 'shake', 'flip', 'rise', 'blur', 'stretch', 'glitch', 'zoom'];
+  var FX_GERUNDS = { bouncing:'bounce', spinning:'spin', waving:'wave', dropping:'drop',
+    swinging:'swing', shaking:'shake', flipping:'flip', rising:'rise', blurring:'blur',
+    stretching:'stretch', glitching:'glitch', zooming:'zoom' };
+  var convTween = null;
+  function matchParallelFxWord(raw){
+    var c = ' ' + String(raw).toLowerCase().replace(/\s+/g, ' ') + ' ';
+    if (/\bthen\b/.test(c)) return null;
+    var cue = /(while|during|one by one|letter by letter|keep changing|at the same time|as it)/.test(c);
+    if (!cue) return null;
+    var m = c.match(/(?:changing|change|convert|turn|morph|become)(?:\s+the)?(?:\s+letters?|\s+word)?\s+(?:to|into)\s+([a-z0-9][a-z0-9 ]*?)(?=\s+(?:one by one|letter by letter|while|during|before|and|so)\b|\s*,|\s*$)/)
+         || c.match(/(?:letters?|word)\s+(?:to|into)\s+([a-z0-9][a-z0-9 ]*?)(?=\s+(?:one by one|letter by letter|while|during|before)\b|\s*,|\s*$)/);
+    if (!m) return null;
+    var target = m[1].trim().toUpperCase();
+    if (!target || target.length > 24) return null;
+    var fx = null, i, w;
+    for (i = 0; i < PARALLEL_FX.length; i++){
+      if (c.indexOf(' ' + PARALLEL_FX[i]) >= 0){ fx = PARALLEL_FX[i]; break; }
+    }
+    if (!fx) for (w in FX_GERUNDS){ if (c.indexOf(w) >= 0){ fx = FX_GERUNDS[w]; break; } }
+    if (!fx) return null;
+    return { fx:fx, word:target };
+  }
+  function execParallelFxWord(par){
+    var targetEl = targetElId ? findEl(targetElId) : null;
+    if (selRange){
+      var len = selRange.b - selRange.a;
+      addFxClip(par.fx, { a:selRange.a, b:selRange.b }, targetEl ? targetEl.id : undefined);
+      addWordClip(par.word, selRange.a, { progressive:true, end: selRange.a + len * 0.85 });
+      say('<b>' + par.fx + ' + letters to ' + par.word + '.</b> on the timeline — the conversion completes at '
+        + fmtT(selRange.a + len * 0.85) + 's, before the ' + par.fx + ' ends. press play.');
+      return;
+    }
+    if (targetEl && targetEl.kind === 'text'){
+      runElementEffect(par.fx, targetEl);
+      var node = elInnerNodes[targetEl.id];
+      var span = node ? node.querySelector('.el-text') : null;
+      var fromT = targetEl.text || '', lastT = fromT, progT = { p:0 };
+      convTween = gsap.to(progT, { p:1, duration:Math.max(0.2, fxDur(par.fx) * 0.85), ease:'none',
+        onUpdate: function(){
+          var t = partialWord(fromT, par.word, progT.p);
+          if (t !== lastT){ lastT = t; if (span) span.textContent = t; }
+        },
+        onComplete: function(){ convTween = null; updateElement(targetEl.id, { text:par.word }); } });
+      say('<b>' + par.fx + '.</b> the element\'s letters turn to <b>' + par.word
+        + '</b> one by one — done before the ' + par.fx + ' lands.');
+      return;
+    }
+    var from = currentText, last = from, prog = { p:0 };
+    applyEffect(par.fx);
+    convTween = gsap.to(prog, { p:1, duration:Math.max(0.2, fxDur(par.fx) * 0.85), ease:'none',
+      onUpdate: function(){
+        var t = partialWord(from, par.word, prog.p);
+        if (t !== last){ last = t; mutateWordInPlace(t); }
+      },
+      onComplete: function(){ convTween = null; baseWord = par.word; mutateWordInPlace(par.word); } });
+    say('<b>' + par.fx + '.</b> letters turning to <b>' + par.word
+      + '</b> one by one — done before the ' + par.fx + ' lands.');
+  }
+
+  /* ---------- two effects at the same time ---------- */
+  function matchParallelFxFx(raw){
+    var c = ' ' + String(raw).toLowerCase().replace(/\s+/g, ' ') + ' ';
+    if (!/(at the same time|simultaneously|together|while|during)/.test(c)) return null;
+    var found = [];
+    PARALLEL_FX.forEach(function(n){ if (c.indexOf(' ' + n) >= 0 && found.indexOf(n) < 0) found.push(n); });
+    Object.keys(FX_GERUNDS).forEach(function(g){
+      if (c.indexOf(g) >= 0 && found.indexOf(FX_GERUNDS[g]) < 0) found.push(FX_GERUNDS[g]);
+    });
+    if (found.length < 2) return null;
+    return { fxs: [found[0], found[1]] };
+  }
+  function execParallelFxFx(par){
+    var a = par.fxs[0], b = par.fxs[1];
+    if (selRange){
+      addFxClip(a, selRange); addFxClip(b, selRange);
+      say('<b>' + a + ' + ' + b + '</b> together on the timeline — press play.');
+      return;
+    }
+    applyEffect(a); applyEffect(b);
+    say('<b>' + a + ' + ' + b + '</b> — at the same time.');
+  }
+
+  /* ---------- freedom layer: word colour, word position, element style ---------- */
+  var COLOR_NAMES = { red:'#e03131', crimson:'#c2255c', coral:'#ff6b4a', orange:'#f76707',
+    gold:'#e8b93c', golden:'#e8b93c', yellow:'#ffd43b', lime:'#94d82d', green:'#37b24d',
+    teal:'#12b5a5', cyan:'#22b8cf', skyblue:'#4dabf7', blue:'#3b6fe0', purple:'#7048e8',
+    violet:'#9775fa', pink:'#f06595', hotpink:'#e64980', magenta:'#d6336c', lavender:'#b197fc',
+    mint:'#63e6be', peach:'#ffa8a8', silver:'#ced4da', white:'#f8f9fa', black:'#151517' };
+  COLOR_NAMES['sky blue'] = COLOR_NAMES.skyblue;
+  COLOR_NAMES['hot pink'] = COLOR_NAMES.hotpink;
+  var wordColor = null;
+  var wordPos = { x:0, y:0 };
+  function setWordColor(hex){
+    wordColor = hex || null;
+    if (!wordColor){
+      Array.prototype.forEach.call(letters(), function(sp){ sp.style.color = ''; });
+      say('<b>word colour cleared.</b> back to the piece theme ink.');
+      return;
+    }
+    state.neon = false; state.rainbow = false;
+    gsap.to(letters(), { color:hex, duration:.5, ease:'power2.out', stagger:0.03 });
+    say('<b>word colour.</b> now <b>' + hex + '</b>.');
+  }
+  function applyWordPos(){
+    var sw = document.getElementById('stageWord');
+    if (!sw || !frame) return;
+    var r = frame.getBoundingClientRect();
+    if (r.width < 10) return;
+    sw.style.transform = 'translate(' + (wordPos.x * r.width).toFixed(1) + 'px,' + (wordPos.y * r.height).toFixed(1) + 'px)';
+  }
+  function setWordPos(st){
+    if (st.pos){
+      var P = { 'center':[0, 0], 'centre':[0, 0], 'middle':[0, 0], 'top':[0, -0.3], 'bottom':[0, 0.3],
+        'left':[-0.32, 0], 'right':[0.32, 0], 'top left':[-0.32, -0.3], 'top right':[0.32, -0.3],
+        'bottom left':[-0.32, 0.3], 'bottom right':[0.32, 0.3] };
+      var v = P[st.pos] || [0, 0];
+      wordPos.x = v[0]; wordPos.y = v[1];
+    } else if (st.dir){
+      if (st.dir === 'up') wordPos.y -= st.amt;
+      else if (st.dir === 'down') wordPos.y += st.amt;
+      else if (st.dir === 'left') wordPos.x -= st.amt;
+      else if (st.dir === 'right') wordPos.x += st.amt;
+      wordPos.x = clamp(wordPos.x, -0.45, 0.45);
+      wordPos.y = clamp(wordPos.y, -0.42, 0.42);
+    }
+    applyWordPos();
+    say('<b>word moved.</b> ' + (st.pos ? 'to the ' + st.pos : st.dir + ' a step')
+      + ' — it stays there. "move the word to the center" brings it back.');
   }
 
   /* ---------- element motion paths during playback ---------- */
@@ -2158,10 +2447,24 @@
         else { setWord(st.text); say('<b>new words.</b> "' + st.text + '" — now move it.'); }
         return;
       case 'effect':
+        if (st.name.indexOf('wordcolor:') === 0){
+          if (selRange) addFxClip(st.name, selRange);
+          else setWordColor(st.name.slice(10) || null);
+          return;
+        }
+        if (st.repeat > 1 && selRange && !st.target){
+          var eachR = (selRange.b - selRange.a) / st.repeat;
+          for (var ri2 = 0; ri2 < st.repeat; ri2++){
+            addFxClip(st.name, { a: selRange.a + eachR * ri2, b: selRange.a + eachR * (ri2 + 1) });
+          }
+          return;
+        }
         if (st.target){
           if (selRange) addFxClip(st.name, selRange, st.target);
           else { var el1 = findEl(st.target); if (el1) runElementEffect(st.name, el1); }
         } else if (actions[st.name]) actions[st.name]();
+        else if (rawFx[st.name]) rawFx[st.name]();
+        if (st.repeat > 1 && !st.target && !selRange) scheduleRepeats(st.name, st.repeat);
         return;
       case 'addel': addElement(st.spec); return;
       case 'removeel':
@@ -2186,19 +2489,40 @@
         if (st.el){ updateElement(st.el.id, { text: st.text }); say('<b>element text.</b> now "' + st.text + '".'); }
         return;
       case 'note': say(st.msg); return;
+      case 'wait': return;
+      case 'wordpos': setWordPos(st); return;
+      case 'elstyle':
+        if (st.el){ updateElement(st.el.id, st.patch); say('<b>styled.</b> the ' + elLabel(st.el) + ' element.'); }
+        return;
+    }
+  }
+  function scheduleRepeats(name, times){
+    var tok = seqToken;
+    for (var ri = 1; ri < times; ri++){
+      (function(delay){
+        gsap.delayedCall(delay, function(){
+          if (tok !== seqToken) return;
+          if (rawFx[name]) rawFx[name](); else if (actions[name]) actions[name]();
+        });
+      })(fxDur(name) * ri);
     }
   }
   function execStepLive(st){
     switch (st.kind){
+      case 'wait':
+        say('<b>waiting</b> ' + st.seconds + 's…');
+        return st.seconds;
       case 'word':
         setWord(st.text);
         say('<b>word: "' + st.text + '"</b>');
         return 0.45;
       case 'effect':
+        if (st.name.indexOf('wordcolor:') === 0){ setWordColor(st.name.slice(10) || null); return 0.5; }
         if (st.target){ var el = findEl(st.target); if (el) runElementEffect(st.name, el); }
         else if (rawFx[st.name]) rawFx[st.name]();
         else if (actions[st.name]) actions[st.name]();
-        return fxDur(st.name);
+        if (st.repeat > 1 && !st.target) scheduleRepeats(st.name, st.repeat);
+        return fxDur(st.name) * (st.repeat > 1 && !st.target ? st.repeat : 1);
       default:
         execStepNow(st);
         return 0.5;
@@ -2217,16 +2541,28 @@
     }
     gsap.delayedCall(0.35, next);
   }
+  function stepWeight(st){
+    if (st.kind === 'wait') return st.seconds;
+    if (st.kind === 'effect') return fxDur(st.name) * (st.repeat > 1 ? st.repeat : 1);
+    if (st.kind === 'wordpos' || st.kind === 'elstyle') return 0.3;
+    return 0.5;
+  }
   function layStepsOnRange(steps, range){
     var total = 0;
-    steps.forEach(function(st){ total += st.kind === 'effect' ? fxDur(st.name) : 0.5; });
+    steps.forEach(function(st){ total += stepWeight(st); });
     if (!total) total = 1;
     var len = range.b - range.a;
     var t = range.a;
     steps.forEach(function(st){
-      var share = ((st.kind === 'effect' ? fxDur(st.name) : 0.5) / total) * len;
+      var share = (stepWeight(st) / total) * len;
       var sub = { a:t, b:Math.min(range.b, t + share) };
-      if (st.kind === 'effect') addFxClip(st.name, sub, st.target);
+      if (st.kind === 'effect' && st.repeat > 1 && !st.target){
+        var each = share / st.repeat;
+        for (var ri = 0; ri < st.repeat; ri++){
+          addFxClip(st.name, { a:t + each * ri, b:Math.min(range.b, t + each * (ri + 1)) }, st.target);
+        }
+      }
+      else if (st.kind === 'effect') addFxClip(st.name, sub, st.target);
       else if (st.kind === 'word') addWordClip(st.text, t);
       else execStepNow(st);
       t += share;
@@ -2373,6 +2709,7 @@
           var el = findEl(c.target);
           if (el) runElementEffect(c.name, el);
         }
+        else if (c.name.indexOf('wordcolor:') === 0) setWordColor(c.name.slice(10));
         else if (rawFx[c.name]) rawFx[c.name]();
       }
     });
@@ -2480,7 +2817,7 @@
     var wdLane = laneEl('words'); clearLane(wdLane);
     normalizeWordClips();
     proj.words.forEach(function(c, i){
-      wdLane.appendChild(makeClip('words', i, c, c.text, null));
+      wdLane.appendChild(makeClip('words', i, c, (c.progressive ? '\u00bb ' : '') + c.text, null));
     });
     var elLane = laneEl('elements'); clearLane(elLane);
     proj.elements.forEach(function(el, i){
@@ -2655,7 +2992,9 @@
       words: proj.words,
       elements: proj.elements,
       ui: { italic: state.italic, scale: state.scale, speed: state.speed,
-            neon: state.neon, rainbow: state.rainbow, colorIdx: state.colorIdx }
+            neon: state.neon, rainbow: state.rainbow, colorIdx: state.colorIdx,
+            wordColor: (typeof wordColor !== 'undefined' ? wordColor : null),
+            wordPos: (typeof wordPos !== 'undefined' ? wordPos : { x:0, y:0 }) }
     }));
   }
   function loadState(s){
@@ -2664,6 +3003,15 @@
     if (s.theme && THEMES[s.theme]) applyTheme(s.theme);
     if (s.type && TYPES[s.type]) applyType(s.type);
     if (s.word) setWord(s.word);
+    if (typeof wordPos !== 'undefined' && s.ui && s.ui.wordPos){
+      wordPos.x = clamp(+s.ui.wordPos.x || 0, -0.45, 0.45);
+      wordPos.y = clamp(+s.ui.wordPos.y || 0, -0.42, 0.42);
+      applyWordPos();
+    }
+    if (typeof wordColor !== 'undefined'){
+      wordColor = (s.ui && s.ui.wordColor) || null;
+      if (wordColor) buildWord(baseWord);
+    }
     proj.duration = clamp(Math.round(+s.duration || 10), 5, 30);
     proj.bg = Array.isArray(s.bg) ? s.bg : [];
     proj.motion = Array.isArray(s.motion) ? s.motion : [];
@@ -2696,6 +3044,74 @@
   buildWord('MOTION');
   startAmbient();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ /* metrics settle */ });
+  /* ---------- Jarvis inbox: prompts MOTIQ can't do yet, routed to Jarvis ---------- */
+  var INBOX_KEY = 'motiq-inbox-v1';
+  function inboxLoad(){
+    try { return JSON.parse(localStorage.getItem(INBOX_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function inboxSave(list){
+    try { localStorage.setItem(INBOX_KEY, JSON.stringify(list.slice(0, 30))); } catch (e) {}
+  }
+  function inboxAdd(text){
+    text = String(text || '').trim();
+    if (!text) return;
+    var list = inboxLoad();
+    var dup = list.some(function(x){ return x.text === text && x.status === 'pending'; });
+    if (!dup){ list.unshift({ text:text, at:Date.now(), status:'pending' }); inboxSave(list); }
+    renderInbox();
+  }
+  function renderInbox(){
+    var box = document.getElementById('inboxList');
+    if (!box) return;
+    var list = inboxLoad();
+    box.innerHTML = '';
+    var empty = document.getElementById('inboxEmpty');
+    if (empty) empty.style.display = list.length ? 'none' : '';
+    list.forEach(function(item, idx){
+      var d = document.createElement('div');
+      d.className = 'inbox-item' + (item.status === 'sent' ? ' sent' : '');
+      var t = document.createElement('span');
+      t.className = 'inbox-text';
+      t.textContent = item.text + (item.status === 'sent' ? ' — sent' : '');
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'inbox-x'; b.textContent = '\u00d7'; b.title = 'Remove';
+      b.setAttribute('aria-label', 'Remove from inbox');
+      b.addEventListener('click', function(){
+        var l = inboxLoad(); l.splice(idx, 1); inboxSave(l); renderInbox();
+      });
+      d.appendChild(t); d.appendChild(b);
+      box.appendChild(d);
+    });
+    var send = document.getElementById('inboxSend');
+    if (send){
+      var pend = list.filter(function(x){ return x.status === 'pending'; }).length;
+      send.textContent = pend ? ('Send to Jarvis (' + pend + ')') : 'Send to Jarvis';
+      send.disabled = !pend;
+    }
+  }
+  var inboxSendBtn = document.getElementById('inboxSend');
+  if (inboxSendBtn) inboxSendBtn.addEventListener('click', function(){
+    var list = inboxLoad();
+    var pend = list.filter(function(x){ return x.status === 'pending'; });
+    if (!pend.length) return;
+    var body = 'MOTIQ capability request(s) from the prompt bar:\n\n'
+      + pend.map(function(x, i){ return (i + 1) + '. ' + x.text; }).join('\n')
+      + '\n\nPlease extend MOTIQ so these prompts work.';
+    var url = 'https://github.com/AshfanAnsari/motiq/issues/new?title='
+      + encodeURIComponent('MOTIQ request: ' + (pend.length === 1 ? pend[0].text.slice(0, 60) : pend.length + ' prompts'))
+      + '&body=' + encodeURIComponent(body);
+    window.open(url, '_blank');
+    list.forEach(function(x){ if (x.status === 'pending') x.status = 'sent'; });
+    inboxSave(list); renderInbox();
+    say('<b>sent to Jarvis.</b> the request opens in a new tab — press Submit there and Jarvis builds it into MOTIQ.');
+  });
+  var inboxClearBtn = document.getElementById('inboxClear');
+  if (inboxClearBtn) inboxClearBtn.addEventListener('click', function(){
+    inboxSave(inboxLoad().filter(function(x){ return x.status !== 'sent'; }));
+    renderInbox();
+  });
+  renderInbox();
+
   window.__motiq = {
     /* legacy surface */
     run: runCommand, state: state, setTheme: applyTheme, setType: applyType,
@@ -2704,6 +3120,8 @@
     isRecording: function(){ return rec.on; },
     /* studio API (see API.md) */
     setWord: setWord,
+    inboxList: function(){ return inboxLoad(); },
+    inboxAdd: function(text){ inboxAdd(String(text || '')); return inboxLoad(); },
     addWordClip: addWordClip,
     setWordAt: addWordClip,
     applyEffect: applyEffect,
