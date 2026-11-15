@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight" data-type="grotesk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MOTIQ — prompt-to-motion playground</title>
+<style>
+  @font-face{
+    font-family:'Archivo';
+    src:url('fonts/Archivo-Variable.ttf') format('truetype');
+    font-weight:100 900;
+    font-stretch:50% 125%;
+    font-display:swap;
+  }
+  @font-face{
+    font-family:'Archivo Black';
+    src:url('fonts/ArchivoBlack-Regular.ttf') format('truetype');
+    font-weight:400;
+    font-display:swap;
+  }
+  @font-face{
+    font-family:'Playfair Display';
+    src:url('fonts/PlayfairDisplay-Variable.ttf') format('truetype');
+    font-weight:400 900;
+    font-display:swap;
+  }
+  @font-face{
+    font-family:'JetBrains Mono';
+    src:url('fonts/JetBrainsMono-Variable.ttf') format('truetype');
+    font-weight:100 800;
+    font-display:swap;
+  }
+
+  /* ---------- themes ---------- */
+  :root, html[data-theme='midnight']{
+    --bg:#101013; --ink:#f2efe9; --mute:#8b877f;
+    --line:rgba(242,239,233,.14); --line-strong:rgba(242,239,233,.45);
+    --glow:#5c130c; --bar:rgba(255,255,255,.055);
+    --accent:#e0492e; --btn-ink:#101013; --pool:rgba(224,73,46,.5); --rec:#ff453a;
+    --tile-hover:rgba(255,255,255,.05);
+  }
+  html[data-theme='bone']{
+    --bg:#e9e4da; --ink:#16130d; --mute:#7d7462;
+    --line:rgba(22,19,13,.16); --line-strong:rgba(22,19,13,.42);
+    --glow:#d8c096; --bar:rgba(22,19,13,.05);
+    --accent:#b3351f; --btn-ink:#efe9dc; --pool:rgba(179,53,31,.42); --rec:#cf2413;
+    --tile-hover:rgba(22,19,13,.05);
+  }
+  html[data-theme='forest']{
+    --bg:#0a120d; --ink:#ece7d8; --mute:#7e8b7c;
+    --line:rgba(236,231,216,.14); --line-strong:rgba(236,231,216,.42);
+    --glow:#14401f; --bar:rgba(255,255,255,.05);
+    --accent:#8fce6e; --btn-ink:#0a120d; --pool:rgba(143,206,110,.4); --rec:#ff5147;
+    --tile-hover:rgba(255,255,255,.05);
+  }
+  html[data-theme='cobalt']{
+    --bg:#0a1226; --ink:#f4f6fb; --mute:#8494b3;
+    --line:rgba(244,246,251,.15); --line-strong:rgba(244,246,251,.45);
+    --glow:#173a75; --bar:rgba(255,255,255,.06);
+    --accent:#6ea8ff; --btn-ink:#0a1226; --pool:rgba(110,168,255,.45); --rec:#ff5147;
+    --tile-hover:rgba(255,255,255,.05);
+  }
+
+  /* ---------- type styles ---------- */
+  html[data-type='grotesk']{
+    --word-font:'Archivo Black','Archivo',sans-serif;
+    --word-weight:400; --wsize:13.5vw; --wmin:58px; --wls:.015em;
+  }
+  html[data-type='serif']{
+    --word-font:'Playfair Display',Georgia,serif;
+    --word-weight:800; --wsize:12.6vw; --wmin:54px; --wls:.005em;
+  }
+  html[data-type='mono']{
+    --word-font:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+    --word-weight:700; --wsize:10.6vw; --wmin:38px; --wls:0em;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---------- top bar ---------- */
+  header{
+    position:relative;z-index:5;
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    padding:20px 28px;
+  }
+  .logo{
+    font-weight:800;font-stretch:118%;
+    font-size:19px;letter-spacing:.34em;text-transform:uppercase;
+  }
+  .logo span{color:var(--accent)}
+  .tagline{
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);
+    font-weight:500;
+  }
+  .head-right{margin-left:auto;display:flex;align-items:center}
+  @media (max-width:680px){ .tagline{display:none} header{padding:16px 20px;gap:12px} }
+
+  /* ---------- ui switcher ---------- */
+  .switcher{display:flex;align-items:center;gap:12px}
+  .sw-group{display:flex;align-items:center;gap:7px}
+  .sw-sep{width:1px;height:18px;background:var(--line)}
+  .sw-dot{
+    width:17px;height:17px;border-radius:50%;
+    background:var(--dot);
+    border:1px solid var(--line-strong);
+    cursor:pointer;padding:0;
+    transition:transform .15s, box-shadow .15s;
+  }
+  .sw-dot:hover{transform:scale(1.15)}
+  .sw-dot.active{box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--accent)}
+  .sw-type{
+    font-family:inherit;font-size:11px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;
+    color:var(--mute);background:transparent;
+    border:1px solid transparent;border-radius:999px;
+    padding:6px 9px;cursor:pointer;
+    transition:color .18s, border-color .18s, background .18s;
+  }
+  .sw-type:hover{color:var(--ink)}
+  .sw-type.active{color:var(--ink);border-color:var(--line);background:var(--bar)}
+  @media (max-width:680px){ .sw-type{padding:5px 7px;font-size:10px} .sw-dot{width:15px;height:15px} }
+
+  /* ---------- stage ---------- */
+  main{
+    position:relative;flex:1;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .glow{
+    position:absolute;left:50%;top:52%;
+    width:min(88vw,880px);height:min(58vh,480px);
+    transform:translate(-50%,-50%);
+    background:radial-gradient(ellipse at center, var(--glow) 0%, transparent 68%);
+    opacity:.55;pointer-events:none;
+  }
+  .stage-word{position:relative;z-index:2;text-align:center;padding:0 16px}
+  .word{
+    font-family:var(--word-font);
+    font-weight:var(--word-weight);
+    font-size:clamp(var(--wmin),var(--wsize),176px);
+    line-height:1.02;
+    letter-spacing:var(--wls);
+    text-transform:uppercase;
+    white-space:nowrap;
+    cursor:text;
+    user-select:none;
+  }
+  .word .ch{display:inline-block;will-change:transform,opacity}
+  .word .sp{display:inline-block;width:.34em}
+  .word .caret{
+    display:inline-block;width:.5em;height:.8em;
+    background:var(--accent);
+    margin-left:.07em;vertical-align:-.06em;
+  }
+  .pool{
+    position:absolute;left:50%;bottom:-4.2vh;
+    width:56%;height:20px;border-radius:50%;
+    background:radial-gradient(ellipse at center, var(--pool) 0%, transparent 70%);
+    transform:translateX(-50%) scaleX(.2);
+    opacity:0;pointer-events:none;filter:blur(2px);
+  }
+  .edit-hint{
+    margin-top:22px;
+    font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute);
+    font-weight:500;
+  }
+  #wordInput{
+    display:none;
+    font-family:var(--word-font);
+    font-weight:var(--word-weight);
+    font-size:clamp(var(--wmin),var(--wsize),176px);
+    line-height:1.02;letter-spacing:var(--wls);text-transform:uppercase;
+    background:transparent;border:none;outline:none;color:var(--ink);
+    text-align:center;width:92vw;
+    border-bottom:2px solid var(--line-strong);
+  }
+
+  /* ---------- controls ---------- */
+  .controls{
+    position:relative;z-index:5;
+    display:flex;flex-direction:column;align-items:center;
+    padding:0 20px calc(26px + env(safe-area-inset-bottom));
+    gap:12px;
+  }
+  #feedback{
+    min-height:18px;
+    font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mute);font-weight:600;text-align:center;
+  }
+  #feedback b{color:var(--ink);font-weight:700}
+
+  /* effects toggle + panel */
+  .fx-row{display:flex;justify-content:center}
+  .fx-toggle{
+    display:flex;align-items:center;gap:8px;
+    font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink);background:var(--bar);
+    border:1px solid var(--line);border-radius:999px;
+    padding:8px 16px;cursor:pointer;
+    transition:border-color .18s, background .18s;
+  }
+  .fx-toggle:hover{border-color:var(--line-strong)}
+  .fx-toggle:active{transform:scale(.96)}
+  .fx-toggle svg{width:14px;height:14px;display:block}
+  .fx-toggle .fx-count{color:var(--accent);font-weight:800}
+  .fx-panel{
+    width:min(92vw,620px);
+    background:var(--bar);
+    border:1px solid var(--line);border-radius:18px;
+    padding:14px 16px 4px;
+    backdrop-filter:blur(12px);
+    max-height:44vh;overflow-y:auto;
+    scrollbar-width:thin;
+  }
+  .fx-panel[hidden]{display:none}
+  .fx-group h4{
+    font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--mute);font-weight:700;
+    margin:8px 2px 8px;
+  }
+  .fx-group:first-child h4{margin-top:2px}
+  .fx-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));
+    gap:8px;margin-bottom:12px;
+  }
+  .fx-tile{
+    text-align:left;
+    background:transparent;
+    border:1px solid var(--line);border-radius:12px;
+    padding:9px 11px;cursor:pointer;
+    color:var(--ink);font-family:inherit;
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .fx-tile:hover{border-color:var(--line-strong);background:var(--tile-hover)}
+  .fx-tile:active{transform:scale(.96)}
+  .fx-tile b{display:block;font-size:13px;font-weight:700;letter-spacing:.02em}
+  .fx-tile span{
+    display:block;margin-top:2px;
+    font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);
+  }
+
+  .chips{
+    display:flex;gap:8px;max-width:min(92vw,860px);
+    overflow-x:auto;padding:2px 2px 4px;
+    scrollbar-width:none;-ms-overflow-style:none;
+  }
+  .chips::-webkit-scrollbar{display:none}
+  .chip{
+    flex:0 0 auto;
+    font-family:inherit;font-size:12.5px;font-weight:600;letter-spacing:.06em;
+    color:var(--ink);background:transparent;
+    border:1px solid var(--line);border-radius:999px;
+    padding:8px 15px;cursor:pointer;
+    transition:border-color .18s, background .18s;
+  }
+  .chip:hover{border-color:var(--line-strong);background:var(--tile-hover)}
+  .chip:active{transform:scale(.96)}
+  .bar-row{
+    display:flex;align-items:stretch;gap:10px;
+    width:min(92vw,760px);
+    justify-content:center;
+  }
+  .promptbar{
+    flex:1 1 auto;min-width:0;max-width:620px;
+    display:flex;align-items:center;gap:10px;
+    background:var(--bar);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:7px 7px 7px 24px;
+    backdrop-filter:blur(10px);
+  }
+  .promptbar:focus-within{border-color:var(--line-strong)}
+  #promptInput{
+    flex:1;min-width:0;
+    background:transparent;border:none;outline:none;
+    color:var(--ink);font-family:inherit;
+    font-size:16px;font-weight:500;letter-spacing:.02em;
+  }
+  #promptInput::placeholder{color:var(--mute)}
+  #sendBtn{
+    flex:0 0 auto;
+    width:42px;height:42px;border-radius:50%;
+    border:none;cursor:pointer;
+    background:var(--ink);color:var(--btn-ink);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s, opacity .15s;
+  }
+  #sendBtn:hover{opacity:.86;transform:translateY(-1px)}
+  #sendBtn:active{transform:scale(.93)}
+  #sendBtn svg{width:18px;height:18px;display:block}
+
+  /* ---------- record / export ---------- */
+  .rec-btn{
+    flex:0 0 auto;
+    display:flex;align-items:center;gap:8px;
+    font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink);background:var(--bar);
+    border:1px solid var(--line);border-radius:999px;
+    padding:0 18px;cursor:pointer;
+    transition:border-color .18s, background .18s;
+  }
+  .rec-btn:hover{border-color:var(--line-strong)}
+  .rec-btn:active{transform:scale(.96)}
+  .rec-dot{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--rec);flex:0 0 auto;
+  }
+  .rec-btn.recording{border-color:var(--rec)}
+  .rec-btn.recording .rec-dot{animation:recPulse 1.1s ease-in-out infinite}
+  .rec-time{font-variant-numeric:tabular-nums;letter-spacing:.04em}
+  @keyframes recPulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.72)} }
+  @media (prefers-reduced-motion: reduce){ .rec-btn.recording .rec-dot{animation:none} }
+  @media (max-width:560px){ .rec-btn{padding:0 13px;font-size:11px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MOT<span>I</span>Q</div>
+  <div class="tagline">prompt-driven motion — no keyframes</div>
+  <div class="head-right">
+    <div class="switcher" aria-label="Interface options">
+      <div class="sw-group" id="themeSw" role="group" aria-label="Theme">
+        <button type="button" class="sw-dot active" data-theme="midnight" style="--dot:#101013" aria-label="Midnight theme"></button>
+        <button type="button" class="sw-dot" data-theme="bone" style="--dot:#e9e4da" aria-label="Bone theme"></button>
+        <button type="button" class="sw-dot" data-theme="forest" style="--dot:#0d2013" aria-label="Forest theme"></button>
+        <button type="button" class="sw-dot" data-theme="cobalt" style="--dot:#0d1a3a" aria-label="Cobalt theme"></button>
+      </div>
+      <div class="sw-sep"></div>
+      <div class="sw-group" id="typeSw" role="group" aria-label="Type style">
+        <button type="button" class="sw-type active" data-type="grotesk">Grotesk</button>
+        <button type="button" class="sw-type" data-type="serif">Serif</button>
+        <button type="button" class="sw-type" data-type="mono">Mono</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="stage">
+  <div class="glow" id="glow"></div>
+  <div class="stage-word" id="stageWord">
+    <div id="floatWrap">
+      <div id="persist">
+        <div class="word" id="word" title="Click to edit the word"></div>
+      </div>
+    </div>
+    <input id="wordInput" maxlength="14" autocomplete="off" spellcheck="false" aria-label="Your words">
+    <div class="pool" id="pool"></div>
+    <div class="edit-hint" id="editHint">click the word to make it yours</div>
+  </div>
+</main>
+
+<div class="controls">
+  <div id="feedback">type a command — or tap one below</div>
+  <div class="fx-row">
+    <button type="button" class="fx-toggle" id="fxToggle" aria-expanded="false" aria-controls="fxPanel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+      Effects <span class="fx-count" id="fxCount"></span>
+    </button>
+  </div>
+  <div class="fx-panel" id="fxPanel" hidden></div>
+  <div class="chips" id="chips"></div>
+  <div class="bar-row">
+    <form class="promptbar" id="promptForm" autocomplete="off">
+      <input id="promptInput" type="text" placeholder="make this word bounce…" aria-label="Motion command" autocomplete="off" spellcheck="false">
+      <button id="sendBtn" type="submit" aria-label="Run command">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5"/><path d="M5 11l7-7 7 7"/></svg>
+      </button>
+    </form>
+    <button type="button" class="rec-btn" id="recBtn" aria-pressed="false">
+      <span class="rec-dot"></span><span class="rec-label">Record</span><span class="rec-time" id="recTime" hidden>0:00</span>
+    </button>
+  </div>
+</div>
+
+<script src="vendor/gsap.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var wordEl   = document.getElementById('word');
+  var persist  = document.getElementById('persist');
+  var floatW   = document.getElementById('floatWrap');
+  var pool     = document.getElementById('pool');
+  var glow     = document.getElementById('glow');
+  var feedback = document.getElementById('feedback');
+  var form     = document.getElementById('promptForm');
+  var input    = document.getElementById('promptInput');
+  var wordIn   = document.getElementById('wordInput');
+  var editHint = document.getElementById('editHint');
+  var fxPanel  = document.getElementById('fxPanel');
+  var fxToggle = document.getElementById('fxToggle');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- themes (JS mirror of the CSS variables) ---------------- */
+  var THEMES = {
+    midnight: { bg:'#101013', glow:'#5c130c', ink:'#f2efe9', neon:'#ff7a5c', label:'Midnight' },
+    bone:     { bg:'#e9e4da', glow:'#d8c096', ink:'#16130d', neon:'#d63c1e', label:'Bone' },
+    forest:   { bg:'#0a120d', glow:'#14401f', ink:'#ece7d8', neon:'#b5ec8d', label:'Forest' },
+    cobalt:   { bg:'#0a1226', glow:'#173a75', ink:'#f4f6fb', neon:'#9cc2ff', label:'Cobalt' }
+  };
+  var TYPES = { grotesk:'Grotesk', serif:'Serif', mono:'Mono' };
+
+  /* ---------------- state ---------------- */
+  var state = { italic:false, scale:1, speed:1, colorIdx:-1,
+                theme:'midnight', type:'grotesk', neon:false, rainbow:false };
+  var PALETTE = [
+    { bg:'#4a0f0a', glow:'#8c1d12', name:'crimson' },
+    { bg:'#0a2e21', glow:'#0d4d33', name:'forest'  },
+    { bg:'#0d2440', glow:'#14467c', name:'cobalt'  },
+    { bg:'#33230a', glow:'#7a5200', name:'ochre'   },
+    { bg:'#082a30', glow:'#0b5563', name:'teal'    }
+  ];
+  var RAINBOW = ['#ff5252','#ff9f43','#f5cf4d','#57c96b','#4d9fff','#9b6bff'];
+  var currentText = 'MOTION';
+  var scrambleTween = null;
+
+  function theme(){ return THEMES[state.theme]; }
+  function glowGradient(col){
+    return 'radial-gradient(ellipse at center, ' + col + ' 0%, transparent 68%)';
+  }
+  function letters(){ return wordEl.querySelectorAll('.ch'); }
+
+  function buildWord(text){
+    killActions();
+    currentText = text;
+    wordEl.innerHTML = '';
+    text.split('').forEach(function(c){
+      var s = document.createElement('span');
+      if (c === ' '){ s.className = 'sp'; }
+      else { s.className = 'ch'; s.textContent = c; }
+      wordEl.appendChild(s);
+    });
+    if (state.neon) paintNeon(false);
+    if (state.rainbow) paintRainbow();
+  }
+
+  /* ---------------- ambient idle float ---------------- */
+  var ambient = null;
+  function startAmbient(){
+    if (reduceMotion || ambient) return;
+    ambient = gsap.to(floatW, { y:-9, duration:3.1, ease:'sine.inOut', yoyo:true, repeat:-1 });
+  }
+  function applySpeed(){
+    if (ambient) gsap.to(ambient, { timeScale: state.speed, duration:.6, ease:'power2.out' });
+  }
+
+  /* ---------------- helpers ---------------- */
+  function say(html){ feedback.innerHTML = html; }
+  function killActions(){
+    if (scrambleTween){
+      var st = scrambleTween; scrambleTween = null; st.kill();
+      buildWord(currentText);
+    }
+    var caret = wordEl.querySelector('.caret');
+    if (caret){ gsap.killTweensOf(caret); caret.remove(); }
+    gsap.killTweensOf(letters());
+    gsap.killTweensOf(wordEl);
+    gsap.killTweensOf(pool);
+  }
+  function resetLetters(dur){
+    gsap.to(letters(), { x:0, y:0, rotation:0, rotationX:0, rotationY:0, scale:1, scaleX:1, scaleY:1,
+      skewX:0, opacity:1, duration: dur || 0, ease:'power2.out', overwrite:true, stagger:0 });
+    gsap.to(wordEl, { rotation:0, scale:1, filter:'blur(0px)',
+      duration: (dur || 0) > 0 ? dur : .2, ease:'power2.out', overwrite:'auto' });
+    gsap.to(pool, { opacity:0, scaleX:.2, duration:.3 });
+  }
+  function prepLetters(){ killActions(); resetLetters(0); }
+
+  /* letter colour/glow states (neon + rainbow live on the letters themselves) */
+  function neonShadow(acc, strong){
+    return strong
+      ? '0 0 6px ' + acc + ', 0 0 20px ' + acc + ', 0 0 46px ' + acc
+      : '0 0 4px ' + acc + ', 0 0 13px ' + acc;
+  }
+  function paintNeon(pulse){
+    var acc = theme().neon;
+    state.neon = true; state.rainbow = false;
+    gsap.to(letters(), { color: acc, textShadow: neonShadow(acc, true),
+      duration:.35, stagger:.04, ease:'power2.out', overwrite:'auto' });
+    gsap.to(letters(), { textShadow: neonShadow(acc, false),
+      duration:.9, delay: pulse ? .45 : .4, ease:'power2.inOut', overwrite:false });
+  }
+  function paintRainbow(){
+    state.rainbow = true; state.neon = false;
+    Array.prototype.forEach.call(letters(), function(el, i){
+      gsap.to(el, { color: RAINBOW[i % RAINBOW.length], textShadow:'0 0 0 rgba(0,0,0,0)',
+        duration:.5, delay:i * .05, overwrite:'auto' });
+    });
+  }
+  function clearLetterFx(){
+    state.neon = false; state.rainbow = false;
+    gsap.to(letters(), { color: theme().ink, textShadow:'0 0 0 rgba(0,0,0,0)',
+      duration:.35, overwrite:'auto',
+      onComplete:function(){ gsap.set(letters(), { clearProps:'color,textShadow' }); } });
+  }
+
+  /* ---------------- actions ---------------- */
+  var actions = {
+    bounce: function(){
+      prepLetters();
+      var tl = gsap.timeline();
+      tl.to(letters(), { y:'-0.42em', duration:.3, ease:'power2.out', stagger:.045 })
+        .to(letters(), { y:0, duration:.95, ease:'bounce.out', stagger:.045 }, '-=0.05');
+      say('<b>bounced.</b> overshoot physics, no keyframes.');
+    },
+    melt: function(){
+      prepLetters();
+      var tl = gsap.timeline();
+      tl.to(pool, { opacity:1, scaleX:1, duration:.8, ease:'power2.out' }, 0)
+        .to(letters(), { y:'0.5em', scaleY:.5, scaleX:1.18, skewX:function(){ return gsap.utils.random(-7,7); },
+            opacity:.88, duration:.85, ease:'power2.in', stagger:.06 }, 0)
+        .to(pool, { opacity:0, scaleX:.2, duration:.6, ease:'power2.inOut' }, '+=0.55')
+        .to(letters(), { y:0, scaleY:1, scaleX:1, skewX:0, opacity:1,
+            duration:1.0, ease:'elastic.out(1, 0.5)', stagger:.05 }, '<');
+      say('<b>melting…</b> and reforming.');
+    },
+    explode: function(){
+      prepLetters();
+      var tl = gsap.timeline();
+      tl.to(letters(), {
+          x:function(){ return gsap.utils.random(-420, 420); },
+          y:function(){ return gsap.utils.random(-260, 200); },
+          rotation:function(){ return gsap.utils.random(-320, 320); },
+          duration:.65, ease:'power3.out', stagger:{ each:.02, from:'center' }
+        })
+        .to(letters(), { opacity:0, duration:.16, ease:'power1.in' }, 0.52)
+        .to(letters(), { x:0, y:0, rotation:0, opacity:1, duration:1.05,
+            ease:'elastic.out(1, 0.55)', stagger:.035 }, '+=0.15');
+      say('<b>shattered.</b> pieces fly home on their own.');
+    },
+    spin: function(){
+      prepLetters();
+      gsap.set(wordEl, { transformPerspective:700 });
+      gsap.to(letters(), { rotationY:'+=360', duration:.85, ease:'power2.inOut', stagger:.055,
+        onComplete:function(){ gsap.set(letters(), { rotationY:0 }); } });
+      say('<b>spun.</b> one full turn, letter by letter.');
+    },
+    italics: function(){
+      state.italic = true;
+      gsap.to(persist, { skewX:-11, duration:.7, ease:'power3.out' });
+      say('<b>slanted.</b> say “upright” to straighten it.');
+    },
+    upright: function(){
+      state.italic = false;
+      gsap.to(persist, { skewX:0, duration:.7, ease:'power3.out' });
+      say('<b>upright.</b> standing straight again.');
+    },
+    big: function(){
+      state.scale = Math.min(2.1, +(state.scale * 1.3).toFixed(3));
+      gsap.to(persist, { scale: state.scale, duration:.85, ease:'elastic.out(1, 0.48)' });
+      say('<b>bigger.</b> scale ×' + state.scale.toFixed(2) + '.');
+    },
+    small: function(){
+      state.scale = Math.max(.42, +(state.scale / 1.3).toFixed(3));
+      gsap.to(persist, { scale: state.scale, duration:.7, ease:'back.out(1.6)' });
+      say('<b>smaller.</b> scale ×' + state.scale.toFixed(2) + '.');
+    },
+    slow: function(){
+      state.speed = Math.max(.25, +(state.speed / 1.6).toFixed(3));
+      applySpeed();
+      say('<b>slowed down.</b> ambient drift ×' + state.speed.toFixed(2) + '.');
+    },
+    fast: function(){
+      state.speed = Math.min(3, +(state.speed * 1.6).toFixed(3));
+      applySpeed();
+      say('<b>sped up.</b> ambient drift ×' + state.speed.toFixed(2) + '.');
+    },
+    color: function(){
+      state.colorIdx = (state.colorIdx + 1) % PALETTE.length;
+      var c = PALETTE[state.colorIdx];
+      gsap.to(document.body, { backgroundColor: c.bg, duration:.9, ease:'power2.inOut' });
+      gsap.to(glow, { background: glowGradient(c.glow), duration:.9, ease:'power2.inOut' });
+      say('<b>splash of ' + c.name + '.</b> again for the next colour.');
+    },
+    wave: function(){
+      prepLetters();
+      var tl = gsap.timeline();
+      tl.to(letters(), { y:'-0.24em', duration:.26, ease:'sine.inOut', stagger:.06 })
+        .to(letters(), { y:0, duration:.34, ease:'sine.inOut', stagger:.06 }, '-=0.08')
+        .to(letters(), { y:'-0.16em', duration:.24, ease:'sine.inOut', stagger:.06 }, '-=0.12')
+        .to(letters(), { y:0, duration:.32, ease:'sine.inOut', stagger:.06 }, '-=0.06');
+      say('<b>waving.</b> a sine cascade through the letters.');
+    },
+    shake: function(){
+      killActions(); resetLetters(.2);
+      gsap.timeline()
+        .to(wordEl, { x:-13, duration:.05 }).to(wordEl, { x:11, duration:.06 })
+        .to(wordEl, { x:-8, duration:.06 }).to(wordEl, { x:6, duration:.06 })
+        .to(wordEl, { x:-3, duration:.05 }).to(wordEl, { x:0, duration:.06 });
+      say('<b>shaken.</b>');
+    },
+
+    /* ---------- new effects ---------- */
+    drop: function(){
+      prepLetters();
+      var els = letters();
+      gsap.set(els, { transformOrigin:'50% 100%' });
+      var tl = gsap.timeline();
+      tl.fromTo(els, { y:'-1.7em', opacity:0 }, { opacity:1, duration:.05, stagger:.055 }, 0)
+        .to(els, { y:0, duration:.5, ease:'power2.in', stagger:.055 }, 0)
+        .to(els, { scaleY:.8, scaleX:1.14, duration:.07, yoyo:true, repeat:1,
+            ease:'power1.inOut', stagger:.055 }, .48)
+        .to(els, { y:'-0.17em', duration:.15, ease:'power2.out', stagger:.055 }, .58)
+        .to(els, { y:0, duration:.45, ease:'bounce.out', stagger:.055 }, .73);
+      say('<b>dropped.</b> gravity in, floor bounce out.');
+    },
+    rise: function(){
+      prepLetters();
+      gsap.fromTo(letters(), { y:'0.95em', opacity:0 },
+        { y:0, opacity:1, duration:.75, ease:'power3.out', stagger:.05 });
+      say('<b>risen.</b> up from below, one by one.');
+    },
+    flip: function(){
+      prepLetters();
+      gsap.set(wordEl, { transformPerspective:800 });
+      gsap.fromTo(letters(), { rotationX:-92, opacity:0 },
+        { rotationX:0, opacity:1, duration:.65, ease:'back.out(1.5)', stagger:.06 });
+      say('<b>flipped.</b> a 3d cascade, letter by letter.');
+    },
+    swing: function(){
+      killActions();
+      gsap.set(wordEl, { transformOrigin:'50% -35%' });
+      gsap.timeline()
+        .to(wordEl, { rotation:13, duration:.5, ease:'sine.out' })
+        .to(wordEl, { rotation:-9, duration:.65, ease:'sine.inOut' })
+        .to(wordEl, { rotation:5.5, duration:.6, ease:'sine.inOut' })
+        .to(wordEl, { rotation:-3, duration:.55, ease:'sine.inOut' })
+        .to(wordEl, { rotation:0, duration:.5, ease:'sine.inOut' });
+      say('<b>swinging.</b> a pendulum, losing steam.');
+    },
+    zoom: function(){
+      killActions();
+      gsap.timeline()
+        .to(wordEl, { scale:1.25, duration:.16, ease:'power3.out' })
+        .to(wordEl, { scale:1, duration:.65, ease:'back.out(2.2)' });
+      say('<b>punch.</b> straight at you, then back.');
+    },
+    stretch: function(){
+      prepLetters();
+      gsap.set(letters(), { transformOrigin:'50% 50%' });
+      gsap.timeline()
+        .to(letters(), { scaleX:1.65, scaleY:.8, duration:.3, ease:'power3.out',
+            stagger:{ each:.03, from:'center' } })
+        .to(letters(), { scaleX:1, scaleY:1, duration:1, ease:'elastic.out(1, 0.32)',
+            stagger:{ each:.03, from:'center' } });
+      say('<b>stretched.</b> rubber band, snapped back.');
+    },
+    blur: function(){
+      killActions();
+      gsap.timeline()
+        .to(wordEl, { filter:'blur(16px)', scale:1.045, duration:.45, ease:'power2.in' })
+        .to(wordEl, { filter:'blur(0px)', scale:1, duration:.8, ease:'power2.out' }, '+=0.15');
+      say('<b>out of focus…</b> and back into the light.');
+    },
+    glitch: function(){
+      prepLetters();
+      var steps = 8, stepT = .075;
+      var tl = gsap.timeline();
+      for (var i = 0; i < steps; i++){
+        tl.to(letters(), {
+            x:function(){ return gsap.utils.random(-7, 7); },
+            skewX:function(){ return gsap.utils.random(-12, 12); },
+            textShadow: (i % 2
+              ? '4px 0 rgba(255,0,80,.85), -4px 0 rgba(0,255,255,.85)'
+              : '-4px 0 rgba(255,0,80,.85), 4px 0 rgba(0,255,255,.85)'),
+            duration:.055, ease:'steps(1)'
+          }, i * stepT);
+      }
+      tl.to(wordEl, { x:-6, duration:.05, ease:'steps(1)' }, 3 * stepT)
+        .to(wordEl, { x:5, duration:.05, ease:'steps(1)' }, 5 * stepT)
+        .to(wordEl, { x:0, duration:.05 }, steps * stepT)
+        .to(letters(), { x:0, skewX:0, duration:.06 }, steps * stepT)
+        .to(letters(), { textShadow: state.neon ? neonShadow(theme().neon, false) : '0 0 0 rgba(0,0,0,0)',
+            duration:.12, onComplete:function(){
+              if (!state.neon) gsap.set(letters(), { clearProps:'textShadow' });
+            } }, steps * stepT);
+      say('<b>glitched.</b> signal lost, signal found.');
+    },
+    typewriter: function(){
+      prepLetters();
+      var els = letters();
+      var caret = document.createElement('span');
+      caret.className = 'caret';
+      wordEl.appendChild(caret);
+      var blink = gsap.to(caret, { opacity:0, duration:.34, repeat:-1, yoyo:true, ease:'steps(1)' });
+      gsap.set(els, { opacity:0, y:'0.12em' });
+      gsap.to(els, { opacity:1, y:0, duration:.22, ease:'back.out(2.2)', stagger:.1,
+        onComplete:function(){
+          blink.kill();
+          gsap.to(caret, { opacity:0, duration:.3, delay:.5,
+            onComplete:function(){ if (caret.parentNode) caret.remove(); } });
+        } });
+      say('<b>typed out.</b> one letter at a time.');
+    },
+    scramble: function(){
+      prepLetters();
+      var els = Array.prototype.slice.call(letters());
+      var orig = els.map(function(el){ return el.textContent; });
+      var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$';
+      var o = { p:0 };
+      scrambleTween = gsap.to(o, { p:1, duration:1.05, ease:'power2.inOut',
+        onUpdate:function(){
+          var resolved = Math.floor(o.p * (els.length + 3));
+          els.forEach(function(el, i){
+            el.textContent = i < resolved ? orig[i]
+              : GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+          });
+        },
+        onComplete:function(){
+          els.forEach(function(el, i){ el.textContent = orig[i]; });
+          scrambleTween = null;
+        } });
+      say('<b>decoding…</b> signal resolves left to right.');
+    },
+    neon: function(){
+      killActions();
+      paintNeon(true);
+      say('<b>neon on.</b> say “glow off” to go plain.');
+    },
+    plain: function(){
+      if (!state.neon && !state.rainbow){ say('<b>already plain.</b> nothing glowing here.'); return; }
+      clearLetterFx();
+      say('<b>plain.</b> glow off, colours off.');
+    },
+    rainbow: function(){
+      killActions();
+      paintRainbow();
+      say('<b>rainbow.</b> a colour cascade — reset to clear.');
+    },
+
+    reset: function(){
+      killActions(); resetLetters(.45);
+      clearLetterFx();
+      gsap.set(wordEl, { x:0, rotation:0, scale:1, filter:'blur(0px)' });
+      state.italic = false; state.scale = 1; state.speed = 1; state.colorIdx = -1;
+      gsap.to(persist, { scale:1, skewX:0, duration:.6, ease:'power3.out' });
+      gsap.to(document.body, { backgroundColor: theme().bg, duration:.8, ease:'power2.inOut' });
+      gsap.to(glow, { background: glowGradient(theme().glow), duration:.8, ease:'power2.inOut' });
+      applySpeed();
+      say('<b>reset.</b> back to the default state.');
+    }
+  };
+
+  /* ---------------- themes + type styles ---------------- */
+  function applyTheme(name){
+    if (!THEMES[name]) return;
+    state.theme = name;
+    state.colorIdx = -1;
+    document.documentElement.setAttribute('data-theme', name);
+    gsap.to(document.body, { backgroundColor: THEMES[name].bg, duration:.7, ease:'power2.inOut' });
+    gsap.to(glow, { background: glowGradient(THEMES[name].glow), duration:.7, ease:'power2.inOut' });
+    if (state.neon) paintNeon(false);
+    Array.prototype.forEach.call(document.querySelectorAll('#themeSw .sw-dot'), function(d){
+      d.classList.toggle('active', d.getAttribute('data-theme') === name);
+    });
+    say('<b>theme — ' + THEMES[name].label.toLowerCase() + '.</b>');
+  }
+  function applyType(name){
+    if (!TYPES[name]) return;
+    state.type = name;
+    document.documentElement.setAttribute('data-type', name);
+    Array.prototype.forEach.call(document.querySelectorAll('#typeSw .sw-type'), function(b){
+      b.classList.toggle('active', b.getAttribute('data-type') === name);
+    });
+    say('<b>type — ' + TYPES[name].toLowerCase() + '.</b>');
+  }
+  document.getElementById('themeSw').addEventListener('click', function(e){
+    var d = e.target.closest('.sw-dot'); if (d) applyTheme(d.getAttribute('data-theme'));
+  });
+  document.getElementById('typeSw').addEventListener('click', function(e){
+    var b = e.target.closest('.sw-type'); if (b) applyType(b.getAttribute('data-type'));
+  });
+
+  /* ---------------- record / export ---------------- */
+  var recBtn   = document.getElementById('recBtn');
+  var recTime  = document.getElementById('recTime');
+  var recLabel = recBtn.querySelector('.rec-label');
+  var PHONE_GUIDANCE = '<b>Recording works in desktop Chrome</b> — on phone, use your screen ' +
+    'recorder while you perform, or ask Jarvis to render the MP4.';
+  var rec = { on:false, recorder:null, stream:null, chunks:[], mime:'', t0:0, timer:null };
+
+  function captureSupported(){
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia &&
+              typeof MediaRecorder !== 'undefined');
+  }
+  function phoneLike(){
+    var coarse = window.matchMedia('(pointer: coarse)').matches;
+    var touch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+    return coarse || (touch && Math.min(window.innerWidth, window.innerHeight) < 820);
+  }
+  function fmtTime(ms){
+    var s = Math.floor(ms / 1000);
+    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+  }
+  function setRecUI(on){
+    rec.on = on;
+    recBtn.classList.toggle('recording', on);
+    recBtn.setAttribute('aria-pressed', String(on));
+    recLabel.textContent = on ? 'Stop' : 'Record';
+    recTime.hidden = !on;
+    if (on) recTime.textContent = '0:00';
+  }
+  function startRecTimer(){
+    rec.t0 = Date.now();
+    rec.timer = setInterval(function(){ recTime.textContent = fmtTime(Date.now() - rec.t0); }, 250);
+  }
+  function stopRecTimer(){ if (rec.timer){ clearInterval(rec.timer); rec.timer = null; } }
+  function stopStreamTracks(){
+    if (rec.stream){ rec.stream.getTracks().forEach(function(t){ t.stop(); }); rec.stream = null; }
+  }
+  function finishRecording(){
+    if (!rec.recorder) return;
+    rec.recorder = null;
+    stopRecTimer();
+    var mime = rec.mime || 'video/webm';
+    var blob = new Blob(rec.chunks, { type: mime });
+    rec.chunks = [];
+    stopStreamTracks();
+    setRecUI(false);
+    if (!blob.size){ say('<b>recording was empty.</b> try again.'); return; }
+    var ext = mime.indexOf('mp4') !== -1 ? 'mp4' : 'webm';
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'motiq-recording.' + ext;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    say('<b>saved.</b> motiq-recording.' + ext + ' is in your downloads.');
+  }
+  function stopRecording(){
+    if (rec.recorder && rec.recorder.state !== 'inactive'){ rec.recorder.stop(); }
+    else { stopRecTimer(); stopStreamTracks(); setRecUI(false); }
+  }
+  async function startRecording(){
+    var stream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { width:{ ideal:1920 }, height:{ ideal:1080 }, frameRate:{ ideal:60 } },
+        audio: false,
+        preferCurrentTab: true
+      });
+    } catch (e) {
+      say('<b>Recording needs tab-capture permission</b> — allow this tab when Chrome asks, then hit record again.');
+      return;
+    }
+    rec.stream = stream;
+    var candidates = ['video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+    var mime = '';
+    for (var i = 0; i < candidates.length; i++){
+      if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(candidates[i])){ mime = candidates[i]; break; }
+    }
+    var recorder;
+    try {
+      recorder = mime ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 12000000 })
+                      : new MediaRecorder(stream);
+    } catch (e) {
+      stopStreamTracks();
+      say('<b>recording is not supported</b> in this browser.');
+      return;
+    }
+    rec.mime = recorder.mimeType || mime;
+    rec.recorder = recorder;
+    rec.chunks = [];
+    recorder.ondataavailable = function(ev){ if (ev.data && ev.data.size) rec.chunks.push(ev.data); };
+    recorder.onstop = finishRecording;
+    stream.getVideoTracks().forEach(function(t){
+      t.addEventListener('ended', function(){ stopRecording(); });
+    });
+    try { recorder.start(250); }
+    catch (e) { rec.recorder = null; stopStreamTracks(); say('<b>recording failed to start.</b>'); return; }
+    setRecUI(true);
+    startRecTimer();
+    say('<b>recording.</b> perform your moves — hit stop to save the clip.');
+  }
+  recBtn.addEventListener('click', function(){
+    if (rec.on){ stopRecording(); return; }
+    if (phoneLike() || !captureSupported()){ say(PHONE_GUIDANCE); return; }
+    startRecording();
+  });
+
+  /* ---------------- parser ---------------- */
+  var SUGGESTIONS = ['bounce','drop','glitch','scramble','neon','rainbow','flip','stretch',
+                     'typewriter','melt','explode','spin','splash of color','swing','make it big'];
+  var suggIdx = 0;
+
+  function runCommand(raw){
+    var t = ' ' + raw.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ') + ' ';
+    var m;
+    if ((m = raw.match(/^\s*(?:say|write|text|type)\s+(.+)$/i))){
+      var w = m[1].replace(/[^a-zA-Z0-9 ]/g,'').trim().slice(0,14);
+      if (w){ buildWord(w.toUpperCase()); say('<b>new words.</b> “' + w.toUpperCase() + '” — now move it.'); }
+      return;
+    }
+    if (/( reset | normal | default | start over )/.test(t)) return actions.reset();
+    if (/( glow off| neon off| no glow| plain )/.test(t)) return actions.plain();
+    if (/ slow/.test(t)) return actions.slow();
+    if (/( fast | speed| quicker| hurry)/.test(t)) return actions.fast();
+    if (/( melt| drip| liquid)/.test(t)) return actions.melt();
+    if (/( explode| shatter| burst| break| blast)/.test(t)) return actions.explode();
+    if (/( bounce| jump| hop )/.test(t)) return actions.bounce();
+    if (/( drop| fall| falling| fell )/.test(t)) return actions.drop();
+    if (/( rise| arise| emerge)/.test(t)) return actions.rise();
+    if (/ flip/.test(t)) return actions.flip();
+    if (/( spin| rotate| twirl)/.test(t)) return actions.spin();
+    if (/( glitch| static| distort| corrupt)/.test(t)) return actions.glitch();
+    if (/( blur| foggy| unfocus| refocus| focus)/.test(t)) return actions.blur();
+    if (/( stretch| rubber| elongate)/.test(t)) return actions.stretch();
+    if (/( swing| pendulum| sway)/.test(t)) return actions.swing();
+    if (/( scramble| shuffle| decode| random)/.test(t)) return actions.scramble();
+    if (/( typewriter| typing| type it| type out)/.test(t)) return actions.typewriter();
+    if (/( rainbow| colourful| colorful| pride)/.test(t)) return actions.rainbow();
+    if (/( neon| glow)/.test(t)) return actions.neon();
+    if (/( italic| slant| tilt| lean)/.test(t)) return actions.italics();
+    if (/ upright| straighten/.test(t)) return actions.upright();
+    if (/( big| bigger| grow| enlarge| huge| larger)/.test(t)) return actions.big();
+    if (/( small| smaller| shrink| tiny)/.test(t)) return actions.small();
+    if (/( zoom| punch| closer)/.test(t)) return actions.zoom();
+    if (/( color| colour| splash| paint| flood)/.test(t)) return actions.color();
+    if (/ wave| ripple/.test(t)) return actions.wave();
+    if (/( shake| vibrate| tremble)/.test(t)) return actions.shake();
+    unknownCommand();
+  }
+
+  function unknownCommand(){
+    gsap.timeline()
+      .to(form, { x:-9, duration:.05 }).to(form, { x:8, duration:.06 })
+      .to(form, { x:-5, duration:.05 }).to(form, { x:0, duration:.06 });
+    var s = SUGGESTIONS[suggIdx % SUGGESTIONS.length]; suggIdx++;
+    say('hmm, don’t know that one — try <b>“' + s + '”</b>');
+    input.placeholder = 'try “' + s + '”…';
+  }
+
+  /* ---------------- effects panel ---------------- */
+  var FX_GROUPS = [
+    { name:'Motion', items:[
+      ['Bounce','bounce','overshoot hop'], ['Drop','drop','gravity fall'],
+      ['Rise','rise','from below'], ['Explode','explode','shatter + return'],
+      ['Spin','spin','full turn'], ['Flip','flip','3d cascade'],
+      ['Wave','wave','sine cascade'], ['Swing','swing','pendulum'],
+      ['Shake','shake','quick tremble'], ['Zoom punch','zoom','toward you']
+    ]},
+    { name:'Style', items:[
+      ['Melt','melt','drip + reform'], ['Glitch','glitch','rgb split'],
+      ['Blur','blur','out of focus'], ['Stretch','stretch','rubber band'],
+      ['Typewriter','typewriter','letter by letter'], ['Scramble','scramble','decode in'],
+      ['Italics','italics','slant −11°'], ['Go big','big','scale up'],
+      ['Go small','small','scale down'], ['Slow down','slow down','ambient drift'],
+      ['Speed up','speed up','ambient drift'], ['Neon','neon','glow pulse']
+    ]},
+    { name:'Colour', items:[
+      ['Splash of color','splash of color','flood the stage'], ['Rainbow','rainbow','letter cascade'],
+      ['Glow off','glow off','back to plain'], ['Reset','reset','default state']
+    ]}
+  ];
+  var fxTotal = 0;
+  FX_GROUPS.forEach(function(g){
+    var wrap = document.createElement('div');
+    wrap.className = 'fx-group';
+    var h = document.createElement('h4'); h.textContent = g.name; wrap.appendChild(h);
+    var grid = document.createElement('div'); grid.className = 'fx-grid';
+    g.items.forEach(function(it){
+      fxTotal++;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'fx-tile';
+      b.setAttribute('data-cmd', it[1]);
+      var bold = document.createElement('b'); bold.textContent = it[0];
+      var sub = document.createElement('span'); sub.textContent = it[2];
+      b.appendChild(bold); b.appendChild(sub);
+      b.addEventListener('click', function(){ runCommand(it[1]); setPanel(false); input.focus(); });
+      grid.appendChild(b);
+    });
+    wrap.appendChild(grid);
+    fxPanel.appendChild(wrap);
+  });
+  document.getElementById('fxCount').textContent = fxTotal;
+
+  var panelOpen = false;
+  function setPanel(open){
+    panelOpen = open;
+    fxToggle.setAttribute('aria-expanded', String(open));
+    if (open){
+      fxPanel.hidden = false;
+      gsap.fromTo(fxPanel, { opacity:0, y:8 }, { opacity:1, y:0, duration:.28, ease:'power2.out' });
+    } else {
+      gsap.to(fxPanel, { opacity:0, y:6, duration:.18, ease:'power2.in',
+        onComplete:function(){ fxPanel.hidden = true; } });
+    }
+  }
+  fxToggle.addEventListener('click', function(){ setPanel(!panelOpen); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && panelOpen) setPanel(false);
+  });
+
+  /* ---------------- wiring ---------------- */
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var v = input.value.trim();
+    if (!v) return;
+    input.value = '';
+    if (panelOpen) setPanel(false);
+    runCommand(v);
+    input.focus();
+  });
+
+  var CHIP_DEFS = [
+    ['bounce','bounce'], ['melt','melt'], ['explode','explode'], ['spin','spin'],
+    ['wave','wave'], ['italics','italics'], ['go big','big'], ['splash of color','splash of color'],
+    ['slow down','slow down'], ['shake','shake'], ['reset','reset']
+  ];
+  var chipsEl = document.getElementById('chips');
+  CHIP_DEFS.forEach(function(d){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = d[0];
+    b.addEventListener('click', function(){ runCommand(d[1]); input.focus(); });
+    chipsEl.appendChild(b);
+  });
+
+  /* click the word → edit it inline */
+  wordEl.addEventListener('click', function(){
+    wordIn.value = wordEl.textContent;
+    wordEl.style.visibility = 'hidden';
+    editHint.style.visibility = 'hidden';
+    wordIn.style.display = 'block';
+    wordIn.focus(); wordIn.select();
+  });
+  function commitWord(){
+    var w = wordIn.value.replace(/[^a-zA-Z0-9 ]/g,'').trim().slice(0,14);
+    wordIn.style.display = 'none';
+    wordEl.style.visibility = 'visible';
+    editHint.style.visibility = 'visible';
+    if (w) { buildWord(w.toUpperCase()); say('<b>new words.</b> now give them a move.'); }
+  }
+  wordIn.addEventListener('blur', commitWord);
+  wordIn.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); wordIn.blur(); } });
+
+  /* ---------------- init ---------------- */
+  buildWord('MOTION');
+  startAmbient();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ /* metrics settle */ });
+  window.__motiq = { run: runCommand, state: state, setTheme: applyTheme, setType: applyType,
+                     setPanel: setPanel, actions: actions,
+                     isRecording: function(){ return rec.on; } };
+})();
+</script>
+</body>
+</html>
