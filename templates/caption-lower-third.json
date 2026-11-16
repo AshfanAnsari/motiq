@@ -1,0 +1,151 @@
+{
+  "kind": "motiq-template",
+  "version": 1,
+  "name": "caption-lower-third",
+  "title": "Caption lower-third \u2014 timing-importer style",
+  "state": {
+    "version": 3,
+    "word": "LYRICS",
+    "theme": "midnight",
+    "type": "grotesk",
+    "duration": 5.8,
+    "stage": "landscape",
+    "selection": null,
+    "bg": [
+      {
+        "a": 0,
+        "b": 0.2,
+        "kind": "color",
+        "value": "#0c0c11"
+      },
+      {
+        "a": 0.2,
+        "b": 1.6,
+        "kind": "color",
+        "value": "#0c0c11"
+      },
+      {
+        "a": 1.7,
+        "b": 3.1,
+        "kind": "color",
+        "value": "#12101a"
+      },
+      {
+        "a": 3.2,
+        "b": 4.6,
+        "kind": "color",
+        "value": "#0e0d13"
+      },
+      {
+        "a": 4.6,
+        "b": 5.8,
+        "kind": "color",
+        "value": "#0e0d13"
+      }
+    ],
+    "motion": [],
+    "fx": [
+      {
+        "a": 0.2,
+        "b": 1.6,
+        "name": "lyrichl",
+        "target": "el1",
+        "accent": "#ff7d1f"
+      },
+      {
+        "a": 1.7,
+        "b": 3.1,
+        "name": "lyrichl",
+        "target": "el2",
+        "accent": "#ff7d1f"
+      },
+      {
+        "a": 3.2,
+        "b": 4.6,
+        "name": "lyrichl",
+        "target": "el3",
+        "accent": "#ff7d1f"
+      }
+    ],
+    "words": [],
+    "elements": [
+      {
+        "id": "el1",
+        "kind": "text",
+        "text": "Saved scenes, reused in one call",
+        "src": "",
+        "shape": "circle",
+        "color": "#f5f2ea",
+        "x": 0.5,
+        "y": 0.78,
+        "scale": 1.15,
+        "depth": "front",
+        "a": 0.2,
+        "b": 1.6,
+        "motions": [],
+        "wrap": 980,
+        "align": "center",
+        "leading": 1.25,
+        "weight": 700
+      },
+      {
+        "id": "el2",
+        "kind": "text",
+        "text": "Components keep every key and mask",
+        "src": "",
+        "shape": "circle",
+        "color": "#f5f2ea",
+        "x": 0.5,
+        "y": 0.78,
+        "scale": 1.15,
+        "depth": "front",
+        "a": 1.7,
+        "b": 3.1,
+        "motions": [],
+        "wrap": 980,
+        "align": "center",
+        "leading": 1.25,
+        "weight": 700
+      },
+      {
+        "id": "el3",
+        "kind": "text",
+        "text": "Templates rebuild the whole scene",
+        "src": "",
+        "shape": "circle",
+        "color": "#f5f2ea",
+        "x": 0.5,
+        "y": 0.78,
+        "scale": 1.15,
+        "depth": "front",
+        "a": 3.2,
+        "b": 4.6,
+        "motions": [],
+        "wrap": 980,
+        "align": "center",
+        "leading": 1.25,
+        "weight": 700
+      }
+    ],
+    "camera": [],
+    "rings": [],
+    "ringClips": [],
+    "fonts": [],
+    "post": null,
+    "audio": null,
+    "ui": {
+      "italic": false,
+      "scale": 1,
+      "speed": 1,
+      "neon": false,
+      "rainbow": false,
+      "colorIdx": -1,
+      "wordColor": "transparent",
+      "wordShadow": null,
+      "wordPos": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  }
+}

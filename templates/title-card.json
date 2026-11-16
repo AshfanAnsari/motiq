@@ -1,0 +1,436 @@
+{
+  "kind": "motiq-template",
+  "version": 1,
+  "name": "title-card",
+  "title": "Title card \u2014 brand finale (NEXORA scene 5)",
+  "state": {
+    "version": 3,
+    "word": "MOTION",
+    "theme": "cobalt",
+    "type": "grotesk",
+    "duration": 3.1,
+    "stage": "portrait",
+    "selection": null,
+    "bg": [
+      {
+        "a": 0,
+        "b": 3.1,
+        "kind": "color",
+        "value": "#050208"
+      }
+    ],
+    "motion": [],
+    "fx": [
+      {
+        "a": 0,
+        "b": 0.9,
+        "name": "rise",
+        "target": "brand"
+      }
+    ],
+    "words": [],
+    "elements": [
+      {
+        "id": "amb1",
+        "kind": "shape",
+        "x": 0.16,
+        "y": 0.1,
+        "a": 0,
+        "b": 3.1,
+        "depth": "back",
+        "scale": 6.4,
+        "src": "",
+        "text": "",
+        "shape": "soft",
+        "motions": [],
+        "color": "#3B1470",
+        "opacity": 0.34,
+        "blur": 6
+      },
+      {
+        "id": "amb2",
+        "kind": "shape",
+        "x": 0.86,
+        "y": 0.9,
+        "a": 0,
+        "b": 3.1,
+        "depth": "back",
+        "scale": 5.6,
+        "src": "",
+        "text": "",
+        "shape": "soft",
+        "motions": [],
+        "color": "#123A6E",
+        "opacity": 0.26,
+        "blur": 6
+      },
+      {
+        "id": "sph_glow",
+        "kind": "shape",
+        "x": 0.5,
+        "y": 0.4,
+        "a": 0,
+        "b": 3.1,
+        "depth": "back",
+        "scale": 7.2,
+        "src": "",
+        "text": "",
+        "shape": "soft",
+        "motions": [],
+        "color": "#6D28FF",
+        "opacity": 0.5,
+        "blur": 4,
+        "keys": [
+          {
+            "t": -16.9,
+            "x": 0.5,
+            "y": 0.4
+          },
+          {
+            "t": -6.9,
+            "x": 0.5,
+            "y": 0.394
+          },
+          {
+            "t": 3.1,
+            "x": 0.5,
+            "y": 0.4
+          }
+        ]
+      },
+      {
+        "id": "sph_glow2",
+        "kind": "shape",
+        "x": 0.565,
+        "y": 0.355,
+        "a": 0,
+        "b": 3.1,
+        "depth": "back",
+        "scale": 5.4,
+        "src": "",
+        "text": "",
+        "shape": "soft",
+        "motions": [],
+        "color": "#2E6BFF",
+        "opacity": 0.34,
+        "blur": 4,
+        "keys": [
+          {
+            "t": -16.9,
+            "x": 0.565,
+            "y": 0.355
+          },
+          {
+            "t": -6.9,
+            "x": 0.565,
+            "y": 0.349
+          },
+          {
+            "t": 3.1,
+            "x": 0.565,
+            "y": 0.355
+          }
+        ]
+      },
+      {
+        "id": "sph_body",
+        "kind": "shape",
+        "x": 0.5,
+        "y": 0.4,
+        "a": 0,
+        "b": 3.1,
+        "depth": "mid",
+        "scale": 3.7,
+        "src": "",
+        "text": "",
+        "shape": "circle",
+        "motions": [],
+        "keys": [
+          {
+            "t": -16.9,
+            "x": 0.5,
+            "y": 0.4
+          },
+          {
+            "t": -6.9,
+            "x": 0.5,
+            "y": 0.394
+          },
+          {
+            "t": 3.1,
+            "x": 0.5,
+            "y": 0.4
+          }
+        ],
+        "fill": {
+          "angle": 135,
+          "stops": [
+            {
+              "c": "rgba(167,139,255,0.34)",
+              "at": 0
+            },
+            {
+              "c": "rgba(42,16,101,0.60)",
+              "at": 0.55
+            },
+            {
+              "c": "rgba(125,216,255,0.26)",
+              "at": 1
+            }
+          ]
+        },
+        "shadow": {
+          "x": 0,
+          "y": 26,
+          "blur": 64,
+          "color": "rgba(109,40,255,0.40)"
+        }
+      },
+      {
+        "id": "sph_core",
+        "kind": "shape",
+        "x": 0.5,
+        "y": 0.425,
+        "a": 0,
+        "b": 3.1,
+        "depth": "mid",
+        "scale": 2,
+        "src": "",
+        "text": "",
+        "shape": "soft",
+        "motions": [],
+        "color": "#A78BFF",
+        "opacity": 0.8,
+        "keys": [
+          {
+            "t": -16.9,
+            "x": 0.5,
+            "y": 0.425
+          },
+          {
+            "t": -6.9,
+            "x": 0.5,
+            "y": 0.419
+          },
+          {
+            "t": 3.1,
+            "x": 0.5,
+            "y": 0.425
+          }
+        ]
+      },
+      {
+        "id": "sph_hi",
+        "kind": "shape",
+        "x": 0.465,
+        "y": 0.33,
+        "a": 0,
+        "b": 3.1,
+        "depth": "front",
+        "scale": 0.85,
+        "src": "",
+        "text": "",
+        "shape": "soft",
+        "motions": [],
+        "color": "#FFFFFF",
+        "opacity": 0.5,
+        "keys": [
+          {
+            "t": -16.9,
+            "x": 0.465,
+            "y": 0.33
+          },
+          {
+            "t": -6.9,
+            "x": 0.465,
+            "y": 0.324
+          },
+          {
+            "t": 3.1,
+            "x": 0.465,
+            "y": 0.33
+          }
+        ]
+      },
+      {
+        "id": "sph_hi2",
+        "kind": "shape",
+        "x": 0.585,
+        "y": 0.295,
+        "a": 0,
+        "b": 3.1,
+        "depth": "front",
+        "scale": 1.25,
+        "src": "",
+        "text": "",
+        "shape": "soft",
+        "motions": [],
+        "color": "#7DD8FF",
+        "opacity": 0.38,
+        "keys": [
+          {
+            "t": -16.9,
+            "x": 0.585,
+            "y": 0.295
+          },
+          {
+            "t": -6.9,
+            "x": 0.585,
+            "y": 0.289
+          },
+          {
+            "t": 3.1,
+            "x": 0.585,
+            "y": 0.295
+          }
+        ]
+      },
+      {
+        "id": "beam2",
+        "kind": "shape",
+        "x": -0.12,
+        "y": 0.44,
+        "a": 0,
+        "b": 1.3,
+        "depth": "front",
+        "scale": 3.6,
+        "src": "",
+        "text": "",
+        "shape": "rect",
+        "motions": [],
+        "w": 0.13,
+        "rot": 24,
+        "fill": {
+          "angle": 0,
+          "stops": [
+            {
+              "c": "rgba(168,230,255,0)",
+              "at": 0
+            },
+            {
+              "c": "rgba(168,230,255,0.55)",
+              "at": 0.5
+            },
+            {
+              "c": "rgba(168,230,255,0)",
+              "at": 1
+            }
+          ]
+        },
+        "blur": 1,
+        "opacity": 0.8,
+        "keys": [
+          {
+            "t": -0.1,
+            "x": -0.12,
+            "y": 0.44
+          },
+          {
+            "t": 0.6,
+            "x": 0.5,
+            "y": 0.44,
+            "ease": "smooth"
+          },
+          {
+            "t": 1.3,
+            "x": 1.12,
+            "y": 0.44,
+            "ease": "smooth"
+          }
+        ]
+      },
+      {
+        "id": "brand",
+        "kind": "text",
+        "x": 0.5,
+        "y": 0.445,
+        "a": 0,
+        "b": 3.1,
+        "depth": "mid",
+        "scale": 4.35,
+        "src": "",
+        "text": "NEXORA",
+        "shape": "",
+        "motions": [],
+        "color": "#FFFFFF",
+        "weight": 700,
+        "font": "Space Grotesk",
+        "fadeIn": 0.55,
+        "glow": "#8B5CFF"
+      },
+      {
+        "id": "tag",
+        "kind": "text",
+        "x": 0.5,
+        "y": 0.55,
+        "a": 0.9,
+        "b": 3.1,
+        "depth": "mid",
+        "scale": 1.12,
+        "src": "",
+        "text": "YOUR WORKFLOW. REIMAGINED.",
+        "shape": "",
+        "motions": [],
+        "color": "#B9C4DE",
+        "weight": 500,
+        "font": "Space Grotesk",
+        "wrap": 660,
+        "align": "center",
+        "fadeIn": 0.5
+      },
+      {
+        "id": "cta",
+        "kind": "text",
+        "x": 0.5,
+        "y": 0.665,
+        "a": 1.5,
+        "b": 3.1,
+        "depth": "mid",
+        "scale": 0.95,
+        "src": "",
+        "text": "DISCOVER NEXORA",
+        "shape": "",
+        "motions": [],
+        "color": "#7DD8FF",
+        "weight": 600,
+        "font": "Space Grotesk",
+        "fadeIn": 0.5,
+        "glow": "#2E6BFF"
+      }
+    ],
+    "camera": [
+      {
+        "t": 0,
+        "x": 0.5001657281518406,
+        "y": 0.4398895145654396,
+        "zoom": 1.02
+      },
+      {
+        "t": 0.3,
+        "x": 0.5,
+        "y": 0.44,
+        "zoom": 1.02,
+        "ease": "easeOutExpo"
+      }
+    ],
+    "rings": [],
+    "ringClips": [],
+    "fonts": [],
+    "post": null,
+    "audio": null,
+    "ui": {
+      "italic": false,
+      "scale": 1,
+      "speed": 1,
+      "neon": false,
+      "rainbow": false,
+      "colorIdx": -1,
+      "wordColor": "rgba(0,0,0,0)",
+      "wordShadow": null,
+      "wordPos": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  }
+}
