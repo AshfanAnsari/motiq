@@ -436,8 +436,60 @@
     backdrop-filter:blur(16px) saturate(1.35);
     -webkit-backdrop-filter:blur(16px) saturate(1.35);
   }
+  /* aurora background: flowing colour blobs + vignette (positions are
+     set per frame from the project clock — deterministic) */
+  .aurora{position:absolute;inset:0;overflow:hidden}
+  .aurora-blob{
+    position:absolute;width:75%;height:75%;border-radius:50%;
+    filter:blur(50px);opacity:.85;will-change:transform;
+  }
+  .aurora-vignette{
+    position:absolute;inset:0;
+    background:radial-gradient(ellipse at center, transparent 42%, rgba(0,0,0,.9) 100%);
+  }
+  /* bloom flash layer: above the back plane, below mid/front */
+  .flash-layer{
+    position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;
+    background:#fff;
+  }
+  /* progress bar element */
+  .ui-progress{
+    position:relative;width:15em;height:2.1em;border-radius:999px;overflow:hidden;
+    background:rgba(255,255,255,.13);
+    border:1px solid rgba(255,255,255,.38);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 10px 30px rgba(0,0,0,.35);
+    backdrop-filter:blur(8px) saturate(1.3);
+    -webkit-backdrop-filter:blur(8px) saturate(1.3);
+    font-size:calc(var(--u) * 1);
+  }
+  .ui-progress-fill{
+    position:absolute;left:0;top:0;bottom:0;width:0%;
+    background:linear-gradient(90deg, var(--s-accent), #ffd9c9);
+    border-radius:999px;
+  }
+  .ui-progress-sheen{
+    position:absolute;top:0;bottom:0;width:34%;
+    background:linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent);
+    pointer-events:none;
+  }
+  .ui-progress-label{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:.92em;letter-spacing:.04em;color:#fff;
+    text-shadow:0 1px 6px rgba(0,0,0,.45);
+  }
+  /* icon tile element: frosted rounded tile with a centred glyph/image */
+  .ui-icon{
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.38);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 10px 30px rgba(0,0,0,.28);
+    backdrop-filter:blur(8px) saturate(1.35);
+    -webkit-backdrop-filter:blur(8px) saturate(1.35);
+    line-height:1;
+  }
+  .ui-icon .ui-icon-glyph{pointer-events:none;line-height:1}
+  .ui-icon img{pointer-events:none;object-fit:contain}
   .frame .glow{z-index:1;width:94%;height:64%}
-  .plane{position:absolute;inset:0;pointer-events:none;will-change:transform}
+  .plane{position:absolute;inset:0;pointer-events:none;will-change:transform;perspective:1100px}
   .plane-back{z-index:2}
   .plane-front{z-index:4}
   .plane-mid{z-index:2}
@@ -471,6 +523,117 @@
     text-shadow:0 1px 8px rgba(0,0,0,.25);
   }
   .el-shape{pointer-events:none}
+
+  /* ================= POLISH WAVE: paths / text-on-path ================= */
+  .el-path{display:block;overflow:visible}
+  .el-textpath{position:relative;display:block;pointer-events:none;line-height:0}
+  .el-textpath .tp-ch{position:absolute;left:0;top:0}
+  .el-scale-row select{flex:1;min-width:0;background:transparent;border:1px solid var(--line);border-radius:6px;color:inherit;padding:3px 6px}
+
+  /* ================= UGOKI WAVE: 3D device + lyric presets ================= */
+  .el-device{display:block}
+  .el-device canvas{display:block}
+  .el-device .dev-fallback{border-radius:14px;overflow:hidden;line-height:0;
+    box-shadow:0 18px 44px rgba(0,0,0,.5)}
+  /* lyric-highlight caption box on the active word's letters */
+  .hl-box{background:var(--hl-acc,#ff7d1f);color:#17110a !important;
+    border-radius:.16em;padding:0 .13em;text-shadow:none !important}
+  /* strikethrough-correction: the red rule draws across struck letters
+     via an animated background-size (see fxStrike) */
+  .strike-rule{background-image:linear-gradient(to bottom, transparent 43%, #e5482e 43%, #e5482e 58%, transparent 58%);
+    background-repeat:no-repeat;background-position:0 0;background-size:0% 100%}
+
+  /* ================= FEATURE PACK: camera / tilt / UI kit ================= */
+  /* camera wrapper: holds every stage layer; cap badge stays outside it */
+  #camWrap{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
+  .el-pop select{
+    flex:1;min-width:0;background:transparent;border:1px solid var(--line);
+    color:var(--ink);border-radius:9px;padding:8px 6px;
+    font-family:inherit;font-size:12.5px;
+  }
+  .el-pop select:focus{outline:none;border-color:var(--line-strong)}
+  /* UI kit elements (font-size scales with el.scale; internals sized in em) */
+  .ui-kit{line-height:1.35;color:var(--s-ink)}
+  .ui-window{
+    width:22em;background:color-mix(in srgb, var(--s-bg) 82%, #ffffff 18%);
+    border:1px solid color-mix(in srgb, var(--s-ink) 28%, transparent);
+    border-radius:.8em;overflow:hidden;text-align:left;
+    box-shadow:0 1.2em 2.6em rgba(0,0,0,.45);
+  }
+  .ui-win-bar{
+    display:flex;align-items:center;gap:.45em;padding:.55em .8em;
+    background:color-mix(in srgb, var(--s-bg) 68%, #ffffff 32%);
+    border-bottom:1px solid color-mix(in srgb, var(--s-ink) 16%, transparent);
+  }
+  .ui-dot{width:.72em;height:.72em;border-radius:50%;flex:0 0 auto}
+  .ui-win-title{margin-left:.45em;font-weight:700;font-size:.92em;white-space:nowrap;overflow:hidden}
+  .ui-win-body{padding:.8em .95em;font-size:.86em;opacity:.88;min-height:5.2em}
+  .ui-win-body p{margin:0 0 .45em}
+  .ui-win-body p:last-child{margin-bottom:0}
+  .ui-button{
+    display:inline-block;padding:.62em 1.5em;border-radius:999px;color:#fff;
+    font-weight:700;font-size:1em;white-space:nowrap;will-change:transform;
+    box-shadow:0 .5em 1.4em rgba(0,0,0,.35);
+  }
+  .ui-input{width:21em;text-align:left}
+  .ui-in-label{font-size:.82em;font-weight:600;opacity:.75;margin:0 0 .4em .2em}
+  .ui-in-field{
+    display:flex;align-items:center;min-height:2.9em;padding:.55em .9em;
+    background:color-mix(in srgb, var(--s-bg) 80%, #ffffff 20%);
+    border:1px solid color-mix(in srgb, var(--s-ink) 30%, transparent);
+    border-radius:.7em;font-size:.95em;
+  }
+  .ui-in-text{white-space:pre}
+  .ui-caret{
+    display:inline-block;width:.55em;height:1.15em;margin-left:.12em;flex:0 0 auto;
+    background:var(--s-accent);opacity:0;
+  }
+  .ui-chat{
+    position:relative;display:flex;align-items:flex-start;gap:.55em;max-width:19em;
+    padding:.65em .85em;text-align:left;font-size:.95em;
+    background:color-mix(in srgb, var(--s-bg) 78%, #ffffff 22%);
+    border:1px solid color-mix(in srgb, var(--s-ink) 20%, transparent);
+    border-radius:1em 1em 1em .25em;box-shadow:0 .7em 1.6em rgba(0,0,0,.3);
+  }
+  .ui-chat:not(.no-tail)::after{
+    content:'';position:absolute;left:.9em;bottom:-.42em;width:.85em;height:.85em;
+    background:inherit;border-right:1px solid color-mix(in srgb, var(--s-ink) 20%, transparent);
+    border-bottom:1px solid color-mix(in srgb, var(--s-ink) 20%, transparent);
+    transform:rotate(45deg) skew(8deg,8deg);
+  }
+  .ui-avatar{width:1.7em;height:1.7em;border-radius:50%;flex:0 0 auto;margin-top:.05em}
+  .ui-chat-text{flex:1}
+  .ui-toggle{display:inline-flex;align-items:center;gap:.6em}
+  .ui-tg-label{font-size:.92em;font-weight:600}
+  .ui-track{
+    position:relative;display:inline-block;width:2.5em;height:1.4em;border-radius:999px;
+    background:rgba(127,127,127,.45);transition:none;flex:0 0 auto;
+  }
+  .ui-knob{
+    position:absolute;left:.14em;top:50%;margin-top:-.55em;width:1.1em;height:1.1em;
+    border-radius:50%;background:#fff;box-shadow:0 .1em .35em rgba(0,0,0,.4);will-change:transform;
+  }
+  .ui-cursor{position:relative;will-change:transform}
+  .ui-cursor svg{display:block;transform:translate(-26%,-10%);filter:drop-shadow(0 .18em .3em rgba(0,0,0,.45))}
+  .ui-ripple{
+    position:absolute;left:0;top:0;width:2.4em;height:2.4em;border-radius:50%;
+    border:.16em solid var(--s-accent);opacity:0;pointer-events:none;
+  }
+
+  /* ================= text-animation preset pack ================= */
+  .pix-grid{display:inline-grid;vertical-align:baseline;gap:0;will-change:opacity}
+  .pix-grid i{display:block}
+  .pix-caret{
+    display:inline-block;width:.13em;height:.9em;margin-left:.07em;vertical-align:-0.08em;
+    background:linear-gradient(180deg,#ffd23e,#ff7d1f 55%,#e83a0c);border-radius:.03em;
+    box-shadow:0 0 10px rgba(255,125,31,.85);
+  }
+  .fx-spark{
+    display:inline-block;color:#ffb020;will-change:transform,opacity;
+    text-shadow:0 0 8px #ff7d1f, 0 0 24px #ff7d1f;
+  }
+  .el-text .el-ch{display:inline-block;will-change:transform,opacity}
+  .el-text .el-sp{display:inline-block;width:.34em}
 
   /* ---------- auto-hide chrome during playback / recording ---------- */
   header,.panel,.controls,.timeline,.edge-tab{transition:opacity .45s ease}
@@ -575,6 +738,8 @@
     position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;
     background:var(--rec);z-index:4;pointer-events:none;
   }
+  .tl-lane[data-track="audio"]{height:30px}
+  .tl-wave{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
   /* add-element popover */
   .el-pop{
@@ -648,28 +813,34 @@
   <div class="centre">
 <main id="stage">
   <div class="frame" id="frame" data-theme="midnight" data-type="grotesk">
-    <div class="bg-inner" id="bgInner">
-      <div class="bg-base" id="bgBase"></div>
-      <img class="bg-img" id="bgImg" alt="" hidden>
-      <div class="bg-grad" id="bgGrad" hidden></div>
-      <div class="bg-glass" id="bgGlass" hidden></div>
-    </div>
-    <div class="glow" id="glow"></div>
-    <div class="plane plane-back" id="layerBack"></div>
-    <div class="motion-wrap" id="motionWrap">
-      <div class="stage-word" id="stageWord">
-        <div id="floatWrap">
-          <div id="persist">
-            <div class="word" id="word" title="Click to edit the word"></div>
-          </div>
+    <div id="camWrap">
+      <div class="bg-inner" id="bgInner">
+        <div class="bg-base" id="bgBase"></div>
+        <img class="bg-img" id="bgImg" alt="" hidden>
+        <div class="bg-grad" id="bgGrad" hidden></div>
+        <div class="bg-glass" id="bgGlass" hidden></div>
+        <div class="aurora" id="auroraLayer" hidden>
+          <div class="aurora-vignette" id="auroraVignette"></div>
         </div>
-        <input id="wordInput" maxlength="14" autocomplete="off" spellcheck="false" aria-label="Your words">
-        <div class="pool" id="pool"></div>
-        <div class="edit-hint" id="editHint">click the word to make it yours</div>
       </div>
-      <div class="plane plane-mid" id="layerMid"></div>
+      <div class="glow" id="glow"></div>
+      <div class="plane plane-back" id="layerBack"></div>
+      <div class="flash-layer" id="flashLayer"></div>
+      <div class="motion-wrap" id="motionWrap">
+        <div class="stage-word" id="stageWord">
+          <div id="floatWrap">
+            <div id="persist">
+              <div class="word" id="word" title="Click to edit the word"></div>
+            </div>
+          </div>
+          <input id="wordInput" maxlength="14" autocomplete="off" spellcheck="false" aria-label="Your words">
+          <div class="pool" id="pool"></div>
+          <div class="edit-hint" id="editHint">click the word to make it yours</div>
+        </div>
+        <div class="plane plane-mid" id="layerMid"></div>
+      </div>
+      <div class="plane plane-front" id="layerFront"></div>
     </div>
-    <div class="plane plane-front" id="layerFront"></div>
     <div class="cap-badge" id="capBadge" hidden>● 0.0s</div>
   </div>
 </main>
@@ -681,7 +852,7 @@
     <button type="button" class="tp-btn" id="previewBigBtn" aria-pressed="false">⛶ Big preview</button>
     <span class="tl-time" id="tlTime">0.0 / 10s</span>
     <label class="tl-lab-in">Len
-      <input id="durInput" type="number" min="5" max="30" step="1" value="10" aria-label="Timeline length in seconds">s
+      <input id="durInput" type="number" min="5" max="30" step="0.1" value="10" aria-label="Timeline length in seconds">s
     </label>
     <span class="tl-lab-in">Range
       <input id="rgA" type="number" min="0" step="0.1" placeholder="start" aria-label="Range start in seconds">–
@@ -690,6 +861,27 @@
     <button type="button" class="tp-btn small" id="rgClear">Clear range</button>
     <button type="button" class="tp-btn" id="motRecBtn" aria-pressed="false">● Motion</button>
     <button type="button" class="tp-btn" id="elAddBtn" aria-expanded="false">＋ Element</button>
+    <button type="button" class="tp-btn" id="camBtn" aria-expanded="false">📷 Camera</button>
+    <div class="el-pop cam-pop" id="camPop" hidden>
+      <div class="el-textrow">
+        <input id="camX" type="number" step="0.01" min="0" max="1" placeholder="Focus X (0–1)" aria-label="Camera focus X">
+        <input id="camY" type="number" step="0.01" min="0" max="1" placeholder="Focus Y (0–1)" aria-label="Camera focus Y">
+      </div>
+      <div class="el-textrow">
+        <input id="camZoom" type="number" step="0.1" min="0.2" max="4" placeholder="Zoom" aria-label="Camera zoom">
+        <select id="camEase" aria-label="Camera key easing">
+          <option value="smooth">smooth</option>
+          <option value="linear">linear</option>
+          <option value="easeOutExpo">easeOutExpo</option>
+          <option value="easeOutBack">easeOutBack</option>
+          <option value="spring">spring</option>
+        </select>
+      </div>
+      <button type="button" id="camAddKey">Add key at playhead</button>
+      <button type="button" id="camZoomSel">Zoom to selected element</button>
+      <button type="button" id="camClear">Clear camera keys</button>
+      <p class="opt-note" id="camInfo">No camera keys — static camera.</p>
+    </div>
     <button type="button" class="tp-btn small" id="clipDelBtn" hidden>✕ Remove clip</button>
     <button type="button" id="targetChip" title="What the prompt bar controls — click to reset to the word">Target: <b>WORD</b></button>
   </div>
@@ -701,6 +893,8 @@
       <div class="tl-lane" data-track="fx"><span class="tl-lab">FX</span></div>
       <div class="tl-lane" data-track="words"><span class="tl-lab">WD</span></div>
       <div class="tl-lane" data-track="elements"><span class="tl-lab">EL</span></div>
+      <div class="tl-lane" data-track="camera"><span class="tl-lab">CAM</span></div>
+      <div class="tl-lane" data-track="audio" hidden><span class="tl-lab">AU</span><canvas class="tl-wave"></canvas></div>
       <div class="tl-rangehl" id="tlRangeHl" hidden></div>
       <div class="tl-playhead" id="tlPlayhead"></div>
     </div>
@@ -715,6 +909,16 @@
     <button type="button" data-add="rect">■ Rectangle</button>
     <button type="button" data-add="pill">▬ Pill</button>
     <button type="button" data-add="soft">◍ Soft glow</button>
+    <button type="button" data-add="ui:window">▦ Window panel</button>
+    <button type="button" data-add="ui:button">⬭ Button</button>
+    <button type="button" data-add="ui:input">▤ Chat input</button>
+    <button type="button" data-add="ui:chat">▱ Chat bubble</button>
+    <button type="button" data-add="ui:toggle">⏘ Toggle switch</button>
+    <button type="button" data-add="ui:cursor">➤ Cursor</button>
+    <button type="button" data-add="ui:progress">▭ Progress bar</button>
+    <button type="button" data-add="ui:icon">✦ Icon tile</button>
+    <button type="button" data-add="ui:device">📱 3D device</button>
+    <button type="button" data-add="ui:path">⌒ SVG path (draws in)</button>
   </div>
   <input type="file" id="elFile" accept="image/*" hidden>
   <input type="file" id="bgFile" accept="image/*" hidden>
@@ -778,11 +982,14 @@
           <button type="button" class="stage-btn" data-bg="color">Set colour</button>
         </div>
         <button type="button" class="stage-btn" data-bg="glass">Glass</button>
+        <button type="button" class="stage-btn" data-bg="aurora">Aurora gradient</button>
+        <button type="button" class="stage-btn" data-bg="bloom">Bloom flash in</button>
         <button type="button" class="stage-btn" data-bg="image">Image…</button>
         <p class="opt-note" id="bgNote">Applies to the selected range — or the whole timeline if none is selected.</p>
       </div>
       <div class="opt-group" id="elGroup" hidden>
         <h4>Element — <span id="elName">none</span></h4>
+        <p class="opt-note" id="elFontRow" hidden>Font — <b id="elFontName"></b></p>
         <div class="depth-row" id="elDepthRow">
           <button type="button" class="depth-btn" data-depth="back">Back</button>
           <button type="button" class="depth-btn" data-depth="mid">Mid</button>
@@ -790,6 +997,43 @@
         </div>
         <label class="el-scale-row">Size
           <input type="range" id="elScale" min="0.3" max="3" step="0.05" value="1" aria-label="Element size">
+        </label>
+        <label class="el-scale-row">Tilt X
+          <input type="range" id="elRx" min="-45" max="45" step="1" value="0" aria-label="Element tilt X">
+        </label>
+        <label class="el-scale-row">Tilt Y
+          <input type="range" id="elRy" min="-45" max="45" step="1" value="0" aria-label="Element tilt Y">
+        </label>
+        <label class="el-scale-row">Rotate
+          <input type="range" id="elRot" min="-180" max="180" step="1" value="0" aria-label="Element rotation">
+        </label>
+        <label class="el-scale-row">Corners
+          <input type="range" id="elRadius" min="0" max="120" step="1" value="12" aria-label="Element corner radius">
+        </label>
+        <label class="el-scale-row">Blend
+          <select id="elBlend" aria-label="Element blend mode">
+            <option value="">Normal</option>
+            <option value="multiply">Multiply</option>
+            <option value="screen">Screen</option>
+            <option value="overlay">Overlay</option>
+            <option value="soft-light">Soft light</option>
+            <option value="difference">Difference</option>
+            <option value="plus-lighter">Add</option>
+          </select>
+        </label>
+        <label class="el-scale-row">Glass blur
+          <input type="range" id="elGlass" min="0" max="30" step="1" value="0" aria-label="Backdrop glass blur">
+        </label>
+        <div class="depth-row" id="elRevealRow">
+          <button type="button" class="depth-btn" data-reveal="circle">◐ Circle reveal</button>
+          <button type="button" class="depth-btn" data-reveal="wipe">▸ Wipe reveal</button>
+          <button type="button" class="depth-btn" data-reveal="rect">▭ Rect reveal</button>
+        </div>
+        <label class="el-scale-row">Ring
+          <input type="text" id="elRing" placeholder="ring id (blank = none)" aria-label="Ring id" style="flex:1;min-width:0">
+        </label>
+        <label class="el-scale-row">Ring phase
+          <input type="range" id="elPhase" min="-180" max="180" step="1" value="0" aria-label="Ring phase">
         </label>
         <button type="button" class="stage-btn danger" id="elDelete">Delete element</button>
       </div>
@@ -811,7 +1055,19 @@
 <button type="button" class="edge-tab" id="rpTab" aria-label="Show options panel">‹</button>
 <div class="backdrop" id="backdrop"></div>
 
+<!-- liquid-warp filters for the advtype preset (5 slots, one per
+     concurrently-smearing letter; scale animated from JS) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="motiq-liquid-1" x="-40%" y="-40%" width="180%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.11" numOctaves="2" seed="7" result="n"/><feDisplacementMap id="motiq-liquid-dm-1" in="SourceGraphic" in2="n" scale="0"/></filter>
+    <filter id="motiq-liquid-2" x="-40%" y="-40%" width="180%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.11" numOctaves="2" seed="7" result="n"/><feDisplacementMap id="motiq-liquid-dm-2" in="SourceGraphic" in2="n" scale="0"/></filter>
+    <filter id="motiq-liquid-3" x="-40%" y="-40%" width="180%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.11" numOctaves="2" seed="7" result="n"/><feDisplacementMap id="motiq-liquid-dm-3" in="SourceGraphic" in2="n" scale="0"/></filter>
+    <filter id="motiq-liquid-4" x="-40%" y="-40%" width="180%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.11" numOctaves="2" seed="7" result="n"/><feDisplacementMap id="motiq-liquid-dm-4" in="SourceGraphic" in2="n" scale="0"/></filter>
+    <filter id="motiq-liquid-5" x="-40%" y="-40%" width="180%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.11" numOctaves="2" seed="7" result="n"/><feDisplacementMap id="motiq-liquid-dm-5" in="SourceGraphic" in2="n" scale="0"/></filter>
+  </defs>
+</svg>
 <script src="vendor/gsap.min.js"></script>
+<script src="vendor/three.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -951,6 +1207,445 @@
     gsap.to(letters(), { color: theme().ink, textShadow:'0 0 0 rgba(0,0,0,0)',
       duration:.35, overwrite:'auto',
       onComplete:function(){ gsap.set(letters(), { clearProps:'color,textShadow' }); } });
+  }
+
+  /* ================= text-animation preset pack =================
+     Five presets in the grammar of the reference pack (reel
+     DeJtJUWtD9o): the entering/active unit glows in an accent colour,
+     then settles to the text's normal colour. Units are LETTERS for
+     pixelate/advtype and WORDS for glowsweep/slidein-r/glowbounce.
+     Pending units are display:none, so the line stays centred as it
+     grows — the reference's centre-grow layout. Everything is GSAP
+     under the page clock, so the file renderer reproduces it exactly.
+     The accent is a parameter: setPresetAccent() globally, or an
+     `accent` field on an FX clip / applyEffect opts for one shot.
+     When fired from a timeline clip, the clip's length (fxSpan)
+     stretches the preset's internal timing to fit. */
+  var PRESET_ACCENT = '#ff7d1f';
+  var fxAccent = null;
+  var fxSpan = 0;
+  function presetAccent(){ return fxAccent || PRESET_ACCENT; }
+  function setPresetAccent(c){ if (c) PRESET_ACCENT = String(c); return PRESET_ACCENT; }
+
+  function buildKit(container, letterSel, spaceSel){
+    var letters = [], words = [], units = [], cur = null, pendingSpace = null;
+    Array.prototype.forEach.call(container.childNodes, function(n){
+      if (n.nodeType !== 1) return;
+      if (n.matches(spaceSel)){
+        pendingSpace = n; cur = null;
+        units.push({ node: n, isSpace: true });
+        return;
+      }
+      if (n.matches(letterSel)){
+        if (!cur){ cur = { letters: [], spaceBefore: pendingSpace }; words.push(cur); pendingSpace = null; }
+        cur.letters.push(n); letters.push(n);
+        units.push({ node: n, isSpace: false });
+      }
+    });
+    return { container: container, letters: letters, words: words, units: units };
+  }
+  function hideUnits(kit){
+    kit.units.forEach(function(u){ u.node.style.display = 'none'; });
+  }
+  function showUnit(node){ node.style.display = ''; }
+  function captureInk(sp){
+    if (sp._fxInk == null){
+      sp._fxInk = getComputedStyle(sp).color;
+      sp._fxInline = sp.style.color || '';
+    }
+  }
+  function settleLetter(sp, delay){
+    if (sp._fxInk == null) return;
+    var ink = sp._fxInk, inline = sp._fxInline;
+    gsap.to(sp, { color: ink, duration: .38, delay: delay || 0, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to(sp, { textShadow: '0 0 0 rgba(0,0,0,0)', duration: .38, delay: delay || 0,
+      ease: 'power2.out', overwrite: false,
+      onComplete: function(){
+        sp.style.color = inline; sp.style.textShadow = '';
+        sp._fxInk = null;
+      } });
+  }
+  function resetKit(kit){
+    kit.letters.forEach(function(sp){
+      gsap.killTweensOf(sp);
+      sp.style.display = ''; sp.style.visibility = ''; sp.style.filter = '';
+      sp.classList.remove('hl-box', 'strike-rule');
+      sp.style.backgroundSize = '';
+      gsap.set(sp, { clearProps: 'transform,opacity' });
+      if (sp._pix){ sp._pix.remove(); sp._pix = null; }
+      if (sp._fxInk != null){
+        sp.style.color = sp._fxInline || ''; sp.style.textShadow = '';
+        sp._fxInk = null;
+      }
+    });
+    kit.words.forEach(function(w){ if (w.spaceBefore) w.spaceBefore.style.display = ''; });
+    Array.prototype.slice.call(kit.container.querySelectorAll('.pix-caret, .fx-spark, .pix-grid'))
+      .forEach(function(n){ n.remove(); });
+  }
+
+  /* --- pixelate: glyph alpha sampled to a block mosaic via canvas --- */
+  var _pixCv = null;
+  function glyphRow(ch, font, cols, rows){
+    if (!_pixCv) _pixCv = document.createElement('canvas');
+    var S = 96;
+    _pixCv.width = S; _pixCv.height = S;
+    var cx = _pixCv.getContext('2d');
+    cx.clearRect(0, 0, S, S);
+    cx.font = font; cx.fillStyle = '#fff';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    var adv = cx.measureText(ch).width;
+    cx.fillText(ch, S / 2, S / 2 + 3);
+    var d = cx.getImageData(0, 0, S, S).data;
+    var cells = [], cw = S / cols, chh = S / rows;
+    for (var r = 0; r < rows; r++){
+      for (var c = 0; c < cols; c++){
+        var s = 0, n = 0;
+        for (var y = Math.floor(r * chh); y < (r + 1) * chh; y += 2)
+          for (var x = Math.floor(c * cw); x < (c + 1) * cw; x += 2){ s += d[(y * S + x) * 4 + 3]; n++; }
+        cells.push(s / (n * 255));
+      }
+    }
+    return { cells: cells, advEm: adv / S };
+  }
+  function pixGrid(ch, font, cols, rows, acc){
+    var g = glyphRow(ch, font, cols, rows);
+    var el = document.createElement('span');
+    el.className = 'pix-grid';
+    el.style.width = Math.max(0.2, g.advEm).toFixed(2) + 'em';
+    el.style.height = '0.8em';
+    el.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+    el.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
+    g.cells.forEach(function(a){
+      var cell = document.createElement('i');
+      if (a > 0.12){
+        cell.style.background = acc;
+        cell.style.opacity = Math.min(1, 0.3 + a * 0.9).toFixed(2);
+      }
+      el.appendChild(cell);
+    });
+    return el;
+  }
+  function fxPixelate(kit, acc, done){
+    var first = kit.letters[0];
+    var cs = first ? getComputedStyle(first) : null;
+    var font = cs ? (cs.fontWeight + ' 96px ' + cs.fontFamily) : '700 96px sans-serif';
+    hideUnits(kit);
+    var caret = document.createElement('span');
+    caret.className = 'pix-caret';
+    var tl = gsap.timeline({ onComplete: function(){
+      if (caret.parentNode) caret.remove();
+      if (done) done();
+    } });
+    var total = fxSpan > 0 ? fxSpan : Math.min(2.6, 0.35 + kit.letters.length * 0.08);
+    var step = clamp((total - 0.55) / Math.max(1, kit.units.length), 0.035, 0.11);
+    var t = 0.04;
+    kit.units.forEach(function(u){
+      if (u.isSpace){
+        tl.call(function(){ showUnit(u.node); }, null, t);
+        t += step * 0.6;
+        return;
+      }
+      var sp = u.node;
+      (function(sp, t0){
+        tl.call(function(){
+          captureInk(sp);
+          showUnit(sp);
+          sp.style.visibility = 'hidden';
+          var g = pixGrid(sp.textContent, font, 3, 4, acc);
+          sp._pix = g;
+          sp.parentNode.insertBefore(g, sp);
+          sp.parentNode.insertBefore(caret, g.nextSibling);
+        }, null, t0);
+        tl.call(function(){
+          if (sp._pix){
+            var g2 = pixGrid(sp.textContent, font, 5, 7, acc);
+            sp._pix.replaceWith(g2);
+            sp._pix = g2;
+          }
+        }, null, t0 + step * 1.05);
+        tl.call(function(){
+          if (sp._pix){ sp._pix.remove(); sp._pix = null; }
+          sp.style.visibility = '';
+          sp.style.color = acc;
+          sp.style.textShadow = neonShadow(acc, false);
+          if (caret.parentNode) sp.parentNode.insertBefore(caret, sp.nextSibling);
+          settleLetter(sp, 0.04);
+        }, null, t0 + step * 2.1);
+      })(sp, t);
+      t += step;
+    });
+    tl.to(caret, { opacity: 0, duration: .3, delay: .3 });
+    return tl;
+  }
+
+  /* --- advtype: letters arrive as liquid-distorted smears --- */
+  function fxAdvtype(kit, acc, done){
+    hideUnits(kit);
+    var tl = gsap.timeline({ onComplete: function(){ if (done) done(); } });
+    var total = fxSpan > 0 ? fxSpan : Math.min(3.0, 0.4 + kit.letters.length * 0.085);
+    var step = clamp((total - 0.5) / Math.max(1, kit.units.length), 0.035, 0.12);
+    var t = 0.04, slot = 0;
+    kit.units.forEach(function(u){
+      if (u.isSpace){
+        tl.call(function(){ showUnit(u.node); }, null, t);
+        t += step * 0.6;
+        return;
+      }
+      var sp = u.node;
+      slot = (slot % 5) + 1;
+      (function(sp, t0, slotNo){
+        var dm = document.getElementById('motiq-liquid-dm-' + slotNo);
+        tl.call(function(){
+          captureInk(sp);
+          showUnit(sp);
+          sp.style.color = acc;
+          sp.style.textShadow = neonShadow(acc, false);
+          sp.style.filter = 'url(#motiq-liquid-' + slotNo + ')';
+          gsap.set(sp, { skewX: -10, scaleY: 1.12, transformOrigin: '50% 60%' });
+        }, null, t0);
+        var proxy = { s: 17 };
+        tl.to(proxy, { s: 0, duration: .34, ease: 'power2.out',
+          onUpdate: function(){ if (dm) dm.setAttribute('scale', proxy.s.toFixed(1)); },
+          onComplete: function(){ sp.style.filter = ''; if (dm) dm.setAttribute('scale', '0'); } }, t0);
+        tl.to(sp, { skewX: 0, scaleY: 1, duration: .34, ease: 'power2.out' }, t0);
+        tl.call(function(){ settleLetter(sp, 0); }, null, t0 + 0.3);
+      })(sp, t, slot);
+      t += step;
+    });
+    return tl;
+  }
+
+  /* --- word-unit presets --- */
+  function fxGlowSweep(kit, acc, done){
+    hideUnits(kit);
+    var tl = gsap.timeline({ onComplete: function(){ if (done) done(); } });
+    var n = Math.max(1, kit.words.length);
+    var wordT = fxSpan > 0 ? (fxSpan - 0.35) / n : 0.52;
+    var t = 0.04;
+    kit.words.forEach(function(w, wi){
+      if (w.spaceBefore) tl.call(function(){ showUnit(w.spaceBefore); }, null, t);
+      var spark = document.createElement('span');
+      spark.className = 'fx-spark';
+      spark.textContent = '✦';
+      (function(w, wi, t0){
+        tl.call(function(){
+          w.letters.forEach(function(sp){ captureInk(sp); showUnit(sp); });
+          var anchor = wi === 0 ? w.letters[0] : w.letters[w.letters.length - 1];
+          if (!anchor) return;
+          if (wi === 0) anchor.parentNode.insertBefore(spark, anchor);
+          else anchor.parentNode.insertBefore(spark, anchor.nextSibling);
+          gsap.fromTo(spark, { scale: 0, rotation: -40, opacity: 0 },
+            { scale: 1, rotation: 0, opacity: 1, duration: .22, ease: 'back.out(2)' });
+          gsap.to(spark, { scale: 0, opacity: 0, rotation: 50, duration: .3, delay: .36,
+            onComplete: function(){ if (spark.parentNode) spark.remove(); } });
+        }, null, t0);
+        tl.to(w.letters, { color: acc, textShadow: neonShadow(acc, true),
+          duration: .16, stagger: 0.012, ease: 'power1.out' }, t0);
+        w.letters.forEach(function(sp, li){
+          tl.call(function(){ settleLetter(sp, 0); }, null, t0 + 0.34 + li * 0.012);
+        });
+      })(w, wi, t);
+      t += wordT;
+    });
+    return tl;
+  }
+  function fxSlideInR(kit, acc, done){
+    hideUnits(kit);
+    var tl = gsap.timeline({ onComplete: function(){ if (done) done(); } });
+    var n = Math.max(1, kit.words.length);
+    var wordT = fxSpan > 0 ? (fxSpan - 0.3) / n : 0.46;
+    var t = 0.04;
+    kit.words.forEach(function(w){
+      if (w.spaceBefore) tl.call(function(){ showUnit(w.spaceBefore); }, null, t);
+      (function(w, t0){
+        tl.call(function(){
+          w.letters.forEach(function(sp){
+            captureInk(sp); showUnit(sp);
+            sp.style.color = acc;
+            sp.style.textShadow = neonShadow(acc, true);
+          });
+        }, null, t0);
+        tl.fromTo(w.letters, { x: '0.95em', opacity: 0 },
+          { x: 0, opacity: 1, duration: .42, stagger: 0.014, ease: 'power3.out' }, t0);
+        w.letters.forEach(function(sp, li){
+          tl.call(function(){ settleLetter(sp, 0); }, null, t0 + 0.3 + li * 0.014);
+        });
+      })(w, t);
+      t += wordT;
+    });
+    return tl;
+  }
+  function fxGlowBounce(kit, acc, done){
+    hideUnits(kit);
+    var tl = gsap.timeline({ onComplete: function(){ if (done) done(); } });
+    var n = Math.max(1, kit.words.length);
+    var wordT = fxSpan > 0 ? Math.max(0.16, (fxSpan - 0.75) / n) : 0.3;
+    var t = 0.04;
+    kit.words.forEach(function(w){
+      if (w.spaceBefore) tl.call(function(){ showUnit(w.spaceBefore); }, null, t);
+      (function(w, t0){
+        tl.call(function(){
+          w.letters.forEach(function(sp){
+            captureInk(sp); showUnit(sp);
+            sp.style.color = acc;
+            sp.style.textShadow = neonShadow(acc, true);
+          });
+        }, null, t0);
+        tl.fromTo(w.letters, { y: '-0.85em', opacity: 0 },
+          { y: 0, duration: .58, stagger: 0.02, ease: 'bounce.out' }, t0);
+        tl.to(w.letters, { opacity: 1, duration: .12, stagger: 0.02 }, t0);
+        w.letters.forEach(function(sp, li){
+          tl.call(function(){ settleLetter(sp, 0); }, null, t0 + 0.52 + li * 0.02);
+        });
+      })(w, t);
+      t += wordT;
+    });
+    return tl;
+  }
+
+  /* --- lyrichl: word-by-word highlight captions (Ugoki wave) ---
+     The whole line is on stage from the start, upcoming words dimmed.
+     The active word wears a solid accent caption BOX (the reel's
+     lower-third device) while it is "sung"; sung words settle back to
+     full ink. Timing comes from fxSpan when fired from a clip (the
+     timing-map importer emits exactly one clip per line), else a
+     natural 0.45s per word. Pure GSAP under the page clock. */
+  function fxLyricHl(kit, acc, done){
+    var tl = gsap.timeline({ onComplete: function(){ if (done) done(); } });
+    var n = Math.max(1, kit.words.length);
+    var wordT = fxSpan > 0 ? fxSpan / n : 0.45;
+    kit.words.forEach(function(w){
+      w.letters.forEach(function(sp){ captureInk(sp); showUnit(sp); });
+      if (w.spaceBefore) showUnit(w.spaceBefore);
+    });
+    kit.letters.forEach(function(sp){ gsap.set(sp, { opacity: 0.34 }); });
+    kit.words.forEach(function(w, wi){
+      var t0 = wi * wordT;
+      tl.call(function(){
+        w.letters.forEach(function(sp){
+          sp.classList.add('hl-box');
+          sp.style.setProperty('--hl-acc', acc);
+          gsap.to(sp, { opacity: 1, duration: 0.05, overwrite: 'auto' });
+        });
+      }, null, t0);
+      tl.call(function(){
+        w.letters.forEach(function(sp){
+          sp.classList.remove('hl-box');
+          if (sp._fxInk != null){ sp.style.color = sp._fxInk; }
+          gsap.to(sp, { opacity: 1, duration: 0.08, overwrite: 'auto' });
+        });
+      }, null, t0 + wordT * 0.92);
+    });
+    tl.to({}, { duration: 0.02 }, n * wordT);
+    return tl;
+  }
+
+  /* --- strike: strikethrough-correction display type (Ugoki wave) ---
+     Contract (fields on the element, read via the kit): `strike` =
+     word indexes to strike, `corrFrom` = first word index of the
+     correction tail (default: last struck index + 1). The correction
+     tail starts hidden; a red rule draws itself across the struck
+     words (background-size sweep per letter), the struck words redden
+     and dim, then the correction reveals with the accent glow and
+     settles plain — the reel's "No ~~After Effects~~" device. With no
+     strike fields the LAST word is struck and there is no correction. */
+  function fxStrike(kit, acc, done){
+    var tl = gsap.timeline({ onComplete: function(){ if (done) done(); } });
+    var words = kit.words;
+    var strikeIdx = (kit.strike && kit.strike.length) ? kit.strike.slice()
+      : [words.length - 1];
+    var corrFrom = kit.corrFrom != null ? kit.corrFrom
+      : Math.max.apply(null, strikeIdx) + 1;
+    var S = fxSpan > 0 ? fxSpan : 2.4;
+    words.forEach(function(w, wi){
+      w.letters.forEach(function(sp){ captureInk(sp); showUnit(sp); });
+      if (w.spaceBefore) showUnit(w.spaceBefore);
+      if (wi >= corrFrom) w.letters.forEach(function(sp){ sp.style.display = 'none'; });
+      if (wi >= corrFrom && w.spaceBefore) w.spaceBefore.style.display = 'none';
+    });
+    var struck = [];
+    strikeIdx.forEach(function(wi){
+      if (words[wi]) words[wi].letters.forEach(function(sp){
+        sp.classList.add('strike-rule');
+        struck.push(sp);
+      });
+    });
+    tl.to(struck, { backgroundSize: '100% 100%', duration: S * 0.22,
+      stagger: 0.03, ease: 'power2.inOut' }, S * 0.30);
+    tl.to(struck, { color: '#e5482e', opacity: 0.72, duration: S * 0.16,
+      ease: 'power1.out' }, S * 0.34);
+    if (corrFrom < words.length){
+      var corr = [];
+      words.forEach(function(w, wi){
+        if (wi < corrFrom) return;
+        if (w.spaceBefore) tl.call(function(){ showUnit(w.spaceBefore); }, null, S * 0.58);
+        w.letters.forEach(function(sp){
+          corr.push(sp);
+          tl.call(function(){ captureInk(sp); showUnit(sp); }, null, S * 0.58);
+        });
+      });
+      tl.fromTo(corr, { opacity: 0, y: '0.22em' },
+        { opacity: 1, y: 0, duration: S * 0.20, stagger: 0.012, ease: 'power3.out' }, S * 0.58);
+      tl.to(corr, { color: acc, textShadow: neonShadow(acc, true),
+        duration: 0.01 }, S * 0.58);
+      corr.forEach(function(sp, li){
+        tl.call(function(){ settleLetter(sp, 0); }, null, S * 0.80 + li * 0.012);
+      });
+    }
+    tl.to({}, { duration: 0.02 }, S);
+    return tl;
+  }
+
+  /* --- element-side plumbing: split .el-text into letter spans --- */
+  function elPresetKit(el){
+    var inner = elInnerNodes[el.id];
+    var span = inner ? inner.querySelector('.el-text') : null;
+    if (!span || el.count) return null;
+    if (!span.dataset.split){
+      var text = el.text || span.textContent;
+      span.innerHTML = '';
+      text.split('').forEach(function(c){
+        var s = document.createElement('span');
+        if (c === ' '){ s.className = 'el-sp'; }
+        else { s.className = 'el-ch'; s.textContent = c; }
+        span.appendChild(s);
+      });
+      span.dataset.split = '1';
+    }
+    var kit = buildKit(span, '.el-ch', '.el-sp');
+    /* strikethrough-correction fields ride on the kit for fxStrike */
+    if (Array.isArray(el.strike) && el.strike.length)
+      kit.strike = el.strike.map(function(v){ return Math.round(+v); })
+        .filter(function(v){ return isFinite(v) && v >= 0; });
+    if (el.corrFrom != null && isFinite(+el.corrFrom)) kit.corrFrom = Math.round(+el.corrFrom);
+    return kit;
+  }
+  function elPresetDone(el){
+    return function(){
+      var inner = elInnerNodes[el.id];
+      var span = inner ? inner.querySelector('.el-text') : null;
+      if (span){
+        span.textContent = el.text || 'LABEL';
+        delete span.dataset.split;
+      }
+      if (inner) gsap.set(inner, { clearProps: 'transform,opacity,filter' });
+    };
+  }
+  var PRESET_FNS = { pixelate: fxPixelate, advtype: fxAdvtype, glowsweep: fxGlowSweep,
+                     'slidein-r': fxSlideInR, glowbounce: fxGlowBounce,
+                     lyrichl: fxLyricHl, strike: fxStrike };
+  function runPresetOnElement(name, el, accent){
+    var kit = elPresetKit(el);
+    if (!kit) return false;
+    resetKit(kit);
+    PRESET_FNS[name](kit, accent || presetAccent(), elPresetDone(el));
+    return true;
+  }
+  function prepPresetWord(){
+    prepLetters();
+    var kit = buildKit(wordEl, '.ch', '.sp');
+    resetKit(kit);
+    return kit;
   }
 
   /* ---------------- actions ---------------- */
@@ -1168,6 +1863,41 @@
             onComplete:function(){ if (caret.parentNode) caret.remove(); } });
         } });
       say('<b>typed out.</b> one letter at a time.');
+    },
+    pixelate: function(){
+      var kit = prepPresetWord();
+      fxPixelate(kit, presetAccent(), null);
+      say('<b>pixelate.</b> mosaic blocks resolve into glyphs.');
+    },
+    advtype: function(){
+      var kit = prepPresetWord();
+      fxAdvtype(kit, presetAccent(), null);
+      say('<b>advance typewriter.</b> liquid smears settle into letters.');
+    },
+    glowsweep: function(){
+      var kit = prepPresetWord();
+      fxGlowSweep(kit, presetAccent(), null);
+      say('<b>glow sweep.</b> each word lights, then settles.');
+    },
+    'slidein-r': function(){
+      var kit = prepPresetWord();
+      fxSlideInR(kit, presetAccent(), null);
+      say('<b>slide in R.</b> words glide in from the right, glowing.');
+    },
+    glowbounce: function(){
+      var kit = prepPresetWord();
+      fxGlowBounce(kit, presetAccent(), null);
+      say('<b>glow bounce.</b> words bounce in with the glow.');
+    },
+    lyrichl: function(){
+      var kit = prepPresetWord();
+      fxLyricHl(kit, presetAccent(), null);
+      say('<b>lyric highlight.</b> the sung word wears the caption box.');
+    },
+    strike: function(){
+      var kit = prepPresetWord();
+      fxStrike(kit, presetAccent(), null);
+      say('<b>strike.</b> the last word is struck through.');
     },
     scramble: function(){
       prepLetters();
@@ -1391,6 +2121,13 @@
     if (/( stretch| rubber| elongate)/.test(t)) return 'stretch';
     if (/( swing| pendulum| sway)/.test(t)) return 'swing';
     if (/( scramble| shuffle| decode| random)/.test(t)) return 'scramble';
+    if (/( lyric| karaoke| caption highlight| word highlight)/.test(t)) return 'lyrichl';
+    if (/( strike| strikethrough| strike through| correction)/.test(t)) return 'strike';
+    if (/( pixelate| pixelated| mosaic)/.test(t)) return 'pixelate';
+    if (/( advance typewriter| advtype| liquid type| liquid smear)/.test(t)) return 'advtype';
+    if (/( glow sweep| glowsweep| glowing text)/.test(t)) return 'glowsweep';
+    if (/( glow bounce| glowbounce| glowing bounce)/.test(t)) return 'glowbounce';
+    if (/( slidein| slide in)/.test(t)) return 'slidein-r';
     if (/( typewriter| typing| type it| type out)/.test(t)) return 'typewriter';
     if (/( rainbow| colourful| colorful| pride)/.test(t)) return 'rainbow';
     if (/( neon| glow)/.test(t)) return 'neon';
@@ -1445,6 +2182,10 @@
     }
     if ((m = low.match(/^add\s+(?:a\s+|an\s+)?(pill|soft circle|glow disc|soft disc|glow circle)$/))){
       return { kind:'addel', spec:{ kind:'shape', shape: m[1] === 'pill' ? 'pill' : 'soft' } };
+    }
+    if (/^add\s+(?:a\s+|an\s+)?(path|line|arrow|squiggle|stroke)\b/.test(low) ||
+        /^(draw|sketch)\s+(?:a\s+|an\s+)?(path|line|arrow|squiggle|stroke)\b/.test(low)){
+      return { kind:'addel', spec:{ kind:'path' } };
     }
     if (/^add\s+(?:a\s+|an\s+)?(logo|image|picture|photo)/.test(low)){
       return { kind:'note', msg:'<b>images:</b> use + Element, Image / logo to add one — then control it here.' };
@@ -1568,6 +2309,40 @@
       }
       if (/ bold/.test(pl)) return { kind:'elstyle', el:el, patch:{ weight: / not bold| unbold| regular/.test(pl) ? null : 800 } };
       if (/ italic/.test(pl)) return { kind:'elstyle', el:el, patch:{ italic: !/ not italic| unitalic/.test(pl) } };
+      /* polish wave: mask reveals, blend modes, true glass, text-on-path */
+      if (/ reveal| mask/.test(pl)){
+        var msh = / circle/.test(pl) ? 'circle' : / wipe/.test(pl) ? 'wipe' : 'rect';
+        return { kind:'elmask', el:el, shape:msh };
+      }
+      if (/ blend/.test(pl)){
+        if (/ no blend| normal blend| blend off| remove blend/.test(pl)) return { kind:'elstyle', el:el, patch:{ blend:null } };
+        var bm = pl.match(/ (multiply|screen|overlay|soft light|difference|additive) /);
+        if (bm) return { kind:'elstyle', el:el, patch:{ blend: bm[1] === 'soft light' ? 'soft-light' : bm[1] === 'additive' ? 'plus-lighter' : bm[1].trim() } };
+      }
+      if (/ glass| frosted| frost /.test(pl)){
+        if (/ no glass| remove glass| unfrost/.test(pl)) return { kind:'elstyle', el:el, patch:{ backdropBlur:0 } };
+        return { kind:'elstyle', el:el, patch:{ backdropBlur: 14 } };
+      }
+      /* motion wave: procedural wiggle + loop */
+      if (/ wiggle| wobble/.test(pl)){
+        if (/ no wiggle| stop wiggle| wiggle off| remove wiggle| unwiggle/.test(pl))
+          return { kind:'elstyle', el:el, patch:{ wiggle:null } };
+        var wseed = parseInt(String(el.id).replace(/\D/g, ''), 10) || 1;
+        return { kind:'elstyle', el:el, patch:{ wiggle:{ amp:0.02, freq:0.8, rot:4, seed:wseed } } };
+      }
+      if (/ loop| ping ?pong/.test(pl)){
+        if (/ no loop| loop off| remove loop| unloop/.test(pl))
+          return { kind:'elstyle', el:el, patch:{ loop:null } };
+        var lm2 = pl.match(/ (\d+)\s*(?:times|x) /);
+        return { kind:'elstyle', el:el, patch:{ loop:{ n: lm2 ? parseInt(lm2[1], 10) : 3,
+          mode: / ping ?pong/.test(pl) ? 'pingpong' : 'repeat' } } };
+      }
+      if (el.kind === 'text' && / on a circle| on an arc| on a path| around a circle| curved/.test(pl)){
+        return { kind:'elonpath', el:el, spec:{ shape:'arc' } };
+      }
+      if (el.kind === 'text' && / on a line| angled/.test(pl)){
+        return { kind:'elonpath', el:el, spec:{ shape:'line', angle:-12 } };
+      }
     }
 
     /* typewriter guard: "type it out" is an effect, not a word change */
@@ -1642,6 +2417,8 @@
       case 'wordpos': return 'move word';
       case 'elstyle': return 'style element';
       case 'elcount': return 'count up';
+      case 'elmask': return 'reveal with mask';
+      case 'elonpath': return 'text on a path';
     }
     return st.kind;
   }
@@ -1686,6 +2463,12 @@
     if (jx){
       inboxAdd(jx[1].trim());
       say('<b>sent straight to Jarvis.</b> watch the Jarvis inbox (right panel) — his reply lands there, and he builds it into MOTIQ.');
+      return;
+    }
+    var ic = String(raw).trim()
+      .match(/^insert(?:\s+the)?\s+(.+?)\s+component(?:\s+at\s+(\d+(?:\.\d+)?)\s*s?)?$/i);
+    if (ic){
+      insertComponentByName(ic[1], ic[2] != null ? +ic[2] : null);
       return;
     }
     var par = null;
@@ -1733,6 +2516,13 @@
       ['Italics','italics','slant −11°'], ['Go big','big','scale up'],
       ['Go small','small','scale down'], ['Slow down','slow down','ambient drift'],
       ['Speed up','speed up','ambient drift'], ['Neon','neon','glow pulse']
+    ]},
+    { name:'Preset pack', items:[
+      ['Pixelate','pixelate','mosaic type-in'], ['Advance typewriter','advtype','liquid smear type-in'],
+      ['Glow sweep','glowsweep','word-by-word glow'], ['Slide in R','slidein-r','words from the right'],
+      ['Glow bounce','glowbounce','bouncing glow words'],
+      ['Lyric highlight','lyrichl','caption box on the sung word'],
+      ['Strike fix','strike','strike-through + correction']
     ]},
     { name:'Colour', items:[
       ['Splash of color','splash of color','flood the stage'], ['Rainbow','rainbow','letter cascade'],
@@ -1844,6 +2634,9 @@
   var bgImg      = document.getElementById('bgImg');
   var bgGrad     = document.getElementById('bgGrad');
   var bgGlass    = document.getElementById('bgGlass');
+  var auroraLayer = document.getElementById('auroraLayer');
+  var auroraVignette = document.getElementById('auroraVignette');
+  var flashLayer = document.getElementById('flashLayer');
   var bgInner    = document.getElementById('bgInner');
   var layerBack  = document.getElementById('layerBack');
   var layerMid   = document.getElementById('layerMid');
@@ -1865,7 +2658,7 @@
   var elFile     = document.getElementById('elFile');
   var bgFile     = document.getElementById('bgFile');
 
-  var proj = { duration:10, bg:[], motion:[], fx:[], elements:[], words:[] };
+  var proj = { duration:10, stage:'landscape', bg:[], motion:[], fx:[], elements:[], words:[], camera:[], rings:[], ringClips:[], fonts:[], post:null, audio:null };
   var selRange = null;            // {a,b} | null
   var selClip  = null;            // {track, index} | null
   var selEl    = null;            // element id | null
@@ -1879,13 +2672,101 @@
   function smooth01(x){ x = clamp01(x); return x * x * (3 - 2 * x); }
   function fmtT(t){ return (Math.round(t * 10) / 10).toFixed(1); }
 
+  /* ---------- easing presets (mirror of motiq_polish.py — keep in sync) ----------
+     A clip's `ease` warps its local progress: at time-fraction u the
+     travel has covered fraction E(u) of the path. 'smooth' (or no ease)
+     is the identity here — the polish pass's shaping IS the smooth
+     behaviour; these curves are for clips that carry an explicit preset. */
+  var EASES = {
+    linear: function(u){ return u; },
+    easeOutExpo: function(u){ return u >= 1 ? 1 : 1 - Math.pow(2, -10 * u); },
+    easeOutBack: function(u){ var c1 = 1.70158, c3 = c1 + 1, v = u - 1; return 1 + c3 * v * v * v + c1 * v * v; },
+    spring: function(u){
+      var raw = 1 - Math.exp(-5.5 * u) * Math.cos(9 * u);
+      var top = 1 - Math.exp(-5.5) * Math.cos(9);
+      return raw / top;
+    },
+    smooth: function(u){ return u; }
+  };
+  function easeVal(name, u){
+    var f = EASES[name];
+    return f ? f(clamp01(u)) : clamp01(u);
+  }
+  var GSAP_EASE = { linear:'none', easeOutExpo:'expo.out', easeOutBack:'back.out(1.7)',
+                    spring:'elastic.out(1, 0.55)', smooth:'power2.inOut' };
+
+  /* ---------- MOTION WAVE: custom curves + velocity continuity ----------
+     A key's `ease` may also be a cubic-bezier spec [x1, y1, x2, y2]
+     (x clamped 0–1; y may leave 0–1 for overshoot). easeSpec() is the
+     single evaluation entry: array -> bezier, string -> preset table,
+     absent -> easeVal's identity (each caller keeps its own no-ease
+     fallback, so pre-wave projects evaluate bit-identically).
+     A destination key may instead carry `vel: true`: its segment then
+     interpolates through the neighbouring keys with the SAME
+     Catmull-Rom the polish pass applies to recorded paths
+     (motiq_polish.py _cr — time-parametrised, endpoints duplicated),
+     so velocity stays direction-continuous and non-zero at the joint
+     instead of easing to a stop. vel wins over ease on the same key. */
+  function sanitizeBezier(e){
+    if (!Array.isArray(e) || e.length !== 4) return null;
+    var n = [+e[0], +e[1], +e[2], +e[3]];
+    for (var i = 0; i < 4; i++) if (!isFinite(n[i])) return null;
+    return [clamp01(n[0]), clamp(n[1], -2, 2), clamp01(n[2]), clamp(n[3], -2, 2)];
+  }
+  function bezierVal(bz, u){
+    u = clamp01(u);
+    if (u <= 0) return 0;
+    if (u >= 1) return 1;
+    var x1 = bz[0], y1 = bz[1], x2 = bz[2], y2 = bz[3];
+    function bx(t){ var s = 1 - t; return 3 * s * s * t * x1 + 3 * s * t * t * x2 + t * t * t; }
+    function by(t){ var s = 1 - t; return 3 * s * s * t * y1 + 3 * s * t * t * y2 + t * t * t; }
+    var t = u, i, x, d;
+    for (i = 0; i < 8; i++){           /* Newton first */
+      x = bx(t) - u;
+      if (Math.abs(x) < 1e-6) return by(t);
+      d = 3 * (1 - t) * (1 - t) * x1 + 6 * (1 - t) * t * (x2 - x1) + 3 * t * t * (1 - x2);
+      if (Math.abs(d) < 1e-6) break;
+      t -= x / d;
+      if (t < 0 || t > 1) break;
+    }
+    var lo = 0, hi = 1;               /* bisection fallback */
+    t = u;
+    for (i = 0; i < 24; i++){
+      x = bx(t);
+      if (Math.abs(x - u) < 1e-6) break;
+      if (x < u) lo = t; else hi = t;
+      t = (lo + hi) / 2;
+    }
+    return by(t);
+  }
+  function easeSpec(ease, u){
+    return Array.isArray(ease) ? bezierVal(ease, u) : easeVal(ease, u);
+  }
+  /* sanitizer-side: keep a preset name (non-'smooth') or a bezier
+     array on a key/clip; anything else drops the field entirely */
+  function keepEase(e){
+    if (typeof e === 'string') return (EASES[e] && e !== 'smooth') ? e : undefined;
+    return sanitizeBezier(e) || undefined;
+  }
+  /* one Catmull-Rom coordinate — mirrors motiq_polish.py _cr exactly */
+  function crVal(p0, p1, p2, p3, u){
+    var u2 = u * u, u3 = u2 * u;
+    return 0.5 * ((2 * p1) + (-p0 + p2) * u +
+                  (2 * p0 - 5 * p1 + 4 * p2 - p3) * u2 +
+                  (-p0 + 3 * p1 - 3 * p2 + p3) * u3);
+  }
+
   /* ---------- stage frame sizing: 16:9 inside the centre region ---------- */
   function fitFrame(){
     var r = stageMain.getBoundingClientRect();
     if (r.width < 10 || r.height < 10) return;
-    var w = Math.max(120, Math.min(r.width - 6, (r.height - 6) * 16 / 9));
+    /* stage orientation: 'landscape' 16:9 (1280x720) or 'portrait'
+       9:16 (720x1280) — every stage layer is inset:0 inside the frame,
+       so the box is the only thing that changes shape */
+    var ar = (proj.stage === 'portrait') ? 9 / 16 : 16 / 9;
+    var w = Math.max(120, Math.min(r.width - 6, (r.height - 6) * ar));
     frame.style.width = w + 'px';
-    frame.style.height = (w * 9 / 16) + 'px';
+    frame.style.height = (w / ar) + 'px';
     if (typeof applyWordPos === 'function') applyWordPos();
   }
   if (window.ResizeObserver) new ResizeObserver(fitFrame).observe(stageMain);
@@ -1900,9 +2781,62 @@
     }
     return null;
   }
+  function sanitizeFlash(f){
+    if (!f || typeof f !== 'object') return null;
+    return { color: String(f.color || '#ffffff'),
+             dur: clamp(+f.dur || 0.45, 0.05, 3) };
+  }
+  function sanitizeBgSeg(s){
+    if (!s || typeof s !== 'object') return null;
+    var out = { a: +s.a || 0, b: +s.b || 0, kind: String(s.kind || 'theme') };
+    if (s.value != null) out.value = String(s.value);
+    if (out.kind === 'aurora'){
+      var cols = Array.isArray(s.colors) ? s.colors.map(String).filter(function(c){
+        return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c);
+      }) : [];
+      while (cols.length < 2) cols.push(cols[0] || '#ff7a5c');
+      out.colors = cols.slice(0, 4);
+      out.speed = clamp(+s.speed || 1, 0.1, 4);
+      out.dark = s.dark != null ? clamp(+s.dark, 0, 1) : 0.55;
+      if (s.base) out.base = String(s.base);
+    }
+    var fi = sanitizeFlash(s.flashIn), fo = sanitizeFlash(s.flashOut);
+    if (fi) out.flashIn = fi;
+    if (fo) out.flashOut = fo;
+    return out;
+  }
+  /* Aurora blobs: created once per colour count; positions are a pure
+     function of the project clock (deterministic in the renderer). */
+  var auroraBlobs = [];
+  function ensureAuroraBlobs(colors){
+    if (auroraBlobs.length === colors.length) return;
+    auroraLayer.querySelectorAll('.aurora-blob').forEach(function(n){ n.remove(); });
+    auroraBlobs = colors.map(function(c){
+      var d = document.createElement('div');
+      d.className = 'aurora-blob';
+      d.style.background = 'radial-gradient(circle at center, ' + c + ' 0%, transparent 70%)';
+      auroraLayer.insertBefore(d, auroraVignette);
+      return d;
+    });
+  }
   function applyBgAt(t){
     var seg = segAt(proj.bg, t);
     bgImg.hidden = true; bgGrad.hidden = true; bgGlass.hidden = true;
+    auroraLayer.hidden = true;
+    /* bloom flash: pure function of t within the current segment */
+    var fop = 0, fcol = '#ffffff';
+    if (seg){
+      if (seg.flashIn){
+        var u1 = (t - seg.a) / seg.flashIn.dur;
+        if (u1 < 1){ fop = Math.pow(1 - Math.max(0, u1), 1.6); fcol = seg.flashIn.color; }
+      }
+      if (seg.flashOut){
+        var u2 = (t - (seg.b - seg.flashOut.dur)) / seg.flashOut.dur;
+        if (u2 > 0){ var o2 = Math.pow(Math.min(1, u2), 1.6); if (o2 > fop){ fop = o2; fcol = seg.flashOut.color; } }
+      }
+    }
+    flashLayer.style.opacity = fop.toFixed(3);
+    if (fop > 0) flashLayer.style.background = fcol;
     if (!seg){ bgBase.style.background = baseBgColor(); return; }
     if (seg.kind === 'color'){ bgBase.style.background = seg.value; }
     else if (seg.kind === 'theme'){ bgBase.style.background = theme().bg; }
@@ -1914,6 +2848,21 @@
     else if (seg.kind === 'glass'){
       bgBase.style.background = 'transparent';
       bgGrad.hidden = false; bgGlass.hidden = false;
+    }
+    else if (seg.kind === 'aurora'){
+      var cols = (seg.colors && seg.colors.length >= 2) ? seg.colors : ['#ff7a5c', '#e83a0c'];
+      bgBase.style.background = seg.base || '#160503';
+      auroraLayer.hidden = false;
+      ensureAuroraBlobs(cols);
+      var sp = (seg.speed || 1) * t;
+      auroraBlobs.forEach(function(d, i){
+        var ang = sp * 0.13 * (i + 1) + i * 2.1;
+        var x = 50 + 36 * Math.sin(ang);
+        var y = 46 + 28 * Math.cos(ang * 1.3 + i * 1.7);
+        d.style.transform = 'translate(' + (x - 50).toFixed(2) + '%, ' + (y - 50).toFixed(2) + '%)';
+        d.style.left = '12%'; d.style.top = '12%';
+      });
+      auroraVignette.style.opacity = (seg.dark != null ? seg.dark : 0.55).toFixed(2);
     }
   }
   function normRange(range){
@@ -1930,6 +2879,16 @@
     var seg = { a:r.a, b:r.b, kind:spec.kind };
     if (spec.kind === 'color') seg.value = spec.value || '#b3351f';
     if (spec.kind === 'image') seg.value = spec.value || '';
+    if (spec.kind === 'aurora'){
+      seg.colors = Array.isArray(spec.colors) && spec.colors.length >= 2
+        ? spec.colors.map(String).slice(0, 4) : ['#ff7a5c', '#e83a0c', '#ffb020'];
+      seg.speed = spec.speed != null ? clamp(+spec.speed, 0.1, 4) : 1;
+      seg.dark = spec.dark != null ? clamp(+spec.dark, 0, 1) : 0.55;
+      if (spec.base) seg.base = String(spec.base);
+    }
+    var sfi = sanitizeFlash(spec.flashIn), sfo = sanitizeFlash(spec.flashOut);
+    if (sfi) seg.flashIn = sfi;
+    if (sfo) seg.flashOut = sfo;
     proj.bg.push(seg);
     proj.bg.sort(function(x, y){ return x.a - y.a; });
     renderTimeline();
@@ -1937,23 +2896,152 @@
     say('<b>background set.</b> ' + seg.kind + ' for ' + fmtT(r.a) + '–' + fmtT(r.b) + 's.');
   }
 
-  /* ---------- motion path + parallax ---------- */
+  /* ---------- motion path + parallax + camera ---------- */
   function clipAt(list, t){ return segAt(list, t); }
+  /* Depth-plane parallax factors (bg, back, word/mid, front). The camera
+     pan acts against the same factors: a plane with factor f keeps
+     (f - 1) of the pan, so the mid plane (f = 1) moves exactly with the
+     camera while back/bg lag and front leads. */
+  var wordPar = { x:0, y:0 };
+  var camState = { x:0.5, y:0.5, zoom:1 };
+  var camWrap = document.getElementById('camWrap');
+  function applyPlaneTransforms(){
+    var r = frame.getBoundingClientRect();
+    var panX = (camState.x - 0.5) * r.width * camState.zoom;
+    var panY = (camState.y - 0.5) * r.height * camState.zoom;
+    function tr(f){
+      return 'translate(' + (wordPar.x * f - panX * (f - 1)).toFixed(1) + 'px,' +
+                            (wordPar.y * f - panY * (f - 1)).toFixed(1) + 'px)';
+    }
+    motionWrap.style.transform = tr(1);
+    layerBack.style.transform  = tr(0.45);
+    layerFront.style.transform = tr(1.3);
+    bgInner.style.transform    = 'translate(' + (wordPar.x * 0.12 - panX * (0.12 - 1)).toFixed(1) + 'px,' +
+                                                (wordPar.y * 0.12 - panY * (0.12 - 1)).toFixed(1) + 'px) scale(1.07)';
+  }
   function setParallax(dx, dy){
-    motionWrap.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
-    layerBack.style.transform  = 'translate(' + (dx * 0.45) + 'px,' + (dy * 0.45) + 'px)';
-    layerFront.style.transform = 'translate(' + (dx * 1.3) + 'px,' + (dy * 1.3) + 'px)';
-    bgInner.style.transform    = 'translate(' + (dx * 0.12) + 'px,' + (dy * 0.12) + 'px) scale(1.07)';
+    wordPar.x = dx; wordPar.y = dy;
+    applyPlaneTransforms();
   }
   function clearParallax(){
-    motionWrap.style.transform = ''; layerBack.style.transform = '';
-    layerFront.style.transform = ''; bgInner.style.transform = '';
+    wordPar.x = 0; wordPar.y = 0;
+    applyPlaneTransforms();
+  }
+  /* ---------- camera track ---------- */
+  function sanitizeCameraKey(k){
+    if (!k || typeof k !== 'object') return null;
+    var out = { t: clamp(+k.t || 0, 0, proj.duration),
+                x: clamp01(k.x != null ? +k.x : 0.5),
+                y: clamp01(k.y != null ? +k.y : 0.5),
+                zoom: clamp(k.zoom != null ? +k.zoom : 1, 0.2, 4) };
+    var ke = keepEase(k.ease); if (ke !== undefined) out.ease = ke;
+    if (k.vel) out.vel = true;
+    return out;
+  }
+  function cameraAt(t){
+    var keys = proj.camera;
+    if (!keys || !keys.length) return null;
+    if (t <= keys[0].t) return keys[0];
+    if (t >= keys[keys.length - 1].t) return keys[keys.length - 1];
+    for (var i = 1; i < keys.length; i++){
+      if (t <= keys[i].t){
+        var k0 = keys[i - 1], k1 = keys[i];
+        var u = (t - k0.t) / Math.max(0.0001, k1.t - k0.t);
+        if (k1.vel){
+          var p0 = keys[Math.max(0, i - 2)], p3 = keys[Math.min(keys.length - 1, i + 1)];
+          return { x: crVal(+p0.x, +k0.x, +k1.x, +p3.x, u),
+                   y: crVal(+p0.y, +k0.y, +k1.y, +p3.y, u),
+                   zoom: crVal(+p0.zoom, +k0.zoom, +k1.zoom, +p3.zoom, u) };
+        }
+        var e = easeSpec(k1.ease, u);
+        return { x: k0.x + (k1.x - k0.x) * e,
+                 y: k0.y + (k1.y - k0.y) * e,
+                 zoom: k0.zoom + (k1.zoom - k0.zoom) * e };
+      }
+    }
+    return keys[keys.length - 1];
+  }
+  function applyCamera(t){
+    var c = cameraAt(t);
+    if (!c || (c.x === 0.5 && c.y === 0.5 && c.zoom === 1)){
+      camState = { x:0.5, y:0.5, zoom:1 };
+      if (camWrap.style.transform) camWrap.style.transform = '';
+      applyPlaneTransforms();
+      return;
+    }
+    camState = { x:c.x, y:c.y, zoom:c.zoom };
+    var r = frame.getBoundingClientRect();
+    var tx = (0.5 - c.zoom * c.x) * r.width;
+    var ty = (0.5 - c.zoom * c.y) * r.height;
+    camWrap.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + c.zoom + ')';
+    applyPlaneTransforms();
+  }
+  function addCameraKey(key){
+    var k = sanitizeCameraKey(key || {});
+    if (!k) return null;
+    if (key && key.t == null) k.t = clamp(pb.t, 0, proj.duration);
+    if (key && key.x == null && key.y == null && key.zoom == null){
+      k.x = camState.x; k.y = camState.y; k.zoom = camState.zoom;
+    }
+    proj.camera = proj.camera.filter(function(o){ return Math.abs(o.t - k.t) > 0.001; });
+    proj.camera.push(k);
+    proj.camera.sort(function(a, b){ return a.t - b.t; });
+    renderTimeline(); applyCamera(pb.t); syncCamInfo();
+    return k;
+  }
+  function listCameraKeys(){ return JSON.parse(JSON.stringify(proj.camera)); }
+  function clearCamera(){
+    proj.camera = [];
+    renderTimeline(); applyCamera(pb.t); syncCamInfo();
+  }
+  function zoomTo(target, opts){
+    opts = opts || {};
+    var pt = null;
+    if (typeof target === 'string'){
+      var el = findEl(target);
+      if (el) pt = { x: el.x, y: el.y };
+    } else if (target && target.x != null && target.y != null){
+      pt = { x: clamp01(+target.x), y: clamp01(+target.y) };
+    }
+    if (!pt) return null;
+    var at = opts.at != null ? clamp(+opts.at, 0, proj.duration) : pb.t;
+    var dur = opts.duration != null ? Math.max(0.1, +opts.duration) : 1.2;
+    var cur = cameraAt(at) || { x:0.5, y:0.5, zoom:1 };
+    addCameraKey({ t: at, x: cur.x, y: cur.y, zoom: cur.zoom });
+    return addCameraKey({ t: Math.min(proj.duration, at + dur), x: pt.x, y: pt.y,
+                          zoom: opts.zoom != null ? +opts.zoom : 1.6,
+                          ease: opts.ease || 'smooth' });
+  }
+  function syncCamInfo(){
+    var info = document.getElementById('camInfo');
+    if (!info) return;
+    info.textContent = proj.camera.length
+      ? proj.camera.length + ' camera key' + (proj.camera.length > 1 ? 's' : '') +
+        ' — keys live on the CAM lane; select + ✕ removes one.'
+      : 'No camera keys — static camera.';
   }
   function pathPointAt(clip, lt){
     var pts = clip.points;
     if (!pts.length) return null;
+    var warped = false;
+    if (clip.ease && EASES[clip.ease]){
+      var len = (clip.b || 0) - (clip.a || 0);
+      if (len > 0.01){
+        var u = clamp01(lt / len);
+        var e = easeVal(clip.ease, u);
+        if (Math.abs(e - u) > 0.0001){ lt = e * len; warped = true; }
+      }
+    }
     if (lt <= pts[0].t) return pts[0];
-    if (lt >= pts[pts.length - 1].t) return pts[pts.length - 1];
+    if (lt >= pts[pts.length - 1].t){
+      var last = pts[pts.length - 1];
+      if (warped && pts.length >= 2 && lt > last.t){
+        var pa = pts[pts.length - 2];
+        var f = (lt - last.t) / Math.max(0.0001, last.t - pa.t);
+        return { x: last.x + (last.x - pa.x) * f, y: last.y + (last.y - pa.y) * f };
+      }
+      return last;
+    }
     for (var i = 1; i < pts.length; i++){
       if (lt <= pts[i].t){
         var p0 = pts[i - 1], p1 = pts[i];
@@ -1994,9 +3082,551 @@
     for (var i = 0; i < proj.elements.length; i++) if (proj.elements[i].id === id) return proj.elements[i];
     return null;
   }
+  var uiNodes = {};
+  var svgPathNodes = {};
+  /* ---------- uncap pack: gradients, shadows, keys, icon tiles ----------
+     fill:   { angle, stops: [{ c, at }] } — full CSS linear-gradient spec
+             for shapes and text; the legacy grad:[c1, c2] (vertical
+             2-stop) still works and is used when no fill is set.
+     shadow: { x, y, blur, color } — stage px; box-shadow on shapes,
+             drop-shadow filter on text / images / icons.
+     blur:   element blur in px (filter on the inner node).
+     keys:   [{ t, x, y, ease? }] — absolute centre positions (stage
+             fractions, may leave 0–1 for off-stage), interpolated in
+             applyElementMotion, holding the last key after it passes.
+             Authoritative: the polish pass never touches keys. */
+  function sanitizeFill(f){
+    if (!f || typeof f !== 'object' || !Array.isArray(f.stops)) return null;
+    var stops = f.stops.map(function(s, i, arr){
+      if (!s || typeof s !== 'object' || s.c == null) return null;
+      var at = s.at != null && isFinite(+s.at) ? clamp01(+s.at)
+               : (arr.length > 1 ? i / (arr.length - 1) : 0);
+      return { c: String(s.c), at: Math.round(at * 1000) / 1000 };
+    }).filter(Boolean);
+    if (stops.length < 2) return null;
+    stops.sort(function(a, b){ return a.at - b.at; });
+    var ang = isFinite(+f.angle) ? ((+f.angle % 360) + 360) % 360 : 180;
+    return { angle: Math.round(ang * 100) / 100, stops: stops };
+  }
+  function fillCss(f){
+    if (!f || !f.stops || f.stops.length < 2) return null;
+    var parts = f.stops.map(function(s){
+      return s.c + ' ' + (Math.round(s.at * 1000) / 10) + '%';
+    });
+    return 'linear-gradient(' + f.angle + 'deg, ' + parts.join(', ') + ')';
+  }
+  function gradCss(el){
+    var fc = fillCss(el.fill);
+    if (fc) return fc;
+    if (el.grad && el.grad.length === 2)
+      return 'linear-gradient(180deg, ' + el.grad[0] + ', ' + el.grad[1] + ')';
+    return null;
+  }
+  function sanitizeShadow(s){
+    if (!s || typeof s !== 'object') return null;
+    return { x: clamp(+s.x || 0, -200, 200), y: clamp(+s.y || 0, -200, 200),
+             blur: clamp(+s.blur || 0, 0, 200),
+             color: String(s.color || 'rgba(0,0,0,0.35)') };
+  }
+  function shadowCss(el){
+    var s = el.shadow; if (!s) return '';
+    return s.x + 'px ' + s.y + 'px ' + s.blur + 'px ' + s.color;
+  }
+  /* filter string for an element's inner node: element blur (any kind)
+     plus a drop-shadow for the kinds that don't take box-shadow */
+  function elFilterCss(el){
+    var parts = [];
+    if (el.shadow && el.kind !== 'shape') parts.push('drop-shadow(' + shadowCss(el) + ')');
+    if (el.blur > 0) parts.push('blur(' + (+el.blur) + 'px)');
+    return parts.join(' ');
+  }
+  function cssAlpha(col, a){
+    var m = /^#([0-9a-f]{6})$/i.exec(col || '');
+    if (m){
+      var n = parseInt(m[1], 16);
+      return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' +
+             (n & 255) + ',' + a + ')';
+    }
+    m = /^#([0-9a-f]{3})$/i.exec(col || '');
+    if (m){
+      var h = m[1];
+      return 'rgba(' + parseInt(h[0] + h[0], 16) + ',' +
+             parseInt(h[1] + h[1], 16) + ',' + parseInt(h[2] + h[2], 16) +
+             ',' + a + ')';
+    }
+    return null;
+  }
+  function sanitizeKeys(list){
+    if (!Array.isArray(list)) return [];
+    var out = list.map(function(k){
+      if (!k || typeof k !== 'object' || !isFinite(+k.x) || !isFinite(+k.y))
+        return null;
+      var o = { t: clamp(+k.t || 0, 0, proj.duration),
+                x: clamp(+k.x, -1, 2), y: clamp(+k.y, -1, 2) };
+      var ke = keepEase(k.ease); if (ke !== undefined) o.ease = ke;
+      if (k.vel) o.vel = true;
+      return o;
+    }).filter(Boolean);
+    out.sort(function(a, b){ return a.t - b.t; });
+    return out;
+  }
+  /* Interpolated keyframed centre at time t. Before the first key and
+     after the last key the position holds. A segment is warped by its
+     DESTINATION key's ease (the camera-key convention); with no ease
+     the segment uses a smoothstep so moves start and land gently. */
+  function keysAt(el, t){
+    var ks = el.keys;
+    if (!ks || !ks.length) return null;
+    var first = ks[0], last = ks[ks.length - 1];
+    /* motion wave: the element's loop spec replays the key span
+       inside its own window (see loopPhase) */
+    if (el.loop && ks.length > 1 && t > +first.t && t < +last.t)
+      t = +first.t + loopPhase(el.loop, (t - +first.t) / (+last.t - +first.t)) * (+last.t - +first.t);
+    if (t <= +first.t) return { x: +first.x, y: +first.y };
+    if (t >= +last.t) return { x: +last.x, y: +last.y };
+    for (var i = 0; i < ks.length - 1; i++){
+      var a = ks[i], b = ks[i + 1];
+      if (t >= +a.t && t <= +b.t){
+        var span = Math.max(0.0001, +b.t - +a.t);
+        var u = (t - +a.t) / span;
+        if (b.vel){
+          var p0 = ks[Math.max(0, i - 1)], p3 = ks[Math.min(ks.length - 1, i + 2)];
+          return { x: crVal(+p0.x, +a.x, +b.x, +p3.x, u),
+                   y: crVal(+p0.y, +a.y, +b.y, +p3.y, u) };
+        }
+        var e = b.ease ? easeSpec(b.ease, u) : smooth01(u);
+        return { x: +a.x + (+b.x - +a.x) * e, y: +a.y + (+b.y - +a.y) * e };
+      }
+    }
+    return { x: +last.x, y: +last.y };
+  }
+
+  /* ================= POLISH WAVE =================
+     Masks & reveals, SVG path draw-on / morph, text-on-path, blend
+     modes, true glass (backdrop blur) and the project post chain.
+     Every value is a pure function of the playhead time, so the
+     deterministic renderer reproduces them frame-exactly. */
+
+  /* ---- blend modes + glass ---- */
+  var BLENDS = ['multiply', 'screen', 'overlay', 'soft-light', 'difference', 'plus-lighter'];
+  function sanitizeBlend(b){ return BLENDS.indexOf(b) !== -1 ? b : null; }
+  function glassify(node, el){
+    /* true glass: a backdrop blur over whatever sits behind the
+       element (its own translucent tint lets the blur read). The page
+       and the renderer run the same Chromium compositor, so both
+       produce the identical result. */
+    if (!node || !(el.backdropBlur > 0)) return;
+    node.style.backdropFilter = 'blur(' + (+el.backdropBlur) + 'px) saturate(1.3)';
+    node.style.webkitBackdropFilter = node.style.backdropFilter;
+    if (el.glassTint) node.style.background = el.glassTint;
+  }
+
+  /* ---- masks & reveals ----
+     el.masks: [{ shape, a, b, from, to, ease?, dir, cx, cy }]. The
+     LAST mask whose window has started governs the element's
+     clip-path; before the first mask starts the element sits at
+     that mask's `from` state; after a window it holds at `to`.
+     (Element-as-matte is intentionally NOT modelled: neither the DOM
+     runtime nor the frame-stepped screenshot renderer can composite
+     one live element's alpha over another — see API.md.) */
+  var MASK_SHAPES = ['circle', 'rect', 'wipe'];
+  var MASK_DIRS = ['left', 'right', 'up', 'down', 'center'];
+  function sanitizeMask(mk){
+    if (!mk || typeof mk !== 'object' || MASK_SHAPES.indexOf(mk.shape) === -1) return null;
+    var a = clamp(+mk.a || 0, 0, proj.duration);
+    var b = clamp(mk.b != null ? +mk.b : a + 1.5, 0, proj.duration);
+    if (b <= a) b = Math.min(proj.duration, a + 0.1);
+    var out = { shape: mk.shape, a: a, b: b,
+                from: mk.from != null ? clamp01(+mk.from) : 0,
+                to: mk.to != null ? clamp01(+mk.to) : 1,
+                dir: MASK_DIRS.indexOf(mk.dir) !== -1 ? mk.dir : 'left',
+                cx: mk.cx != null ? clamp01(+mk.cx) : 0.5,
+                cy: mk.cy != null ? clamp01(+mk.cy) : 0.5 };
+    var ke = keepEase(mk.ease); if (ke !== undefined) out.ease = ke;
+    return out;
+  }
+  function sanitizeMasks(list){
+    if (!Array.isArray(list)) return null;
+    var out = list.map(sanitizeMask).filter(Boolean);
+    out.sort(function(x, y){ return x.a - y.a; });
+    return out.length ? out : null;
+  }
+  function maskCssAt(el, t){
+    var ms = el.masks;
+    if (!ms || !ms.length) return '';
+    var mk = null;
+    for (var i = 0; i < ms.length; i++){ if (t >= ms[i].a) mk = ms[i]; }
+    if (!mk) mk = ms[0];
+    var u = clamp01((t - mk.a) / Math.max(0.0001, mk.b - mk.a));
+    var p = mk.from + (mk.to - mk.from) * (mk.ease ? easeSpec(mk.ease, u) : smooth01(u));
+    if (mk.shape === 'circle')
+      return 'circle(' + (p * 75).toFixed(2) + '% at ' + (mk.cx * 100) + '% ' + (mk.cy * 100) + '%)';
+    if (mk.shape === 'wipe'){
+      var x = Math.max(0, p * 130 - 15);
+      return 'polygon(0% 0%, ' + x.toFixed(2) + '% 0%, ' + Math.max(0, x - 12).toFixed(2) + '% 100%, 0% 100%)';
+    }
+    var q = ((1 - p) * 100).toFixed(2) + '%';
+    if (mk.dir === 'right') return 'inset(0% 0% 0% ' + q + ')';
+    if (mk.dir === 'up') return 'inset(' + q + ' 0% 0% 0%)';
+    if (mk.dir === 'down') return 'inset(0% 0% ' + q + ' 0%)';
+    if (mk.dir === 'center'){ var h = ((1 - p) * 50).toFixed(2) + '%'; return 'inset(' + h + ' ' + h + ')'; }
+    return 'inset(0% ' + q + ' 0% 0%)';
+  }
+  function addMask(id, spec){
+    var el = findEl(id); if (!el) return null;
+    var base = { a: el.a, b: el.b };
+    if (spec) Object.keys(spec).forEach(function(k){ base[k] = spec[k]; });
+    var mk = sanitizeMask(base);
+    if (!mk) return null;
+    if (!Array.isArray(el.masks)) el.masks = [];
+    el.masks.push(mk);
+    el.masks.sort(function(x, y){ return x.a - y.a; });
+    applyFrame(pb.t);
+    return mk;
+  }
+
+  /* ---- SVG paths: draw-on + morph ----
+     A path element's stroke draws in across its [a, b] (dashoffset
+     from the eased progress; `ease` field honoured). With `d2` set,
+     the path data itself morphs d -> d2 over the same span — the
+     morph lerps the numeric tokens and only applies when both paths
+     share the exact command sequence, otherwise d holds. */
+  function sanitizePathD(d){
+    d = String(d == null ? '' : d);
+    return /^[MmLlHhVvCcSsQqTtAaZz0-9eE.,\s+-]*$/.test(d) && /[Mm]/.test(d) ? d.slice(0, 1200) : null;
+  }
+  function morphD(d, d2, q){
+    var ca = String(d).match(/[MmLlHhVvCcSsQqTtAaZz]/g) || [];
+    var cb = String(d2).match(/[MmLlHhVvCcSsQqTtAaZz]/g) || [];
+    var na = (String(d).match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) || []).map(Number);
+    var nb = (String(d2).match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) || []).map(Number);
+    if (ca.join('') !== cb.join('') || na.length !== nb.length || !na.length) return d;
+    var i = 0;
+    return String(d).replace(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi, function(){
+      var v = na[i] + (nb[i] - na[i]) * q; i++;
+      return +v.toFixed(2);
+    });
+  }
+
+  /* ---- text on a path ----
+     el.onPath: { shape:'arc', r? | sweep? } | { shape:'line', angle }.
+     Per-character spans are placed once at build time; widths come
+     from a canvas measure in the element's own font, so the layout
+     is identical in the page and the renderer. */
+  function sanitizeOnPath(o){
+    if (!o || typeof o !== 'object') return null;
+    if (o.shape === 'line') return { shape: 'line', angle: clamp(+o.angle || 0, -80, 80) };
+    if (o.shape === 'arc'){
+      var out = { shape: 'arc' };
+      if (o.r != null) out.r = clamp(+o.r, 30, 1200);
+      if (o.sweep != null) out.sweep = clamp(+o.sweep, 10, 350);
+      return out;
+    }
+    return null;
+  }
+  function layoutTextPath(el, box){
+    var chars = box.querySelectorAll('.tp-ch');
+    if (!chars.length) return;
+    var cs = getComputedStyle(chars[0]);
+    var cv = layoutTextPath._cv ||
+      (layoutTextPath._cv = document.createElement('canvas').getContext('2d'));
+    cv.font = (cs.fontStyle !== 'normal' ? cs.fontStyle + ' ' : '') +
+      cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+    var ws = [], total = 0;
+    chars.forEach(function(c){
+      var w = cv.measureText(c.textContent).width; ws.push(w); total += w;
+    });
+    var fs = parseFloat(cs.fontSize) || 30;
+    var op = el.onPath;
+    if (op.shape === 'line'){
+      var th = (op.angle || 0) * Math.PI / 180, dx = Math.cos(th), dy = Math.sin(th);
+      var W = Math.abs(total * dx) + Math.abs(fs * dy) + 4;
+      var H = Math.abs(total * dy) + Math.abs(fs * dx) + 4;
+      box.style.width = W + 'px'; box.style.height = H + 'px';
+      var s = -total / 2;
+      chars.forEach(function(c, i){
+        var mid = s + ws[i] / 2;
+        c.style.transform = 'translate(' + (W / 2 + dx * mid - ws[i] / 2).toFixed(1) + 'px,' +
+          (H / 2 + dy * mid - fs / 2).toFixed(1) + 'px) rotate(' + (op.angle || 0) + 'deg)';
+        s += ws[i];
+      });
+    } else {
+      var r = op.sweep ? total / (op.sweep * Math.PI / 180) : (op.r || 170);
+      var D = 2 * r + fs + 8;
+      box.style.width = D + 'px'; box.style.height = D + 'px';
+      var a0 = -Math.PI / 2 - (total / r) / 2, acc = 0;
+      chars.forEach(function(c, i){
+        var a = a0 + (acc + ws[i] / 2) / r;
+        c.style.transform = 'translate(' + (D / 2 + r * Math.cos(a) - ws[i] / 2).toFixed(1) + 'px,' +
+          (D / 2 + r * Math.sin(a) - fs / 2).toFixed(1) + 'px) rotate(' +
+          (a * 180 / Math.PI + 90).toFixed(1) + 'deg)';
+        acc += ws[i];
+      });
+    }
+  }
+
+  /* ---- project post chain (render-time finish) ----
+     proj.post = { grade:{exposure, contrast, saturation, warmth},
+                   bloom:{threshold, strength}, grain:0..64 }.
+     The page previews the GRADE only (CSS approximation); bloom and
+     grain are applied by the renderer's ffmpeg encode, exactly and
+     deterministically. The preview is disabled inside the render
+     context so captured frames are never double-graded. */
+  function sanitizePost(p){
+    if (!p || typeof p !== 'object') return null;
+    var out = {}, g = p.grade || {}, bl = p.bloom || {};
+    var grade = { exposure: clamp(+g.exposure || 0, -2, 2),
+                  contrast: clamp(g.contrast != null ? +g.contrast : 1, 0.4, 2),
+                  saturation: clamp(g.saturation != null ? +g.saturation : 1, 0, 3),
+                  warmth: clamp(+g.warmth || 0, -1, 1) };
+    if (grade.exposure || grade.contrast !== 1 || grade.saturation !== 1 || grade.warmth) out.grade = grade;
+    var bloom = { threshold: clamp(bl.threshold != null ? +bl.threshold : 0.72, 0, 1),
+                  strength: clamp(bl.strength != null ? +bl.strength : 0.6, 0, 1.5) };
+    if (bloom.strength > 0) out.bloom = bloom;
+    if (+p.grain > 0) out.grain = clamp(Math.round(+p.grain), 1, 64);
+    return Object.keys(out).length ? out : null;
+  }
+  function applyPostPreview(){
+    if (window.__MOTIQ_RENDER__){ frame.style.filter = ''; return; }
+    var g = proj.post && proj.post.grade;
+    frame.style.filter = g ? 'brightness(' + Math.pow(2, g.exposure).toFixed(3) +
+      ') contrast(' + g.contrast + ') saturate(' + g.saturation + ')' : '';
+  }
+  function setPost(patch){
+    var cur = proj.post ? JSON.parse(JSON.stringify(proj.post)) : {};
+    if (patch && typeof patch === 'object'){
+      ['grade', 'bloom'].forEach(function(k){
+        if (patch[k] && typeof patch[k] === 'object') cur[k] = Object.assign({}, cur[k], patch[k]);
+        else if (patch[k] === null) delete cur[k];
+      });
+      if ('grain' in patch) cur.grain = patch.grain;
+    }
+    proj.post = sanitizePost(cur);
+    applyPostPreview();
+    return proj.post;
+  }
+
+  /* ---- project audio (audio wave) ----
+     proj.audio = { src, name?, offset?, rate, peaks[], beats[] }.
+     The analysis (peaks/beats) is computed once, outside the page
+     (mcp/audio_analysis.py via ffmpeg), and stored IN the project,
+     so reactivity is a pure function of the playhead over stored
+     data — the page preview and the deterministic renderer agree
+     exactly, and neither decodes audio to evaluate it. The page
+     plays the actual file only for preview, in sync with the
+     transport; the render context never touches the audio element
+     (the renderer muxes the file in ffmpeg instead). */
+  function sanitizeAudio(a){
+    if (!a || typeof a !== 'object' || !a.src) return null;
+    var out = { src: String(a.src).slice(0, 2048),
+                offset: clamp(+a.offset || 0, -30, 30),
+                rate: clamp(Math.round(+a.rate || 50), 5, 100),
+                peaks: [], beats: [] };
+    if (a.name) out.name = String(a.name).slice(0, 120);
+    if (Array.isArray(a.peaks))
+      out.peaks = a.peaks.slice(0, 3100).map(function(v){ return clamp(+v || 0, 0, 1); });
+    if (Array.isArray(a.beats))
+      out.beats = a.beats.slice(0, 2000).map(function(v){ return clamp(+v || 0, 0, 3600); })
+        .filter(function(v){ return v > 0; }).sort(function(x, y){ return x - y; });
+    return out;
+  }
+  /* envelope value at AUDIO time at (seconds into the file):
+     linear interpolation between stored buckets; 0 outside */
+  function audioEnvRaw(at){
+    var au = proj.audio;
+    if (!au || !au.peaks.length || at < 0) return 0;
+    var p = at * au.rate, i = Math.floor(p);
+    if (i >= au.peaks.length - 1)
+      return i === au.peaks.length - 1 ? au.peaks[i] : 0;
+    var f = p - i;
+    return au.peaks[i] * (1 - f) + au.peaks[i + 1] * f;
+  }
+  function audioEnvAt(t){ return proj.audio ? audioEnvRaw(t - proj.audio.offset) : 0; }
+  /* beat pulse at timeline time t: 1 on each beat, exp decay
+     (tau 0.12 s) after it; the strongest recent beat wins */
+  function audioBeatAt(t){
+    var au = proj.audio;
+    if (!au || !au.beats.length) return 0;
+    var at = t - au.offset, v = 0;
+    for (var i = 0; i < au.beats.length; i++){
+      if (au.beats[i] > at) break;
+      var d = at - au.beats[i];
+      if (d < 1.2) v = Math.max(v, Math.exp(-d / 0.12));
+    }
+    return v;
+  }
+  var REACT_PROPS = { scale: 1, opacity: 1, y: 1, glow: 1 };
+  var REACT_GAIN = { scale: [-2, 2, 0.5], opacity: [0, 1, 1], y: [-0.5, 0.5, 0.08], glow: [0, 80, 24] };
+  function sanitizeReact(r){
+    if (!r || typeof r !== 'object' || !REACT_PROPS[r.prop]) return null;
+    var g = REACT_GAIN[r.prop];
+    return { prop: r.prop,
+             gain: clamp(r.gain != null ? +r.gain : g[2], g[0], g[1]),
+             smooth: clamp(+r.smooth || 0, 0, 1),
+             source: r.source === 'beat' ? 'beat' : 'env' };
+  }
+  function applyReactField(el, spec){
+    if ('react' in spec) el.react = spec.react ? sanitizeReact(spec.react) : null;
+  }
+  /* the driven value (0..1) for an element's react spec at time t:
+     the envelope (or beat pulse), causally smoothed over
+     react.smooth seconds when set. Pure in (spec, t, proj.audio). */
+  function reactVal(el, t){
+    var r = el.react;
+    if (!r || !proj.audio) return null;
+    if (r.source === 'beat') return audioBeatAt(t);
+    if (!(r.smooth > 0)) return audioEnvAt(t);
+    var n = Math.max(1, Math.round(r.smooth * proj.audio.rate)), sum = 0;
+    for (var i = 0; i < n; i++) sum += audioEnvRaw(t - proj.audio.offset - i / proj.audio.rate);
+    return sum / n;
+  }
+  function reactApplied(el, t){
+    var v = reactVal(el, t);
+    if (v == null) return null;
+    var r = el.react, out = { v: v, prop: r.prop, gain: r.gain };
+    if (r.prop === 'scale') out.scale = 1 + r.gain * v;
+    else if (r.prop === 'opacity') out.opacity = (1 - r.gain) + r.gain * v;
+    else if (r.prop === 'y') out.dyFrac = -r.gain * v;
+    else if (r.prop === 'glow') out.glowPx = r.gain * v;
+    return out;
+  }
+  /* preview playback of the project's audio file, synced to the
+     transport. Render context: never (the virtual clock owns time
+     there; the file is muxed by the renderer instead). */
+  var audEl = null, audStarted = false;
+  function syncAudioEl(){
+    if (window.__MOTIQ_RENDER__) return;
+    if (!proj.audio){
+      if (audEl){ audEl.pause(); audEl.removeAttribute('src'); audEl = null; }
+      return;
+    }
+    if (!audEl){ audEl = new Audio(); audEl.preload = 'auto'; }
+    if (audEl.getAttribute('src') !== proj.audio.src) audEl.src = proj.audio.src;
+  }
+  function audioPlay(){
+    if (window.__MOTIQ_RENDER__ || !proj.audio) return;
+    syncAudioEl();
+    if (!audEl) return;
+    var at = pb.t - proj.audio.offset;
+    audStarted = at >= 0;
+    try {
+      audEl.currentTime = Math.max(0, at);
+      if (audStarted){ var p = audEl.play(); if (p && p.catch) p.catch(function(){}); }
+    } catch (e) {}
+  }
+  function audioSyncTick(){
+    if (!audEl || !proj.audio || audStarted) return;
+    if (pb.t - proj.audio.offset >= 0){
+      audStarted = true;
+      try { var p = audEl.play(); if (p && p.catch) p.catch(function(){}); } catch (e) {}
+    }
+  }
+  function audioPause(){
+    if (audEl){ try { audEl.pause(); } catch (e) {} }
+    audStarted = false;
+  }
+  function audioSeek(){
+    if (window.__MOTIQ_RENDER__ || !audEl || !proj.audio) return;
+    var at = pb.t - proj.audio.offset;
+    audStarted = pb.playing && at >= 0;
+    try {
+      audEl.currentTime = Math.max(0, at);
+      if (audStarted){ var p = audEl.play(); if (p && p.catch) p.catch(function(){}); }
+    } catch (e) {}
+  }
+  function setAudio(spec){
+    proj.audio = spec ? sanitizeAudio(spec) : null;
+    syncAudioEl();
+    renderTimeline();
+    return proj.audio;
+  }
+  function buildIcon(el){
+    var root = document.createElement('div');
+    root.className = 'ui-icon';
+    var sz = 90 * el.scale;
+    root.style.width = sz + 'px'; root.style.height = sz + 'px';
+    root.style.borderRadius = (el.radius != null ? +el.radius
+                               : Math.round(sz * 0.24)) + 'px';
+    var g = gradCss(el);
+    if (g) root.style.background = g;
+    else {
+      var tint = cssAlpha(el.color, 0.16);
+      root.style.background = tint || 'rgba(255,255,255,0.14)';
+    }
+    glassify(root, el);
+    if (el.src){
+      var img = document.createElement('img');
+      img.src = el.src; img.alt = '';
+      img.style.width = (sz * 0.62) + 'px'; img.style.height = (sz * 0.62) + 'px';
+      root.appendChild(img);
+    } else {
+      var sp = document.createElement('span');
+      sp.className = 'ui-icon-glyph';
+      sp.textContent = el.glyph || el.text || '✦';
+      sp.style.fontSize = Math.round(sz * 0.48) + 'px';
+      sp.style.color = el.ink || '#ffffff';
+      root.appendChild(sp);
+    }
+    return root;
+  }
+  function buildUiKit(el){
+    var root = document.createElement('div');
+    root.className = 'ui-kit ui-' + el.kind;
+    root.style.fontSize = (15 * el.scale) + 'px';
+    var accent = el.color || theme().neon;
+    if (el.kind === 'window'){
+      root.innerHTML = '<div class="ui-win-bar">' +
+        '<span class="ui-dot" style="background:#e0655a"></span>' +
+        '<span class="ui-dot" style="background:#e0b45a"></span>' +
+        '<span class="ui-dot" style="background:#7fc96b"></span>' +
+        '<span class="ui-win-title"></span></div><div class="ui-win-body"></div>';
+      root.querySelector('.ui-win-title').textContent = el.title || 'Window';
+      var body = root.querySelector('.ui-win-body');
+      (el.text || '').split('\n').forEach(function(line){
+        var p = document.createElement('p');
+        p.textContent = line;
+        body.appendChild(p);
+      });
+      glassify(root, el);
+    } else if (el.kind === 'progress'){
+      root.innerHTML = '<div class="ui-progress"><div class="ui-progress-fill"></div>' +
+        '<div class="ui-progress-sheen"></div><span class="ui-progress-label">0%</span></div>';
+      var pf = root.querySelector('.ui-progress-fill');
+      if (el.color) pf.style.background = 'linear-gradient(90deg, ' + el.color + ', #ffd9c9)';
+      uiNodes[el.id] = { pFill: pf, pSheen: root.querySelector('.ui-progress-sheen'),
+                         pLabel: root.querySelector('.ui-progress-label') };
+    } else if (el.kind === 'button'){
+      root.innerHTML = '<span class="ui-btn-label"></span>';
+      root.querySelector('.ui-btn-label').textContent = el.text || 'Button';
+      root.style.background = accent;
+      uiNodes[el.id] = { press: root };
+    } else if (el.kind === 'input'){
+      root.innerHTML = (el.label ? '<div class="ui-in-label"></div>' : '') +
+        '<div class="ui-in-field"><span class="ui-in-text"></span><span class="ui-caret"></span></div>';
+      if (el.label) root.querySelector('.ui-in-label').textContent = el.label;
+      uiNodes[el.id] = { inText: root.querySelector('.ui-in-text'), caret: root.querySelector('.ui-caret') };
+    } else if (el.kind === 'chat'){
+      root.innerHTML = '<span class="ui-avatar"></span><span class="ui-chat-text"></span>';
+      root.querySelector('.ui-avatar').style.background = accent;
+      root.querySelector('.ui-chat-text').textContent = el.text || 'Hello';
+      if (el.tail === false) root.classList.add('no-tail');
+    } else if (el.kind === 'toggle'){
+      root.innerHTML = (el.text ? '<span class="ui-tg-label"></span>' : '') +
+        '<span class="ui-track"><span class="ui-knob"></span></span>';
+      if (el.text) root.querySelector('.ui-tg-label').textContent = el.text;
+      uiNodes[el.id] = { knob: root.querySelector('.ui-knob'), track: root.querySelector('.ui-track') };
+    } else if (el.kind === 'cursor'){
+      root.innerHTML = '<svg viewBox="0 0 24 24" width="2.2em" height="2.2em" aria-hidden="true">' +
+        '<path d="M5 3 L19 12 L12.5 13.5 L9.5 20 Z" fill="#ffffff" stroke="rgba(0,0,0,.55)" stroke-width="1.4" stroke-linejoin="round"/></svg>' +
+        '<span class="ui-ripple"></span>';
+      uiNodes[el.id] = { press: root, ripple: root.querySelector('.ui-ripple') };
+    }
+    return root;
+  }
   function renderElements(){
     [layerBack, layerMid, layerFront].forEach(function(c){ c.innerHTML = ''; });
-    elNodes = {}; elInnerNodes = {};
+    elNodes = {}; elInnerNodes = {}; uiNodes = {}; svgPathNodes = {};
+    var textPathBoxes = [];
     proj.elements.forEach(function(el){
       var d = document.createElement('div');
       d.className = 'el' + (el.id === selEl ? ' sel' : '');
@@ -2004,6 +3634,7 @@
       d.style.left = (el.x * 100) + '%';
       d.style.top = (el.y * 100) + '%';
       if (el.opacity != null) d.style.opacity = el.opacity;
+      if (el.blend) d.style.mixBlendMode = el.blend;
       var inner = document.createElement('div');
       inner.className = 'el-inner';
       if (el.kind === 'image'){
@@ -2017,38 +3648,113 @@
         var sz = 90 * el.scale;
         var wid = sz * (el.shape === 'pill' ? (el.w || 3.2) : (el.w || 1));
         sh.style.width = wid + 'px'; sh.style.height = sz + 'px';
-        if (el.shape === 'soft'){
+        var gcss = gradCss(el);
+        if (el.shape === 'soft' && !gcss){
           sh.style.background = 'radial-gradient(circle at center, ' + (el.color || theme().neon) + ' 0%, transparent 68%)';
-        } else if (el.grad && el.grad.length === 2){
-          sh.style.background = 'linear-gradient(180deg, ' + el.grad[0] + ', ' + el.grad[1] + ')';
+        } else if (gcss){
+          sh.style.background = gcss;
         } else {
           sh.style.background = el.color || theme().neon;
         }
-        sh.style.borderRadius = el.shape === 'rect' ? '12px' : el.shape === 'pill' ? '999px' : '50%';
-        if (el.glow) sh.style.boxShadow = '0 0 ' + Math.round(sz * 0.45) + 'px ' + el.glow;
+        sh.style.borderRadius = el.radius != null ? (+el.radius) + 'px'
+          : el.shape === 'rect' ? '12px' : el.shape === 'pill' ? '999px' : '50%';
+        var shadows = [];
+        if (el.shadow) shadows.push(shadowCss(el));
+        if (el.glow) shadows.push('0 0 ' + Math.round(sz * 0.45) + 'px ' + el.glow);
+        if (shadows.length) sh.style.boxShadow = shadows.join(', ');
+        if (el.backdropBlur > 0){
+          glassify(sh, el);
+          if (!el.fill && !(el.grad && el.grad.length === 2) && el.shape !== 'soft' && !el.glassTint)
+            sh.style.background = cssAlpha(el.color, 0.35) || sh.style.background;
+        }
         inner.appendChild(sh);
+      } else if (el.kind === 'icon'){
+        inner.appendChild(buildIcon(el));
+      } else if (el.kind === 'device'){
+        inner.appendChild(buildDevice(el));
+      } else if (el.kind === 'window' || el.kind === 'button' || el.kind === 'input' ||
+                 el.kind === 'chat' || el.kind === 'toggle' || el.kind === 'cursor' ||
+                 el.kind === 'progress'){
+        inner.appendChild(buildUiKit(el));
+      } else if (el.kind === 'path'){
+        var vb = (Array.isArray(el.vb) && el.vb.length === 2) ? el.vb : [240, 160];
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 ' + vb[0] + ' ' + vb[1]);
+        svg.setAttribute('class', 'el-path');
+        svg.style.width = (300 * el.scale) + 'px';
+        svg.style.height = (300 * el.scale * vb[1] / vb[0]) + 'px';
+        var pe = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pe.setAttribute('d', el.d || '');
+        pe.setAttribute('fill', el.fillPath || 'none');
+        pe.setAttribute('stroke', el.stroke || el.color || theme().neon);
+        pe.setAttribute('stroke-width', el.strokeW || 6);
+        pe.setAttribute('stroke-linecap', 'round');
+        pe.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(pe);
+        inner.appendChild(svg);
+        svgPathNodes[el.id] = pe;
+      } else if (el.onPath && !el.count){
+        var box = document.createElement('span');
+        box.className = 'el-textpath';
+        var tstr = el.text || 'LABEL';
+        for (var ci = 0; ci < tstr.length; ci++){
+          var csp = document.createElement('span');
+          csp.className = 'tp-ch el-text';
+          csp.textContent = tstr[ci] === ' ' ? ' ' : tstr[ci];
+          csp.style.fontSize = (30 * el.scale) + 'px';
+          if (el.font) csp.style.fontFamily = '"' + String(el.font).replace(/["\\]/g, '') + '", sans-serif';
+          if (el.weight) csp.style.fontWeight = el.weight;
+          if (el.italic) csp.style.fontStyle = 'italic';
+          var cg = gradCss(el);
+          if (cg){
+            csp.style.backgroundImage = cg;
+            csp.style.webkitBackgroundClip = 'text';
+            csp.style.backgroundClip = 'text';
+            csp.style.color = 'transparent';
+          } else if (el.color) csp.style.color = el.color;
+          if (el.glow) csp.style.textShadow = '0 0 18px ' + el.glow + ', 0 0 46px ' + el.glow;
+          box.appendChild(csp);
+        }
+        inner.appendChild(box);
+        textPathBoxes.push([el, box]);
       } else {
         var tx = document.createElement('span');
         tx.className = 'el-text';
         tx.textContent = el.count ? formatCount(el.count.from, el.count) : (el.text || 'LABEL');
         tx.style.fontSize = (30 * el.scale) + 'px';
+        if (el.font) tx.style.fontFamily = '"' + String(el.font).replace(/["\\]/g, '') + '", sans-serif';
         if (el.weight) tx.style.fontWeight = el.weight;
         if (el.italic) tx.style.fontStyle = 'italic';
-        if (el.grad && el.grad.length === 2){
-          tx.style.backgroundImage = 'linear-gradient(180deg, ' + el.grad[0] + ', ' + el.grad[1] + ')';
+        var tgrad = gradCss(el);
+        if (tgrad){
+          tx.style.backgroundImage = tgrad;
           tx.style.webkitBackgroundClip = 'text';
           tx.style.backgroundClip = 'text';
           tx.style.color = 'transparent';
         } else if (el.color) tx.style.color = el.color;
+        if (el.wrap != null){
+          tx.style.display = 'block';
+          tx.style.width = (+el.wrap) + 'px';
+          tx.style.whiteSpace = 'pre-wrap';
+          tx.style.wordBreak = 'break-word';
+        } else if ((el.text || '').indexOf('\n') !== -1){
+          tx.style.whiteSpace = 'pre-line';
+        }
+        if (el.align) tx.style.textAlign = el.align;
+        if (el.leading != null) tx.style.lineHeight = String(+el.leading);
         if (el.glow) tx.style.textShadow = '0 0 18px ' + el.glow + ', 0 0 46px ' + el.glow;
         inner.appendChild(tx);
       }
+      var filt = elFilterCss(el);
+      el._baseFilter = filt;
+      if (filt) inner.style.filter = filt;
       d.appendChild(inner);
       elInnerNodes[el.id] = inner;
       d.addEventListener('pointerdown', function(e){ startElDrag(e, el.id); });
       planeFor(el.depth).appendChild(d);
       elNodes[el.id] = d;
     });
+    textPathBoxes.forEach(function(pr){ layoutTextPath(pr[0], pr[1]); });
     updateElementVisibility(pb.t);
   }
   function updateElementVisibility(t){
@@ -2065,8 +3771,11 @@
     var node = elNodes[id];
     var move = function(ev){
       var r = frame.getBoundingClientRect();
-      el.x = clamp01((ev.clientX - r.left) / r.width);
-      el.y = clamp01((ev.clientY - r.top) / r.height);
+      /* invert the camera: screen fraction -> stage fraction */
+      var sx = (ev.clientX - r.left) / r.width;
+      var sy = (ev.clientY - r.top) / r.height;
+      el.x = clamp01((sx - 0.5) / camState.zoom + camState.x);
+      el.y = clamp01((sy - 0.5) / camState.zoom + camState.y);
       if (node){ node.style.left = (el.x * 100) + '%'; node.style.top = (el.y * 100) + '%'; }
     };
     var up = function(){
@@ -2100,11 +3809,61 @@
     g.hidden = !el;
     if (!el) return;
     document.getElementById('elName').textContent =
-      el.kind === 'text' ? (el.text || 'text') : el.kind === 'image' ? 'image' : (el.shape || 'shape');
+      el.kind === 'text' ? (el.text || 'text') : el.kind === 'image' ? 'image' :
+      (el.kind === 'shape' ? (el.shape || 'shape') : el.kind);
+    var fontRow = document.getElementById('elFontRow');
+    if (fontRow){
+      fontRow.hidden = !el.font;
+      if (el.font) document.getElementById('elFontName').textContent = el.font;
+    }
     Array.prototype.forEach.call(document.querySelectorAll('#elDepthRow .depth-btn'), function(b){
       b.classList.toggle('active', b.getAttribute('data-depth') === el.depth);
     });
     document.getElementById('elScale').value = el.scale;
+    document.getElementById('elRx').value = el.rx || 0;
+    document.getElementById('elRy').value = el.ry || 0;
+    document.getElementById('elRot').value = el.rot || 0;
+    document.getElementById('elRadius').value = el.radius != null ? el.radius
+      : (el.kind === 'shape' && el.shape === 'rect' ? 12 : 0);
+    var blSel = document.getElementById('elBlend');
+    if (blSel) blSel.value = el.blend || '';
+    var glRg = document.getElementById('elGlass');
+    if (glRg) glRg.value = el.backdropBlur || 0;
+    document.getElementById('elRing').value = el.ring || '';
+    document.getElementById('elPhase').value = el.ringPhase || 0;
+  }
+  /* shared field handling for the feature pack: pose (rx/ry/rot + clips)
+     and UI-kit fields, used by addElement and updateElement alike */
+  function applyPoseKitFields(el, spec){
+    if (spec.title != null) el.title = String(spec.title).slice(0, 60);
+    if (spec.label != null) el.label = String(spec.label).slice(0, 60);
+    if (spec.typeDur != null) el.typeDur = clamp(+spec.typeDur, 0.05, 30);
+    if (spec.rx != null) el.rx = clamp(+spec.rx, -60, 60);
+    if (spec.ry != null) el.ry = clamp(+spec.ry, -60, 60);
+    if (spec.rot != null) el.rot = clamp(+spec.rot, -360, 360);
+    if (Array.isArray(spec.tilts)) el.tilts = spec.tilts.map(sanitizeTiltClip).filter(Boolean);
+    if (Array.isArray(spec.rots)) el.rots = spec.rots.map(sanitizeRotClip).filter(Boolean);
+    if (Array.isArray(spec.presses)) el.presses = spec.presses.map(function(v){ return +v; }).filter(isFinite);
+    if (Array.isArray(spec.clicks)) el.clicks = spec.clicks.map(function(v){
+      if (typeof v === 'number') return v;
+      if (v && isFinite(+v.t)){
+        var o = { t: +v.t };
+        if (v.pulse) o.pulse = String(v.pulse);
+        if (v.color) o.color = String(v.color);
+        return o.pulse ? o : o.t;
+      }
+      return NaN;
+    }).filter(function(v){ return typeof v === 'number' ? isFinite(v) : true; });
+    if (spec.ring != null) el.ring = String(spec.ring) || undefined;
+    if (spec.ringPhase != null) el.ringPhase = clamp(+spec.ringPhase, -360, 360);
+    if (spec.from != null) el.from = +spec.from;
+    if (spec.to != null) el.to = +spec.to;
+    if (spec.ease != null && EASES[spec.ease]) el.ease = spec.ease;
+    if (Array.isArray(spec.flips)) el.flips = spec.flips.map(function(f){
+      return { t: +f.t, on: !!f.on };
+    }).filter(function(f){ return isFinite(f.t); });
+    if (spec.on != null) el.on = !!spec.on;
+    if (spec.tail != null) el.tail = !!spec.tail;
   }
   function addElement(spec){
     spec = spec || {};
@@ -2131,9 +3890,39 @@
     if (spec.glow) el.glow = String(spec.glow);
     if (spec.weight) el.weight = +spec.weight;
     if (spec.italic) el.italic = true;
+    if (spec.font) el.font = String(spec.font).replace(/["'\\]/g, '').slice(0, 80);
     if (spec.w != null) el.w = clamp(+spec.w, 0.5, 8);
+    if (spec.radius != null) el.radius = clamp(+spec.radius, 0, 400);
+    var sFill = sanitizeFill(spec.fill); if (sFill) el.fill = sFill;
+    var sShad = sanitizeShadow(spec.shadow); if (sShad) el.shadow = sShad;
+    if (spec.blur != null) el.blur = clamp(+spec.blur, 0, 40);
+    if (spec.wrap != null) el.wrap = clamp(+spec.wrap, 20, 4000);
+    if (spec.align && /^(left|center|right)$/.test(spec.align)) el.align = spec.align;
+    if (spec.leading != null) el.leading = clamp(+spec.leading, 0.8, 3);
+    if (Array.isArray(spec.keys)){ var sk = sanitizeKeys(spec.keys); if (sk.length) el.keys = sk; }
+    if (spec.glyph != null) el.glyph = String(spec.glyph).slice(0, 4);
+    if (spec.ink != null) el.ink = String(spec.ink);
     if (spec.opacity != null) el.opacity = clamp(+spec.opacity, 0, 1);
     if (spec.count && isFinite(+spec.count.to)) el.count = sanitizeCount(spec.count);
+    var sBlend = sanitizeBlend(spec.blend); if (sBlend) el.blend = sBlend;
+    if (spec.backdropBlur != null) el.backdropBlur = clamp(+spec.backdropBlur, 0, 40);
+    if (spec.glassTint) el.glassTint = String(spec.glassTint);
+    var sMasks = sanitizeMasks(spec.masks || (spec.mask ? [spec.mask] : null));
+    if (sMasks) el.masks = sMasks;
+    if (spec.kind === 'path'){
+      el.d = sanitizePathD(spec.d) || 'M10,130 C70,20 170,20 230,130';
+      var sd2 = sanitizePathD(spec.d2); if (sd2) el.d2 = sd2;
+      if (Array.isArray(spec.vb) && spec.vb.length === 2)
+        el.vb = [clamp(+spec.vb[0] || 240, 20, 2000), clamp(+spec.vb[1] || 160, 20, 2000)];
+      if (spec.stroke) el.stroke = String(spec.stroke);
+      if (spec.strokeW != null) el.strokeW = clamp(+spec.strokeW, 0.5, 60);
+      if (spec.fillPath) el.fillPath = String(spec.fillPath);
+    }
+    var sOnPath = sanitizeOnPath(spec.onPath); if (sOnPath) el.onPath = sOnPath;
+    applyPoseKitFields(el, spec);
+    applyDeviceFields(el, spec);
+    applyMotionFields(el, spec);
+    applyReactField(el, spec);
     proj.elements.push(el);
     selEl = el.id;
     renderElements(); renderTimeline(); syncElPanel();
@@ -2157,16 +3946,42 @@
     if ('glow' in patch) el.glow = patch.glow ? String(patch.glow) : null;
     if ('weight' in patch) el.weight = patch.weight ? +patch.weight : null;
     if ('italic' in patch) el.italic = !!patch.italic;
+    if ('font' in patch) el.font = patch.font ? String(patch.font).replace(/["'\\]/g, '').slice(0, 80) : null;
     if (patch.fadeIn != null) el.fadeIn = clamp(+patch.fadeIn, 0, 2);
     if (patch.fadeOut != null) el.fadeOut = clamp(+patch.fadeOut, 0, 2);
     if (patch.w != null) el.w = clamp(+patch.w, 0.5, 8);
+    if (patch.radius != null) el.radius = clamp(+patch.radius, 0, 400);
+    if ('fill' in patch) el.fill = patch.fill ? sanitizeFill(patch.fill) : null;
+    if ('shadow' in patch) el.shadow = patch.shadow ? sanitizeShadow(patch.shadow) : null;
+    if (patch.blur != null) el.blur = clamp(+patch.blur, 0, 40);
+    if ('wrap' in patch) el.wrap = patch.wrap != null ? clamp(+patch.wrap, 20, 4000) : null;
+    if ('align' in patch) el.align = /^(left|center|right)$/.test(patch.align || '') ? patch.align : null;
+    if ('leading' in patch) el.leading = patch.leading != null ? clamp(+patch.leading, 0.8, 3) : null;
+    if ('keys' in patch){ var pk = patch.keys ? sanitizeKeys(patch.keys) : []; el.keys = pk.length ? pk : null; }
+    if (patch.glyph != null) el.glyph = String(patch.glyph).slice(0, 4);
+    if (patch.ink != null) el.ink = String(patch.ink);
     if ('count' in patch) el.count = patch.count ? sanitizeCount(patch.count) : null;
+    if ('blend' in patch) el.blend = patch.blend ? sanitizeBlend(patch.blend) : null;
+    if (patch.backdropBlur != null) el.backdropBlur = clamp(+patch.backdropBlur, 0, 40);
+    if ('glassTint' in patch) el.glassTint = patch.glassTint ? String(patch.glassTint) : null;
+    if ('masks' in patch) el.masks = patch.masks ? sanitizeMasks(patch.masks) : null;
+    if ('mask' in patch && patch.mask) el.masks = sanitizeMasks([patch.mask]);
+    if ('d' in patch) el.d = patch.d ? (sanitizePathD(patch.d) || el.d) : null;
+    if ('d2' in patch) el.d2 = patch.d2 ? sanitizePathD(patch.d2) : null;
+    if ('onPath' in patch) el.onPath = patch.onPath ? sanitizeOnPath(patch.onPath) : null;
+    if (patch.strokeW != null) el.strokeW = clamp(+patch.strokeW, 0.5, 60);
+    if ('stroke' in patch) el.stroke = patch.stroke ? String(patch.stroke) : null;
+    if ('fillPath' in patch) el.fillPath = patch.fillPath ? String(patch.fillPath) : null;
     if (patch.x != null) el.x = clamp01(+patch.x);
     if (patch.y != null) el.y = clamp01(+patch.y);
     if (patch.scale != null) el.scale = clamp(+patch.scale, 0.1, 5);
     if (patch.opacity != null) el.opacity = clamp(+patch.opacity, 0, 1);
     if (patch.a != null) el.a = clamp(+patch.a, 0, proj.duration);
     if (patch.b != null) el.b = clamp(+patch.b, 0, proj.duration);
+    applyPoseKitFields(el, patch);
+    applyDeviceFields(el, patch);
+    applyMotionFields(el, patch);
+    applyReactField(el, patch);
     renderElements(); renderTimeline(); syncElPanel();
   }
   function removeElement(id){
@@ -2188,6 +4003,38 @@
   document.getElementById('elScale').addEventListener('input', function(e){
     if (selEl) updateElement(selEl, { scale: +e.target.value });
   });
+  document.getElementById('elRx').addEventListener('input', function(e){
+    if (selEl) updateElement(selEl, { rx: +e.target.value });
+  });
+  document.getElementById('elRy').addEventListener('input', function(e){
+    if (selEl) updateElement(selEl, { ry: +e.target.value });
+  });
+  document.getElementById('elRot').addEventListener('input', function(e){
+    if (selEl) updateElement(selEl, { rot: +e.target.value });
+  });
+  document.getElementById('elRadius').addEventListener('input', function(e){
+    if (selEl) updateElement(selEl, { radius: +e.target.value });
+  });
+  document.getElementById('elBlend').addEventListener('change', function(e){
+    if (selEl) updateElement(selEl, { blend: e.target.value || null });
+  });
+  document.getElementById('elGlass').addEventListener('input', function(e){
+    if (selEl) updateElement(selEl, { backdropBlur: +e.target.value });
+  });
+  document.getElementById('elRevealRow').addEventListener('click', function(e){
+    var b = e.target.closest('[data-reveal]');
+    if (b && selEl){
+      var el = findEl(selEl);
+      if (el) addMask(selEl, { shape: b.getAttribute('data-reveal'),
+        a: selRange ? selRange.a : el.a, b: selRange ? selRange.b : el.b });
+    }
+  });
+  document.getElementById('elRing').addEventListener('change', function(e){
+    if (selEl) updateElement(selEl, { ring: e.target.value.trim() });
+  });
+  document.getElementById('elPhase').addEventListener('input', function(e){
+    if (selEl) updateElement(selEl, { ringPhase: +e.target.value });
+  });
   document.getElementById('elDelete').addEventListener('click', function(){
     if (selEl){ removeElement(selEl); say('<b>element deleted.</b>'); }
   });
@@ -2200,13 +4047,17 @@
 
   /* ---------- fx clips: prompt/panel effects become clips when a range is selected ---------- */
   var CLIP_KEYS = { bounce:1, melt:1, explode:1, spin:1, wave:1, shake:1, drop:1, rise:1,
-                    flip:1, swing:1, fly:1, zoom:1, stretch:1, blur:1, glitch:1, typewriter:1, scramble:1 };
+                    flip:1, swing:1, fly:1, zoom:1, stretch:1, blur:1, glitch:1, typewriter:1, scramble:1,
+                    pixelate:1, advtype:1, glowsweep:1, 'slidein-r':1, glowbounce:1,
+                    lyrichl:1, strike:1 };
   var rawFx = {};
-  function addFxClip(name, range, target){
+  function addFxClip(name, range, target, opts){
     if (!actions[name] && name.indexOf('wordcolor:') !== 0 && name.indexOf('wordshadow:') !== 0) return;
     var r = normRange(range);
     var clip = { a:r.a, b:r.b, name:name };
     if (target) clip.target = target;
+    if (opts && opts.ease && EASES[opts.ease] && opts.ease !== 'smooth') clip.ease = opts.ease;
+    if (opts && opts.accent) clip.accent = String(opts.accent);
     proj.fx.push(clip);
     proj.fx.sort(function(x, y){ return x.a - y.a; });
     renderTimeline();
@@ -2220,12 +4071,12 @@
       rawFx[k]();
     };
   });
-  function addEffectClip(name, range, target){ addFxClip(name, range, target); }
+  function addEffectClip(name, range, target, opts){ addFxClip(name, range, target, opts); }
   function applyEffect(name, opts){
-    if (opts && opts.range){ addFxClip(name, opts.range, opts.target); return; }
+    if (opts && opts.range){ addFxClip(name, opts.range, opts.target, opts); return; }
     if (opts && opts.target){
       var el = findEl(opts.target);
-      if (el){ runElementEffect(name, el); return; }
+      if (el){ runElementEffect(name, el, opts.ease, opts.accent); return; }
     }
     if (name.indexOf('wordcolor:') === 0){ setWordColor(name.slice(10)); return; }
     if (name.indexOf('wordshadow:') === 0){ setWordShadow(name.slice(11) || null); return; }
@@ -2238,18 +4089,19 @@
   /* ---------- effect durations (sequence timing) ---------- */
   var FX_DUR = { bounce:1.35, melt:2.45, explode:2.0, spin:1.25, wave:1.35, shake:0.4,
     drop:1.5, rise:1.1, flip:1.05, swing:2.85, fly:2.6, zoom:0.85, stretch:1.5, blur:1.4,
-    glitch:0.75, typewriter:1.35, scramble:1.1, italics:0.7, upright:0.7, big:0.85,
+    glitch:0.75, typewriter:1.35, scramble:1.1, pixelate:2.4, advtype:2.6, glowsweep:2.0,
+    'slidein-r':2.2, glowbounce:1.9, lyrichl:2.2, strike:2.4, italics:0.7, upright:0.7, big:0.85,
     small:0.7, slow:0.3, fast:0.3, neon:0.5, plain:0.4, rainbow:0.6, color:0.9, reset:0.6 };
   function fxDur(name){ return FX_DUR[name] || 0.9; }
 
   /* ---------- effects on ELEMENTS (the element's inner wrapper animates) ---------- */
-  function elementTextFx(name, el, node, done){
+  function elementTextFx(name, el, node, done, ease){
     var span = node.querySelector('.el-text');
     if (!span){ gsap.fromTo(node, { opacity:.15 }, { opacity:1, duration:.8, ease:'power2.out', onComplete:done }); return; }
     var orig = el.text || span.textContent;
     var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$';
     var o = { p:0 };
-    gsap.to(o, { p:1, duration: name === 'scramble' ? 1.05 : 0.9, ease:'power2.inOut',
+    gsap.to(o, { p:1, duration: name === 'scramble' ? 1.05 : 0.9, ease: GSAP_EASE[ease] || 'power2.inOut',
       onUpdate:function(){
         if (name === 'scramble'){
           var res = Math.floor(o.p * (orig.length + 3));
@@ -2262,10 +4114,11 @@
       },
       onComplete:function(){ span.textContent = orig; if (done) done(); } });
   }
-  function runElementEffect(name, el){
+  function runElementEffect(name, el, ease, accent){
     if (!el) return;
     var node = elInnerNodes[el.id];
     if (!node) return;
+    var ez = GSAP_EASE[ease] || null;
     gsap.killTweensOf(node);
     var done = function(){ gsap.set(node, { clearProps:'transform,opacity,filter' }); };
     switch (name){
@@ -2280,11 +4133,11 @@
           .to(node, { y:-14, duration:.14, ease:'power2.out' })
           .to(node, { y:0, duration:.4, ease:'bounce.out' }); break;
       case 'rise':
-        gsap.fromTo(node, { y:44, opacity:0 }, { y:0, opacity:1, duration:.8, ease:'power3.out', onComplete:done }); break;
+        gsap.fromTo(node, { y:44, opacity:0 }, { y:0, opacity:1, duration:.8, ease: ez || 'power3.out', onComplete:done }); break;
       case 'spin':
-        gsap.to(node, { rotation:'+=360', duration:.9, ease:'power2.inOut', onComplete:done }); break;
+        gsap.to(node, { rotation:'+=360', duration:.9, ease: ez || 'power2.inOut', onComplete:done }); break;
       case 'flip':
-        gsap.fromTo(node, { rotationX:-92, opacity:0 }, { rotationX:0, opacity:1, duration:.7, ease:'back.out(1.5)', onComplete:done }); break;
+        gsap.fromTo(node, { rotationX:-92, opacity:0 }, { rotationX:0, opacity:1, duration:.7, ease: ez || 'back.out(1.5)', onComplete:done }); break;
       case 'wave':
         gsap.timeline({ onComplete:done })
           .to(node, { y:-16, duration:.25, ease:'sine.inOut' })
@@ -2339,8 +4192,14 @@
           .to(node, { y:-70, x:88, rotation:2, duration:.3, ease:'sine.inOut' })
           .to(node, { y:-52, x:56, rotation:-3, duration:.4, ease:'sine.inOut' })
           .to(node, { y:0, x:0, rotation:0, duration:.7, ease:'power2.inOut' }); break;
+      case 'pixelate': case 'advtype': case 'glowsweep': case 'slidein-r': case 'glowbounce':
+      case 'lyrichl': case 'strike':
+        if (!runPresetOnElement(name, el, accent)){
+          gsap.fromTo(node, { opacity:.15 }, { opacity:1, duration:.8, ease:'power2.out', onComplete:done });
+        }
+        break;
       case 'typewriter': case 'scramble':
-        elementTextFx(name, el, node, done); break;
+        elementTextFx(name, el, node, done, ease); break;
       case 'big':
         updateElement(el.id, { scale: Math.min(5, +(el.scale * 1.3).toFixed(3)) }); break;
       case 'small':
@@ -2597,24 +4456,204 @@
   }
 
   /* ---------- element motion paths during playback ---------- */
+  /* ---------- element pose: 3D tilt (rx/ry) + in-plane rotation (rot) ----------
+     Base values live on the element (rx/ry/rot, degrees, default 0);
+     `tilts` / `rots` clips animate them across [a, b] with an easing
+     preset. Evaluated purely from t, so the frame-stepped renderer and
+     live playback agree exactly. */
+  function sanitizeTiltClip(c){
+    if (!c || typeof c !== 'object') return null;
+    var a = clamp(+c.a || 0, 0, proj.duration);
+    var b = clamp(c.b != null ? +c.b : a + 1, 0, proj.duration);
+    if (b <= a) b = Math.min(proj.duration, a + 0.1);
+    var out = { a:a, b:b,
+                rx0: clamp(+c.rx0 || 0, -60, 60), rx1: clamp(+c.rx1 || 0, -60, 60),
+                ry0: clamp(+c.ry0 || 0, -60, 60), ry1: clamp(+c.ry1 || 0, -60, 60) };
+    var ke = keepEase(c.ease); if (ke !== undefined) out.ease = ke;
+    return out;
+  }
+  function sanitizeRotClip(c){
+    if (!c || typeof c !== 'object') return null;
+    var a = clamp(+c.a || 0, 0, proj.duration);
+    var b = clamp(c.b != null ? +c.b : a + 1, 0, proj.duration);
+    if (b <= a) b = Math.min(proj.duration, a + 0.1);
+    var out = { a:a, b:b, from: clamp(+c.from || 0, -360, 360), to: clamp(+c.to || 0, -360, 360) };
+    var ke = keepEase(c.ease); if (ke !== undefined) out.ease = ke;
+    return out;
+  }
+  function poseAt(el, t){
+    var rx = el.rx || 0, ry = el.ry || 0, rot = el.rot || 0;
+    (el.tilts || []).forEach(function(c){
+      if (t >= c.a && t <= c.b){
+        var e = easeSpec(c.ease, (t - c.a) / Math.max(0.0001, c.b - c.a));
+        rx = (c.rx0 || 0) + ((c.rx1 || 0) - (c.rx0 || 0)) * e;
+        ry = (c.ry0 || 0) + ((c.ry1 || 0) - (c.ry0 || 0)) * e;
+      }
+    });
+    (el.rots || []).forEach(function(c){
+      if (t >= c.a && t <= c.b){
+        var e = easeSpec(c.ease, (t - c.a) / Math.max(0.0001, c.b - c.a));
+        rot = (c.from || 0) + ((c.to || 0) - (c.from || 0)) * e;
+      }
+    });
+    return { rx: rx, ry: ry, rot: rot };
+  }
+  function addTiltClip(id, spec){
+    var el = findEl(id); if (!el) return null;
+    var c = sanitizeTiltClip(spec); if (!c) return null;
+    if (!Array.isArray(el.tilts)) el.tilts = [];
+    el.tilts.push(c);
+    el.tilts.sort(function(x, y){ return x.a - y.a; });
+    applyFrame(pb.t);
+    return c;
+  }
+  function addRotClip(id, spec){
+    var el = findEl(id); if (!el) return null;
+    var c = sanitizeRotClip(spec); if (!c) return null;
+    if (!Array.isArray(el.rots)) el.rots = [];
+    el.rots.push(c);
+    el.rots.sort(function(x, y){ return x.a - y.a; });
+    applyFrame(pb.t);
+    return c;
+  }
+  /* ================= MOTION WAVE: procedural secondary motion =========
+     Per-element modifiers that ride on top of authored motion without
+     baking: wiggle (seeded oscillation), loop (replay a keys span or
+     motion path inside its window) and follow (copy a leader's
+     authored motion, delayed). All are pure functions of the playhead
+     time — no Math.random anywhere — so live playback and the
+     deterministic renderer agree frame-exactly, and motiq_polish.py
+     passes the fields through untouched (it only rewrites
+     motion-path points). */
+  function sanitizeWiggle(w){
+    if (!w || typeof w !== 'object') return null;
+    var out = { amp: clamp(+w.amp || 0, 0, 0.25),
+                freq: clamp(+w.freq || 0.6, 0.05, 8),
+                rot: clamp(+w.rot || 0, 0, 45),
+                seed: isFinite(+w.seed) ? +w.seed : 1 };
+    return (out.amp > 0 || out.rot > 0) ? out : null;
+  }
+  function sanitizeLoop(l){
+    if (!l || typeof l !== 'object') return null;
+    var n = Math.round(+l.n || 0);
+    if (n < 2) return null;
+    return { n: clamp(n, 2, 20), mode: l.mode === 'pingpong' ? 'pingpong' : 'repeat' };
+  }
+  function sanitizeFollow(f){
+    if (!f || typeof f !== 'object' || !f.leader) return null;
+    return { leader: String(f.leader), lag: clamp(+f.lag || 0, 0, 10) };
+  }
+  function applyMotionFields(el, spec){
+    if ('wiggle' in spec) el.wiggle = sanitizeWiggle(spec.wiggle);
+    if ('loop' in spec) el.loop = sanitizeLoop(spec.loop);
+    if ('follow' in spec) el.follow = sanitizeFollow(spec.follow);
+  }
+  /* smooth seeded pseudo-noise in [-1, 1]: two detuned sines whose
+     phases derive from the seed — deterministic in (seed, t) */
+  function wigNoise(seed, t, freq){
+    var p = seed * 12.9898;
+    return Math.sin(6.2831853 * freq * t + p) * 0.65 +
+           Math.sin(6.2831853 * freq * 2.63 * t + p * 1.7) * 0.35;
+  }
+  function wiggleAt(el, t){
+    var w = el.wiggle;
+    if (!w) return null;
+    /* edge envelope (like the motion-path fade) so the oscillation
+       never pops in or out at the element's own [a, b] edges */
+    var f = Math.min(0.3, Math.max(0.01, (el.b - el.a) / 2));
+    var env = smooth01((t - el.a) / f) * smooth01((el.b - t) / f);
+    if (env <= 0) return null;
+    return { dx: wigNoise(w.seed, t, w.freq) * w.amp * env,
+             dy: wigNoise(w.seed + 13.7, t, w.freq * 0.83) * w.amp * env,
+             rot: wigNoise(w.seed + 27.3, t, w.freq * 1.13) * w.rot * env };
+  }
+  /* map a 0–1 window phase through a loop spec: 'repeat' restarts
+     the motion n times inside the window; 'pingpong' alternates
+     direction each cycle */
+  function loopPhase(loop, phase){
+    var seg = clamp01(phase) * loop.n;
+    var cyc = Math.floor(seg), f = seg - cyc;
+    if (loop.mode === 'pingpong' && cyc % 2 === 1) f = 1 - f;
+    return f;
+  }
+
   function applyElementMotion(t){
     proj.elements.forEach(function(el){
       var node = elNodes[el.id];
       if (!node) return;
-      var clip = (el.motions && el.motions.length) ? clipAt(el.motions, t) : null;
-      if (!clip || !clip.points || !clip.points.length){
+      /* follow-the-leader: this element copies the LEADER's authored
+         motion (keys, motion path, pose — one hop, never chased),
+         delayed by its lag. Its own visibility window, depth, scale
+         and wiggle stay its own; the leader's loop rides along
+         because it lives inside the leader's own keysAt/path eval. */
+      var srcEl = el, srcT = t;
+      if (el.follow){
+        var lead = findEl(el.follow.leader);
+        if (lead && lead.id !== el.id){ srcEl = lead; srcT = t - el.follow.lag; }
+      }
+      /* persistent position keyframes: absolute centre positions that
+         hold after the last key — true entrances / exits / moves.
+         Ringed elements are positioned by applyRings instead. The
+         path excursion and pose below still compose on top through
+         the transform, and the depth-plane parallax is untouched. */
+      if (!el.ring && srcEl.keys && srcEl.keys.length){
+        var kp = keysAt(srcEl, srcT);
+        if (kp){
+          node.style.left = (kp.x * 100) + '%';
+          node.style.top = (kp.y * 100) + '%';
+        }
+      }
+      var clip = (srcEl.motions && srcEl.motions.length) ? clipAt(srcEl.motions, srcT) : null;
+      var dx = 0, dy = 0, has = false, r = null;
+      if (clip && clip.points && clip.points.length){
+        var lt = srcT - clip.a;
+        if (srcEl.loop){
+          var llen = clip.b - clip.a;
+          if (llen > 0.01) lt = loopPhase(srcEl.loop, lt / llen) * llen;
+        }
+        var pt = pathPointAt(clip, lt);
+        if (pt){
+          has = true;
+          var len = clip.b - clip.a;
+          var fade = Math.min(0.25, len / 2);
+          var env = fade > 0 ? smooth01((srcT - clip.a) / fade) * smooth01((clip.b - srcT) / fade) : 1;
+          r = frame.getBoundingClientRect();
+          dx = (pt.x - 0.5) * r.width * env;
+          dy = (pt.y - 0.5) * r.height * env;
+        }
+      }
+      var pose = poseAt(srcEl, srcT);
+      /* wiggle: the element's OWN seeded oscillation rides on top of
+         whatever motion (its own or the leader's) was resolved above */
+      var wg = wiggleAt(el, t);
+      if (wg){
+        if (!r) r = frame.getBoundingClientRect();
+        dx += wg.dx * r.width;
+        dy += wg.dy * r.height;
+        pose = { rx: pose.rx, ry: pose.ry, rot: pose.rot + wg.rot };
+        has = true;
+      }
+      /* audio react (scale / y): the element's OWN audio drive,
+         evaluated from the project's stored envelope, rides last
+         in the transform composition */
+      var rsc = 0;
+      if (el.react && (el.react.prop === 'scale' || el.react.prop === 'y')){
+        var ra = reactApplied(el, t);
+        if (ra){
+          if (ra.dyFrac){ if (!r) r = frame.getBoundingClientRect(); dy += ra.dyFrac * r.height; }
+          if (ra.scale != null && ra.scale !== 1) rsc = ra.scale;
+          has = true;
+        }
+      }
+      if (!has && !pose.rx && !pose.ry && !pose.rot){
         if (node.style.transform) node.style.transform = '';
         return;
       }
-      var pt = pathPointAt(clip, t - clip.a);
-      if (!pt){ node.style.transform = ''; return; }
-      var len = clip.b - clip.a;
-      var fade = Math.min(0.25, len / 2);
-      var env = fade > 0 ? smooth01((t - clip.a) / fade) * smooth01((clip.b - t) / fade) : 1;
-      var r = frame.getBoundingClientRect();
-      var dx = (pt.x - 0.5) * r.width * env;
-      var dy = (pt.y - 0.5) * r.height * env;
-      node.style.transform = 'translate(calc(-50% + ' + dx.toFixed(1) + 'px), calc(-50% + ' + dy.toFixed(1) + 'px))';
+      var tr = 'translate(calc(-50% + ' + dx.toFixed(1) + 'px), calc(-50% + ' + dy.toFixed(1) + 'px))';
+      if (pose.rot) tr += ' rotate(' + pose.rot.toFixed(2) + 'deg)';
+      if (pose.rx || pose.ry) tr += ' rotateX(' + pose.rx.toFixed(2) + 'deg) rotateY(' + pose.ry.toFixed(2) + 'deg)';
+      if (rsc) tr += ' scale(' + rsc.toFixed(3) + ')';
+      node.style.transform = tr;
     });
   }
 
@@ -2681,6 +4720,17 @@
       case 'elcount':
         if (st.el){ updateElement(st.el.id, { count:{ from:st.from, to:st.to, suffix:st.suffix || '', prefix:st.prefix || '' } });
           say('<b>count-up.</b> the ' + elLabel(st.el) + ' counts across its time on stage.'); }
+        return;
+      case 'elmask':
+        if (st.el){
+          var mr = selRange ? { a: selRange.a, b: selRange.b } : { a: st.el.a, b: st.el.b };
+          addMask(st.el.id, { shape: st.shape, a: mr.a, b: mr.b });
+          say('<b>reveal.</b> the ' + elLabel(st.el) + ' now reveals with a ' + st.shape + ' mask.');
+        }
+        return;
+      case 'elonpath':
+        if (st.el){ updateElement(st.el.id, { onPath: st.spec });
+          say('<b>text on a path.</b> the words now follow the ' + st.spec.shape + '.'); }
         return;
     }
   }
@@ -2839,21 +4889,23 @@
   motRecBtn.addEventListener('click', function(){
     if (cap.on) stopCapture(true); else startCapture();
   });
-  function recordPath(points, range, elementId){
+  function recordPath(points, range, elementId, opts){
     if (!points || !points.length) return;
     var r = normRange(range);
     var pts = points.map(function(p){
       return { t: Math.max(0, +p.t || 0), x: clamp01(+p.x || 0), y: clamp01(+p.y || 0) };
     }).sort(function(x, y){ return x.t - y.t; });
+    var clip = { a:r.a, b:r.b, points:pts };
+    if (opts && opts.ease && EASES[opts.ease] && opts.ease !== 'smooth') clip.ease = opts.ease;
     var el = elementId ? findEl(elementId) : null;
     if (el){
       if (!Array.isArray(el.motions)) el.motions = [];
       el.motions = el.motions.filter(function(c){ return !(c.a === r.a && c.b === r.b); });
-      el.motions.push({ a:r.a, b:r.b, points:pts });
+      el.motions.push(clip);
       el.motions.sort(function(x, y){ return x.a - y.a; });
     } else {
       proj.motion = proj.motion.filter(function(c){ return !(c.a === r.a && c.b === r.b); });
-      proj.motion.push({ a:r.a, b:r.b, points:pts });
+      proj.motion.push(clip);
       proj.motion.sort(function(x, y){ return x.a - y.a; });
     }
     renderTimeline();
@@ -2874,18 +4926,607 @@
     }
     return (c.prefix || '') + str + (c.suffix || '');
   }
+  function clickTime(p){ return typeof p === 'number' ? p : (p ? (+p.t || 0) : 0); }
+
+  /* ---------- ring carousel ----------
+     Elements with el.ring set ride a shared ring (proj.rings); ring
+     clips (proj.ringClips) rotate the whole ring with easing. The ring
+     drives the element's OUTER node (position, rotateY, scale, opacity,
+     z-order); pose/FX still compose on the inner node. A ringed
+     element's own x/y/motion clips are overridden by the ring. */
+  function sanitizeRing(r){
+    if (!r || r.id == null) return null;
+    return { id: String(r.id),
+             cx: isFinite(+r.cx) ? clamp01(+r.cx) : 0.5,
+             cy: isFinite(+r.cy) ? clamp01(+r.cy) : 0.5,
+             r: clamp(+r.r || 0.3, 0.05, 0.6) };
+  }
+  function sanitizeRingClip(c){
+    if (!c || c.ring == null) return null;
+    var a = +c.a, b = +c.b;
+    if (!isFinite(a) || !isFinite(b) || b <= a) return null;
+    return { ring: String(c.ring), a: a, b: b,
+             from: isFinite(+c.from) ? +c.from : 0,
+             to: isFinite(+c.to) ? +c.to : 0,
+             ease: EASES[c.ease] ? c.ease : 'smooth' };
+  }
+  function addRing(spec){
+    var g = sanitizeRing(spec || {});
+    if (!g) return null;
+    proj.rings = proj.rings.filter(function(x){ return x.id !== g.id; });
+    proj.rings.push(g);
+    return g;
+  }
+  function addRingClip(spec){
+    var c = sanitizeRingClip(spec || {});
+    if (!c) return null;
+    proj.ringClips.push(c);
+    proj.ringClips.sort(function(x, y){ return x.a - y.a; });
+    renderTimeline();
+    return c;
+  }
+  function ringAngleAt(ringId, t){
+    var clips = proj.ringClips.filter(function(c){ return c.ring === ringId; })
+      .sort(function(x, y){ return x.a - y.a; });
+    if (!clips.length) return 0;
+    var ang = clips[0].from;
+    for (var i = 0; i < clips.length; i++){
+      var c = clips[i];
+      if (t >= c.b) ang = c.to;
+      else if (t >= c.a){ ang = c.from + (c.to - c.from) * easeVal(c.ease, (t - c.a) / (c.b - c.a)); break; }
+      else break;
+    }
+    return ang;
+  }
+  function applyRings(t){
+    if (!proj.rings.length) return;
+    proj.elements.forEach(function(el){
+      if (!el.ring) return;
+      var ring = null;
+      proj.rings.forEach(function(g){ if (g.id === el.ring) ring = g; });
+      var node = elNodes[el.id];
+      if (!ring || !node || node.style.display === 'none') return;
+      var ang = ((el.ringPhase || 0) + ringAngleAt(el.ring, t)) * Math.PI / 180;
+      var s = Math.sin(ang), c = Math.cos(ang);
+      var z01 = (c + 1) / 2;
+      node.style.left = ((ring.cx + ring.r * s) * 100) + '%';
+      node.style.top = ((ring.cy + ring.r * 0.20 * c) * 100) + '%';
+      node.style.zIndex = String(10 + Math.round(z01 * 20));
+      node.style.opacity = ((el._op != null ? el._op : 1) * (0.35 + 0.65 * z01)).toFixed(3);
+      node.style.transform = 'translate(-50%,-50%) rotateY(' + (-s * 62).toFixed(1) +
+        'deg) scale(' + ((0.55 + 0.5 * z01)).toFixed(3) + ')';
+    });
+  }
+
+  /* ================= UGOKI WAVE: true-3D device element =================
+     kind:'device' — a Three.js phone inside the stage. PBR metal body
+     (procedural softbox environment, PMREM), an orbital camera driven
+     by keyable `orbit` keys (the camera-key convention: destination
+     ease, holds outside the key range), and a screen textured with
+     LIVE coded UI — a profile screen drawn from the element's
+     `screen` spec onto a canvas texture, so it stays razor sharp at
+     any orbit angle or zoom. Everything is a pure function of the
+     playhead time t (applyDevices runs inside applyFrame), so the
+     deterministic file renderer reproduces it frame-exactly. If
+     Three.js or WebGL is unavailable the element degrades to the
+     same coded UI on a flat 2D canvas — the page never breaks. */
+  var DEV_W = 300, DEV_H = 612;           /* stage px at scale 1 */
+  var devCache = {};                      /* el.id -> runtime (stripped from state: lives on el._dev-free module cache) */
+  var devEnvTex = null;
+
+  function sanitizeScreen(s){
+    if (!s || typeof s !== 'object') return null;
+    var out = {};
+    if (s.title != null) out.title = String(s.title).slice(0, 40);
+    if (s.sub != null) out.sub = String(s.sub).slice(0, 40);
+    if (s.accent != null) out.accent = String(s.accent).slice(0, 32);
+    if (s.cta != null) out.cta = String(s.cta).slice(0, 24);
+    if (s.live != null) out.live = !!s.live;
+    if (Array.isArray(s.stats)) out.stats = s.stats.slice(0, 3).map(function(p){
+      return [String((p && p[0]) || ''), String((p && p[1]) || '')];
+    });
+    return out;
+  }
+  function sanitizeOrbitKey(k){
+    if (!k || typeof k !== 'object') return null;
+    var out = { t: clamp(+k.t || 0, 0, proj.duration),
+                az: clamp(+k.az || 0, -360, 360),
+                pol: clamp(k.pol != null ? +k.pol : 82, 5, 175),
+                dist: clamp(k.dist != null ? +k.dist : 4.6, 2.4, 9) };
+    var ke = keepEase(k.ease); if (ke !== undefined) out.ease = ke;
+    if (k.vel) out.vel = true;
+    return out;
+  }
+  function sanitizeOrbit(list){
+    if (!Array.isArray(list)) return [];
+    var out = list.map(sanitizeOrbitKey).filter(Boolean);
+    out.sort(function(a, b){ return a.t - b.t; });
+    return out;
+  }
+  function orbitAt(el, t){
+    var base = { az: el.az != null ? +el.az : -24,
+                 pol: el.pol != null ? +el.pol : 82,
+                 dist: el.dist != null ? +el.dist : 4.6 };
+    var ks = el.orbit;
+    if (!ks || !ks.length) return base;
+    var first = ks[0], last = ks[ks.length - 1];
+    if (t <= +first.t) return { az:+first.az, pol:+first.pol, dist:+first.dist };
+    if (t >= +last.t) return { az:+last.az, pol:+last.pol, dist:+last.dist };
+    for (var i = 0; i < ks.length - 1; i++){
+      var a = ks[i], b = ks[i + 1];
+      if (t >= +a.t && t <= +b.t){
+        var u = (t - +a.t) / Math.max(0.0001, +b.t - +a.t);
+        if (b.vel){
+          var p0 = ks[Math.max(0, i - 1)], p3 = ks[Math.min(ks.length - 1, i + 2)];
+          return { az: crVal(+p0.az, +a.az, +b.az, +p3.az, u),
+                   pol: crVal(+p0.pol, +a.pol, +b.pol, +p3.pol, u),
+                   dist: crVal(+p0.dist, +a.dist, +b.dist, +p3.dist, u) };
+        }
+        var e = b.ease ? easeSpec(b.ease, u) : smooth01(u);
+        return { az: +a.az + (+b.az - +a.az) * e,
+                 pol: +a.pol + (+b.pol - +a.pol) * e,
+                 dist: +a.dist + (+b.dist - +a.dist) * e };
+      }
+    }
+    return { az:+last.az, pol:+last.pol, dist:+last.dist };
+  }
+  function addOrbitKey(id, key){
+    var el = findEl(id); if (!el) return null;
+    var k = sanitizeOrbitKey(key || {});
+    if (!k) return null;
+    if (key && key.t == null) k.t = clamp(pb.t, 0, proj.duration);
+    var list = (el.orbit || []).filter(function(o){ return Math.abs(o.t - k.t) > 0.001; });
+    list.push(k);
+    el.orbit = sanitizeOrbit(list);
+    applyFrame(pb.t);
+    return k;
+  }
+  /* device + strike field handling shared by addElement/updateElement */
+  function applyDeviceFields(el, spec){
+    if (spec.body != null) el.body = String(spec.body).slice(0, 32);
+    if ('screen' in spec){
+      var ss = sanitizeScreen(spec.screen);
+      el.screen = ss || null;
+    }
+    if ('orbit' in spec){
+      var so = spec.orbit ? sanitizeOrbit(spec.orbit) : [];
+      el.orbit = so.length ? so : null;
+    }
+    if (spec.az != null) el.az = clamp(+spec.az, -360, 360);
+    if (spec.pol != null) el.pol = clamp(+spec.pol, 5, 175);
+    if (spec.dist != null) el.dist = clamp(+spec.dist, 2.4, 9);
+    if ('strike' in spec){
+      el.strike = Array.isArray(spec.strike)
+        ? spec.strike.map(function(v){ return Math.round(+v); })
+            .filter(function(v){ return isFinite(v) && v >= 0; })
+        : null;
+      if (el.strike && !el.strike.length) el.strike = null;
+    }
+    if ('corrFrom' in spec)
+      el.corrFrom = spec.corrFrom != null && isFinite(+spec.corrFrom)
+        ? Math.round(+spec.corrFrom) : null;
+  }
+
+  /* --- the coded screen UI, drawn on a 480x1024 canvas --- */
+  function rr2d(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+  function drawScreen2D(ctx, spec, t){
+    spec = spec || {};
+    var W = 480, H = 1024;
+    var acc = spec.accent || '#ff5a3c';
+    var title = spec.title || 'Ava Stone';
+    var sub = spec.sub || '@ava.creates';
+    var cta = spec.cta || 'Follow';
+    var stats = (spec.stats && spec.stats.length) ? spec.stats
+      : [['128', 'Posts'], ['84K', 'Followers'], ['312', 'Following']];
+    var bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#191922'); bg.addColorStop(1, '#0b0b10');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.textBaseline = 'alphabetic';
+    /* status bar */
+    ctx.fillStyle = '#f2f2f5';
+    ctx.font = '600 25px sans-serif';
+    ctx.textAlign = 'left'; ctx.fillText('9:41', 34, 44);
+    ctx.textAlign = 'right';
+    ctx.fillRect(386, 26, 5, 12); ctx.fillRect(395, 22, 5, 16);
+    ctx.fillRect(404, 18, 5, 20); ctx.fillRect(413, 14, 5, 24);
+    rr2d(ctx, 424, 22, 34, 17, 5); ctx.strokeStyle = '#f2f2f5'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillRect(427, 25, 22, 11);
+    /* header */
+    ctx.textAlign = 'left'; ctx.fillStyle = '#f2f2f5';
+    ctx.font = '300 44px sans-serif'; ctx.fillText('‹', 26, 104);
+    ctx.font = '700 27px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Profile', W / 2, 100);
+    ctx.textAlign = 'right'; ctx.font = '700 30px sans-serif'; ctx.fillText('···', 452, 100);
+    /* avatar with accent ring + initials */
+    var ax = W / 2, ay = 208, ar = 74;
+    ctx.beginPath(); ctx.arc(ax, ay, ar + 7, 0, Math.PI * 2);
+    ctx.strokeStyle = acc; ctx.lineWidth = 5; ctx.stroke();
+    var ag = ctx.createLinearGradient(ax - ar, ay - ar, ax + ar, ay + ar);
+    ag.addColorStop(0, acc); ag.addColorStop(1, '#7a4fd0');
+    ctx.beginPath(); ctx.arc(ax, ay, ar, 0, Math.PI * 2); ctx.fillStyle = ag; ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.font = '700 52px sans-serif'; ctx.textAlign = 'center';
+    var initials = title.split(/\s+/).map(function(w){ return w.charAt(0); }).join('').slice(0, 2).toUpperCase();
+    ctx.fillText(initials || 'A', ax, ay + 19);
+    /* name + handle */
+    ctx.font = '700 40px sans-serif'; ctx.fillStyle = '#ffffff';
+    ctx.fillText(title, ax, 348);
+    ctx.font = '400 26px sans-serif'; ctx.fillStyle = '#9a9aa6';
+    ctx.fillText(sub, ax, 386);
+    /* stats */
+    var sw = W / stats.length;
+    stats.forEach(function(p, i){
+      var cx = sw * i + sw / 2;
+      ctx.font = '700 31px sans-serif'; ctx.fillStyle = '#ffffff';
+      ctx.fillText(p[0], cx, 448);
+      ctx.font = '400 22px sans-serif'; ctx.fillStyle = '#8b8b96';
+      ctx.fillText(p[1], cx, 480);
+    });
+    /* buttons */
+    rr2d(ctx, 36, 512, 258, 58, 14); ctx.fillStyle = acc; ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.font = '700 26px sans-serif';
+    ctx.fillText(cta, 36 + 129, 549);
+    rr2d(ctx, 310, 512, 134, 58, 14); ctx.fillStyle = '#23232e'; ctx.fill();
+    ctx.fillStyle = '#e8e8ee'; ctx.fillText('Message', 310 + 67, 549);
+    /* content grid */
+    var hues = [[acc, '#7a4fd0'], ['#2e6fd8', '#39c2a5'], ['#d8a02e', '#d84f2e'],
+                ['#39c2a5', '#2e6fd8'], ['#8a4fd0', '#d84f7a'], ['#2e8ad8', '#7a4fd0']];
+    for (var gi = 0; gi < 6; gi++){
+      var gx = 36 + (gi % 3) * 140, gy = 606 + Math.floor(gi / 3) * 140;
+      var gg = ctx.createLinearGradient(gx, gy, gx + 128, gy + 128);
+      gg.addColorStop(0, hues[gi][0]); gg.addColorStop(1, hues[gi][1]);
+      rr2d(ctx, gx, gy, 128, 128, 16); ctx.fillStyle = gg; ctx.fill();
+      if (gi % 2 === 0){
+        ctx.beginPath();
+        ctx.moveTo(gx + 54, gy + 48); ctx.lineTo(gx + 54, gy + 82); ctx.lineTo(gx + 84, gy + 65);
+        ctx.closePath(); ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.fill();
+      }
+    }
+    /* live card with equalizer (the animated bit when screen.live) */
+    rr2d(ctx, 36, 890, 408, 84, 16); ctx.fillStyle = '#1d1d27'; ctx.fill();
+    ctx.beginPath(); ctx.arc(66, 932, 9, 0, Math.PI * 2);
+    ctx.fillStyle = spec.live ? '#ff3b30' : '#55555f'; ctx.fill();
+    ctx.textAlign = 'left'; ctx.fillStyle = '#e8e8ee'; ctx.font = '700 23px sans-serif';
+    ctx.fillText(spec.live ? 'LIVE · studio session' : 'Studio session', 88, 924);
+    ctx.fillStyle = '#8b8b96'; ctx.font = '400 19px sans-serif';
+    ctx.fillText('2.4K watching', 88, 952);
+    for (var bi = 0; bi < 14; bi++){
+      var bh = spec.live
+        ? 8 + 20 * Math.abs(Math.sin(t * 3.1 + bi * 0.85))
+        : 8 + (bi % 4) * 5;
+      ctx.fillStyle = acc;
+      ctx.fillRect(316 + bi * 9, 932 - bh / 2, 5, bh);
+    }
+  }
+
+  /* --- Three.js phone construction --- */
+  function roundedRectShape(w, h, r){
+    var s = new THREE.Shape();
+    var x = -w / 2, y = -h / 2;
+    s.moveTo(x + r, y);
+    s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r);
+    s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r);
+    s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y);
+    return s;
+  }
+  function buildEnvScene(){
+    /* a procedural softbox room: dark shell + three emissive panels.
+       PMREM turns it into the reflections a product shot needs. */
+    var sc = new THREE.Scene();
+    var shell = new THREE.Mesh(
+      new THREE.BoxGeometry(40, 40, 40),
+      new THREE.MeshBasicMaterial({ side: THREE.BackSide }));
+    shell.material.color.setRGB(0.05, 0.05, 0.07);
+    sc.add(shell);
+    function panel(w, h, x, y, z, r, g, b){
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+        new THREE.MeshBasicMaterial());
+      m.material.color.setRGB(r, g, b);
+      m.position.set(x, y, z);
+      m.lookAt(0, 0, 0);
+      sc.add(m);
+    }
+    panel(10, 6, 0, 9, 6, 7, 7, 7);          /* key softbox, top front */
+    panel(4, 12, -11, 1, 2, 1.1, 1.5, 2.6);  /* cool strip, left */
+    panel(12, 3, 6, -10, 3, 2.6, 1.9, 1.2);  /* warm strip, low right */
+    panel(6, 6, 2, 0, -12, 1.4, 1.4, 1.6);   /* back fill */
+    return sc;
+  }
+  function buildPhone(el){
+    var g = new THREE.Group();
+    var W = 1.5, H = 3.06, D = 0.13;
+    var bodyMat = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(el.body || '#c9ced6'),
+      metalness: 0.85, roughness: 0.36,
+      clearcoat: 0.55, clearcoatRoughness: 0.28, envMapIntensity: 1.15 });
+    var bodyGeo = new THREE.ExtrudeGeometry(roundedRectShape(W, H, 0.17), {
+      depth: D, bevelEnabled: true, bevelThickness: 0.035, bevelSize: 0.033,
+      bevelSegments: 3, steps: 1, curveSegments: 24 });
+    bodyGeo.translate(0, 0, -D / 2);
+    g.add(new THREE.Mesh(bodyGeo, bodyMat));
+    /* the extrude's bevel adds beyond the depth on both sides, so the
+       true skin surface sits at D/2 + bevelThickness */
+    var skinZ = D / 2 + 0.035;
+    var frontZ = skinZ + 0.002;
+    /* screen: canvas-textured plane, razor sharp by construction.
+       ShapeGeometry emits raw XY as UVs — normalise them to 0..1 or
+       the texture smears off its clamped edge. */
+    var sc = document.createElement('canvas');
+    sc.width = 480; sc.height = 1024;
+    var tex = new THREE.CanvasTexture(sc);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.anisotropy = 4;
+    var screenGeo = new THREE.ShapeGeometry(roundedRectShape(1.36, 2.92, 0.12), 24);
+    (function(){
+      var pos = screenGeo.attributes.position, uv = screenGeo.attributes.uv;
+      for (var i = 0; i < pos.count; i++){
+        uv.setXY(i, (pos.getX(i) + 0.68) / 1.36, (pos.getY(i) + 1.46) / 2.92);
+      }
+      uv.needsUpdate = true;
+    })();
+    var screenMesh = new THREE.Mesh(
+      screenGeo,
+      new THREE.MeshBasicMaterial({ map: tex }));
+    screenMesh.material.toneMapped = false;
+    screenMesh.position.z = frontZ;
+    g.add(screenMesh);
+    /* glass sheen over the screen */
+    var glass = new THREE.Mesh(
+      new THREE.ShapeGeometry(roundedRectShape(1.36, 2.92, 0.12), 24),
+      new THREE.MeshPhysicalMaterial({
+        color: 0xffffff, metalness: 0, roughness: 0.06, transparent: true,
+        opacity: 0.07, clearcoat: 1, envMapIntensity: 1.8, depthWrite: false }));
+    glass.position.z = frontZ + 0.002;
+    g.add(glass);
+    /* camera module on the back */
+    var modMat = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(el.body || '#c9ced6').multiplyScalar(0.82),
+      metalness: 0.85, roughness: 0.3, clearcoat: 0.6, envMapIntensity: 1.1 });
+    var modGeo = new THREE.ExtrudeGeometry(roundedRectShape(0.58, 0.58, 0.15), {
+      depth: 0.045, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.012,
+      bevelSegments: 2, steps: 1, curveSegments: 16 });
+    modGeo.translate(0, 0, -0.045);
+    var mod = new THREE.Mesh(modGeo, modMat);
+    mod.position.set(-0.38, 1.12, -skinZ + 0.004);
+    g.add(mod);
+    var lensMat = new THREE.MeshPhysicalMaterial({
+      color: 0x0b0e14, metalness: 0.3, roughness: 0.12,
+      clearcoat: 1, envMapIntensity: 1.6 });
+    [[1.26], [0.98]].forEach(function(yy){
+      var lens = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.03, 28), lensMat);
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(-0.38, yy[0], -skinZ - 0.05);
+      g.add(lens);
+      var dot = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.032, 20),
+        new THREE.MeshBasicMaterial({ color: 0x274069 }));
+      dot.rotation.x = Math.PI / 2;
+      dot.position.set(-0.38, yy[0], -skinZ - 0.051);
+      g.add(dot);
+    });
+    var flash = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.034, 0.02, 16),
+      new THREE.MeshBasicMaterial({ color: 0xf5e9c8 }));
+    flash.rotation.x = Math.PI / 2;
+    flash.position.set(-0.38, 1.12, -skinZ - 0.05);
+    g.add(flash);
+    /* side buttons */
+    var btnMat = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(el.body || '#c9ced6').multiplyScalar(0.9),
+      metalness: 0.85, roughness: 0.4 });
+    [[0.78, 0.36], [0.38, 0.22]].forEach(function(bd){
+      var btn = new THREE.Mesh(new THREE.BoxGeometry(0.028, bd[1], 0.07), btnMat);
+      btn.position.set(W / 2 + 0.008, bd[0], 0);
+      g.add(btn);
+    });
+    g.userData.screenTex = tex;
+    g.userData.screenCanvas = sc;
+    return g;
+  }
+  function createDeviceRuntime(el){
+    if (typeof THREE === 'undefined') return null;
+    var canvas = document.createElement('canvas');
+    var renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvas, antialias: true, alpha: true,
+        preserveDrawingBuffer: true });
+    } catch (e) { return null; }
+    renderer.setSize(600, 1224, false);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(38, 600 / 1224, 0.1, 100);
+    if (!devEnvTex){
+      try {
+        var pmrem = new THREE.PMREMGenerator(renderer);
+        devEnvTex = pmrem.fromScene(buildEnvScene(), 0.04).texture;
+        pmrem.dispose();
+      } catch (e) { devEnvTex = null; }
+    }
+    if (devEnvTex) scene.environment = devEnvTex;
+    scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+    var key = new THREE.DirectionalLight(0xffffff, 0.65);
+    key.position.set(3, 4, 6); scene.add(key);
+    var rim = new THREE.DirectionalLight(0x88aaff, 0.5);
+    rim.position.set(-5, 2, -4); scene.add(rim);
+    var group = buildPhone(el);
+    scene.add(group);
+    return { canvas: canvas, renderer: renderer, scene: scene, camera: camera,
+             group: group, screenTex: group.userData.screenTex,
+             screenCanvas: group.userData.screenCanvas, lastLiveBucket: -1 };
+  }
+  function drawDeviceScreen(dev, el, t){
+    drawScreen2D(dev.screenCanvas.getContext('2d'), el.screen, t || 0);
+    dev.screenTex.needsUpdate = true;
+  }
+  function renderDevice(dev, el, t){
+    var o = orbitAt(el, t);
+    var az = o.az * Math.PI / 180, pol = o.pol * Math.PI / 180;
+    dev.camera.position.set(
+      o.dist * Math.sin(pol) * Math.sin(az),
+      o.dist * Math.cos(pol),
+      o.dist * Math.sin(pol) * Math.cos(az));
+    dev.camera.lookAt(0, 0.02, 0);
+    if (el.screen && el.screen.live){
+      var bucket = Math.floor(t * 24);
+      if (bucket !== dev.lastLiveBucket){
+        dev.lastLiveBucket = bucket;
+        drawDeviceScreen(dev, el, t);
+      }
+    }
+    dev.renderer.render(dev.scene, dev.camera);
+  }
+  function buildDevice(el){
+    var holder = document.createElement('div');
+    holder.className = 'el-device';
+    var wCss = Math.round(DEV_W * el.scale), hCss = Math.round(DEV_H * el.scale);
+    var dev = devCache[el.id];
+    if (dev && dev.bodyColor !== (el.body || '#c9ced6')){
+      try { dev.renderer.dispose(); } catch (e) {}
+      delete devCache[el.id];
+      dev = null;
+    }
+    if (!dev){
+      dev = createDeviceRuntime(el);
+      if (dev){
+        dev.bodyColor = el.body || '#c9ced6';
+        dev.specKey = JSON.stringify(el.screen || null);
+        devCache[el.id] = dev;
+        drawDeviceScreen(dev, el, pb.t);
+      }
+    } else {
+      var skey = JSON.stringify(el.screen || null);
+      if (dev.specKey !== skey){
+        dev.specKey = skey;
+        dev.lastLiveBucket = -1;
+        drawDeviceScreen(dev, el, pb.t);
+      }
+    }
+    if (dev){
+      dev.canvas.style.width = wCss + 'px';
+      dev.canvas.style.height = hCss + 'px';
+      holder.appendChild(dev.canvas);
+      renderDevice(dev, el, pb.t);
+    } else {
+      var wrap = document.createElement('div');
+      wrap.className = 'dev-fallback';
+      var fc = document.createElement('canvas');
+      fc.width = 480; fc.height = 1024;
+      fc.style.width = wCss + 'px'; fc.style.height = hCss + 'px';
+      drawScreen2D(fc.getContext('2d'), el.screen, 0);
+      wrap.appendChild(fc);
+      holder.appendChild(wrap);
+    }
+    return holder;
+  }
+  function applyDevices(t){
+    var present = {};
+    proj.elements.forEach(function(el){
+      if (el.kind !== 'device') return;
+      present[el.id] = 1;
+      var node = elNodes[el.id];
+      if (!node || node.style.display === 'none') return;
+      var dev = devCache[el.id];
+      if (dev) renderDevice(dev, el, t);
+    });
+    Object.keys(devCache).forEach(function(id){
+      if (!present[id]){
+        try { devCache[id].renderer.dispose(); } catch (e) {}
+        delete devCache[id];
+      }
+    });
+  }
+
   function applyElementDynamics(t){
     proj.elements.forEach(function(el){
       var d = elNodes[el.id];
       if (!d || d.style.display === 'none') return;
-      if (el.fadeIn > 0 || el.fadeOut > 0){
-        var base = (el.opacity != null) ? el.opacity : 1;
-        var f = 1;
-        if (el.fadeIn > 0) f *= smooth01((t - el.a) / el.fadeIn);
-        if (el.fadeOut > 0) f *= smooth01((el.b - t) / el.fadeOut);
-        d.style.opacity = (base * f).toFixed(3);
+      /* polish wave: mask reveal — clip-path is a pure function of t */
+      if (el.masks && el.masks.length){
+        var mc = maskCssAt(el, t);
+        if (mc !== el._maskCss){ el._maskCss = mc; d.style.clipPath = mc; }
+      } else if (el._maskCss){ el._maskCss = ''; d.style.clipPath = ''; }
+      /* polish wave: SVG path draw-on + morph, pure in t */
+      if (el.kind === 'path'){
+        var pn = svgPathNodes[el.id];
+        if (pn){
+          var pr = clamp01((t - el.a) / Math.max(0.05, el.b - el.a));
+          var pe2 = (el.ease && EASES[el.ease]) ? easeVal(el.ease, pr) : pr;
+          if (el.d2){
+            var md = morphD(el.d || '', el.d2, pe2);
+            if (md !== el._md){ el._md = md; pn.setAttribute('d', md); }
+          }
+          try {
+            var L = pn.getTotalLength();
+            if (L > 0){
+              pn.style.strokeDasharray = L.toFixed(1);
+              pn.style.strokeDashoffset = (L * (1 - pe2)).toFixed(1);
+            }
+          } catch (e) {}
+        }
       }
-      if (el.count && el.kind === 'text'){
+      var base = (el.opacity != null) ? el.opacity : 1;
+      var f = 1;
+      if (el.fadeIn > 0) f *= smooth01((t - el.a) / el.fadeIn);
+      if (el.fadeOut > 0) f *= smooth01((el.b - t) / el.fadeOut);
+      el._op = base * f;
+      /* audio react (opacity): the envelope gates the faded opacity,
+         (1 - gain) at silence up to full on the beat */
+      var reactOp = el.react && el.react.prop === 'opacity';
+      if (reactOp){
+        var rop = reactApplied(el, t);
+        if (rop) el._op = clamp01(el._op * rop.opacity);
+      }
+      if (el.fadeIn > 0 || el.fadeOut > 0 || reactOp) d.style.opacity = el._op.toFixed(3);
+      /* click pulses targeting this element (from cursor clicks) */
+      var penv = 0, pcol = null;
+      proj.elements.forEach(function(c){
+        if (c.kind !== 'cursor') return;
+        (c.clicks || []).forEach(function(p){
+          if (!p || typeof p !== 'object' || p.pulse !== el.id) return;
+          var u = (t - p.t) / 0.5;
+          if (u >= 0 && u <= 1){
+            var e2 = Math.sin(Math.PI * u);
+            if (e2 > penv){ penv = e2; pcol = p.color || null; }
+          }
+        });
+      });
+      var pInner = elInnerNodes[el.id];
+      if (pInner){
+        /* audio react (glow) composes with the click pulse on the
+           same filter: base, then pulse, then the audio glow */
+        var rGlow = '';
+        if (el.react && el.react.prop === 'glow'){
+          var rg = reactApplied(el, t);
+          if (rg && rg.glowPx > 0.5)
+            rGlow = 'drop-shadow(0 0 ' + rg.glowPx.toFixed(1) + 'px ' +
+                    (el.glow || el.color || theme().neon) + ')';
+        }
+        if (penv > 0.01 || rGlow){
+          var fparts = [];
+          if (el._baseFilter) fparts.push(el._baseFilter);
+          if (penv > 0.01){
+            var pcolr = pcol || el.color || theme().neon;
+            fparts.push('drop-shadow(0 0 ' + (14 * penv).toFixed(1) + 'px ' + pcolr +
+              ') brightness(' + (1 + 0.25 * penv).toFixed(2) + ')');
+          }
+          if (rGlow) fparts.push(rGlow);
+          pInner.style.filter = fparts.join(' ');
+          el._pulseOn = true;
+        } else if (el._pulseOn){
+          pInner.style.filter = el._baseFilter || '';
+          el._pulseOn = false;
+        }
+      }
+      if (el.count && el.kind === 'text' && !el.onPath){
         var inner = elInnerNodes[el.id];
         var span = inner ? inner.firstChild : null;
         if (!span) return;
@@ -2894,15 +5535,65 @@
         var e = pr >= 1 ? 1 : 1 - Math.pow(2, -10 * pr);
         span.textContent = formatCount(el.count.from + (el.count.to - el.count.from) * e, el.count);
       }
+      /* UI kit dynamics — every value is a pure function of t */
+      var un = uiNodes[el.id];
+      if (un){
+        if (el.kind === 'progress' && un.pFill){
+          var pfr = clamp01((t - el.a) / Math.max(0.05, el.b - el.a));
+          var pfe = el.ease ? clamp(easeVal(el.ease, pfr), 0, 1) : pfr;
+          var pfrom = el.from != null ? +el.from : 0;
+          var pto = el.to != null ? +el.to : 100;
+          un.pFill.style.width = (pfe * 100).toFixed(1) + '%';
+          un.pLabel.textContent = Math.round(pfrom + (pto - pfrom) * pfe) + '%';
+          un.pSheen.style.left = ((((t * 0.55) % 1.35) - 0.35) * 100).toFixed(1) + '%';
+        }
+        if (el.kind === 'input' && un.inText){
+          var full = el.text || '';
+          var spanT = el.typeDur != null ? Math.max(0.05, +el.typeDur) : Math.max(0.05, el.b - el.a);
+          var pr2 = clamp01((t - el.a) / spanT);
+          un.inText.textContent = full.slice(0, Math.round(pr2 * full.length));
+          var blink = ((t * 1.4) % 1) < 0.6;
+          un.caret.style.opacity = (pr2 < 1 || (t <= el.b + 1.2 && blink)) ? '1' : '0';
+        }
+        if (el.kind === 'toggle' && un.knob){
+          var on = !!el.on, flipT = -10;
+          (el.flips || []).forEach(function(f){ if (t >= f.t){ on = !!f.on; flipT = f.t; } });
+          var pos;
+          if (flipT < 0) pos = on ? 1 : 0;
+          else pos = (on ? 0 : 1) + ((on ? 1 : 0) - (on ? 0 : 1)) * smooth01((t - flipT) / 0.25);
+          un.knob.style.transform = 'translateX(' + (pos * 1.16).toFixed(3) + 'em)';
+          un.track.style.background = pos > 0.5 ? (el.color || theme().neon) : 'rgba(127,127,127,.45)';
+        }
+        if ((el.kind === 'button' || el.kind === 'cursor') && un.press){
+          var sc = 1;
+          (el.kind === 'button' ? (el.presses || []) : (el.clicks || [])).forEach(function(p){
+            var dt = t - clickTime(p);
+            if (dt >= 0 && dt < 0.28) sc = Math.min(sc, 1 - 0.13 * Math.sin(Math.PI * dt / 0.28));
+          });
+          un.press.style.transform = sc < 1 ? 'scale(' + sc.toFixed(3) + ')' : '';
+        }
+        if (el.kind === 'cursor' && un.ripple){
+          var rop = 0, rsc = 0.2;
+          (el.clicks || []).forEach(function(p){
+            var dt = t - clickTime(p);
+            if (dt >= 0 && dt < 0.45){ var u = dt / 0.45; rop = Math.max(rop, 1 - u); rsc = 0.2 + u * 1.7; }
+          });
+          un.ripple.style.opacity = rop.toFixed(3);
+          un.ripple.style.transform = 'translate(-50%,-50%) scale(' + rsc.toFixed(3) + ')';
+        }
+      }
     });
   }
   function applyFrame(t, now){
     applyBgAt(t);
     applyWordAt(t);
     applyMotion(t, now || performance.now());
+    applyCamera(t);
     applyElementMotion(t);
     updateElementVisibility(t);
     applyElementDynamics(t);
+    applyRings(t);
+    applyDevices(t);
     updatePlayheadUI();
   }
   function play(){
@@ -2915,6 +5606,7 @@
     proj.fx.forEach(function(c, i){ if (c.a < pb.t) pb.fired[i] = 1; });
     tpPlay.textContent = '❚❚ Pause';
     refreshUiHidden();
+    audioPlay();
     pb.raf = requestAnimationFrame(tick);
   }
   function tick(now){
@@ -2923,17 +5615,24 @@
     pb.last = now;
     var prev = pb.t;
     pb.t = Math.min(proj.duration, pb.t + dt);
+    audioSyncTick();
     applyFrame(pb.t, now);
     proj.fx.forEach(function(c, i){
       if (!pb.fired[i] && prev <= c.a && pb.t >= c.a){
         pb.fired[i] = 1;
+        fxSpan = Math.max(0, c.b - c.a);
         if (c.target && c.target !== 'word'){
           var el = findEl(c.target);
-          if (el) runElementEffect(c.name, el);
+          if (el) runElementEffect(c.name, el, c.ease, c.accent);
         }
         else if (c.name.indexOf('wordcolor:') === 0) setWordColor(c.name.slice(10));
         else if (c.name.indexOf('wordshadow:') === 0) setWordShadow(c.name.slice(11) || null);
-        else if (rawFx[c.name]) rawFx[c.name]();
+        else if (rawFx[c.name]){
+          fxAccent = c.accent || null;
+          rawFx[c.name]();
+          fxAccent = null;
+        }
+        fxSpan = 0;
       }
     });
     if (pb.t >= proj.duration){ pausePlayback(); return; }
@@ -2944,6 +5643,7 @@
     cancelAnimationFrame(pb.raf);
     tpPlay.textContent = '▶ Play';
     refreshUiHidden();
+    audioPause();
   }
   function pause(){ pausePlayback(); }
   function stop(){
@@ -2957,6 +5657,7 @@
   function seek(t){
     pb.t = clamp(+t || 0, 0, proj.duration);
     proj.fx.forEach(function(c, i){ pb.fired[i] = c.a < pb.t ? 1 : 0; });
+    audioSeek();
     applyFrame(pb.t);
   }
   tpPlay.addEventListener('click', function(){ pb.playing ? pause() : play(); });
@@ -3026,7 +5727,8 @@
     });
     var moLane = laneEl('motion'); clearLane(moLane);
     proj.motion.forEach(function(c, i){
-      moLane.appendChild(makeClip('motion', i, c, 'motion · ' + (c.points ? c.points.length : 0) + 'pts', null));
+      moLane.appendChild(makeClip('motion', i, c, 'motion · ' + (c.points ? c.points.length : 0) + 'pts' +
+        (c.ease ? ' · ' + c.ease : ''), null));
     });
     var fxLane = laneEl('fx'); clearLane(fxLane);
     proj.fx.forEach(function(c, i){
@@ -3035,7 +5737,12 @@
         var tel = findEl(c.target);
         lab = c.name + ' → ' + (tel ? elLabel(tel) : 'element');
       }
+      if (c.ease) lab += ' · ' + c.ease;
       fxLane.appendChild(makeClip('fx', i, c, lab, null));
+    });
+    (proj.ringClips || []).forEach(function(c, i){
+      fxLane.appendChild(makeClip('ringClips', i, c,
+        '⟳ ring ' + Math.round(c.from) + '°→' + Math.round(c.to) + '°', null));
     });
     var wdLane = laneEl('words'); clearLane(wdLane);
     normalizeWordClips();
@@ -3047,6 +5754,17 @@
       elLane.appendChild(makeClip('elements', i, el,
         el.kind === 'text' ? (el.text || 'text') : el.kind, null));
     });
+    var camLane = laneEl('camera'); clearLane(camLane);
+    (proj.camera || []).forEach(function(k, i){
+      camLane.appendChild(makeClip('camera', i, { a: k.t, b: Math.min(proj.duration, k.t + 0.4) },
+        '📷 ' + (Math.round(k.zoom * 100) / 100) + '×', null));
+    });
+    /* audio lane: waveform + beat markers drawn from the stored
+       analysis (no live decoding in the page) */
+    var auLane = laneEl('audio');
+    var au = proj.audio;
+    auLane.hidden = !(au && au.peaks && au.peaks.length);
+    if (!auLane.hidden) drawWaveform(auLane, au);
     if (selClip){
       var list = proj[selClip.track];
       if (!list || !list[selClip.index]){ selClip = null; clipDelBtn.hidden = true; }
@@ -3057,6 +5775,35 @@
   }
   function clearLane(lane){
     Array.prototype.slice.call(lane.querySelectorAll('.clip')).forEach(function(c){ c.remove(); });
+  }
+  /* waveform: one bar per pixel column from the stored peaks,
+     mapped through the audio offset; beats as bright ticks */
+  function drawWaveform(lane, au){
+    var cv = lane.querySelector('.tl-wave');
+    if (!cv) return;
+    var w = lane.clientWidth || tlBody.clientWidth || 800;
+    var h = lane.clientHeight || 30;
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.max(2, Math.round(w * dpr));
+    cv.height = Math.max(2, Math.round(h * dpr));
+    var ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+    var mid = h / 2;
+    ctx.fillStyle = 'rgba(139,224,78,0.55)';
+    for (var x = 0; x < w; x++){
+      var at = (x / w) * proj.duration - au.offset;
+      var i = Math.floor(at * au.rate);
+      var v = (i >= 0 && i < au.peaks.length) ? au.peaks[i] : 0;
+      if (v <= 0.01) continue;
+      var bh = Math.max(1, v * (mid - 1));
+      ctx.fillRect(x, mid - bh, 1, bh * 2);
+    }
+    ctx.fillStyle = 'rgba(255,176,32,0.95)';
+    (au.beats || []).forEach(function(b){
+      var bx = ((b + au.offset) / proj.duration) * w;
+      if (bx >= 0 && bx < w) ctx.fillRect(bx, 0, 1.5, 6);
+    });
   }
   function updateRangeUI(){
     if (selRange){
@@ -3128,7 +5875,7 @@
     renderElements(); renderTimeline();
   }
   function setDuration(sec){
-    proj.duration = clamp(Math.round(+sec || 10), 5, 30);
+    proj.duration = clamp(Math.round((+sec || 10) * 1000) / 1000, 5, 30);
     normalizeWordClips();
     if (selRange) selRange = { a: clamp(selRange.a, 0, proj.duration), b: clamp(selRange.b, 0, proj.duration) };
     renderTimeline();
@@ -3141,6 +5888,17 @@
     var b = e.target.closest('[data-bg]');
     if (!b) return;
     var kind = b.getAttribute('data-bg');
+    if (kind === 'bloom'){
+      var r2 = selRange ? { a:selRange.a, b:selRange.b } : { a:0, b:proj.duration };
+      var hit = false;
+      proj.bg.forEach(function(s){
+        if (s.b > r2.a && s.a < r2.b){ s.flashIn = { color:'#ffffff', dur:0.45 }; hit = true; }
+      });
+      if (!hit) setBackground({ kind:'theme', flashIn:{ color:'#ffffff', dur:0.45 } }, r2);
+      else { renderTimeline(); applyBgAt(pb.t); say('<b>bloom flash</b> added to the segment.'); }
+      closeDrawers();
+      return;
+    }
     if (kind === 'color') setBackground({ kind:'color', value: document.getElementById('bgColorIn').value });
     else if (kind === 'image'){ bgFile.click(); }
     else setBackground({ kind:kind });
@@ -3170,10 +5928,62 @@
     if (kind === 'text'){
       var v = document.getElementById('elText').value.trim().slice(0, 24);
       addElement({ kind:'text', text: v ? v.toUpperCase() : 'LABEL' });
+    } else if (kind.indexOf('ui:') === 0){
+      var uk = kind.slice(3);
+      var v2 = document.getElementById('elText').value.trim().slice(0, 40);
+      var spec = { kind: uk };
+      if (uk === 'window'){ spec.title = v2 || 'Untitled'; spec.text = 'First line\nSecond line'; }
+      else if (uk === 'input'){ spec.text = v2 || 'Describe what you want to build'; }
+      else if (uk === 'button'){ spec.text = v2 || 'Button'; }
+      else if (uk === 'chat'){ spec.text = v2 || 'Hello!'; }
+      else if (uk === 'toggle'){ spec.text = v2 || ''; }
+      else if (uk === 'progress'){ spec.text = ''; spec.from = 0; spec.to = 100; }
+      else if (uk === 'icon'){ spec.glyph = v2 || '✦'; spec.text = ''; }
+      else if (uk === 'device'){ spec.text = ''; spec.screen = { live: true }; }
+      else if (uk === 'path'){ spec.text = ''; }
+      addElement(spec);
     } else {
       addElement({ kind:'shape', shape:kind });
     }
     elPop.hidden = true;
+  });
+  /* ---------- camera popover ---------- */
+  var camPop = document.getElementById('camPop');
+  var camBtn = document.getElementById('camBtn');
+  camBtn.addEventListener('click', function(){
+    var open = camPop.hidden;
+    camPop.hidden = !open;
+    this.setAttribute('aria-expanded', String(open));
+    if (open){
+      document.getElementById('camX').value = Math.round(camState.x * 100) / 100;
+      document.getElementById('camY').value = Math.round(camState.y * 100) / 100;
+      document.getElementById('camZoom').value = Math.round(camState.zoom * 100) / 100;
+      syncCamInfo();
+    }
+  });
+  document.addEventListener('pointerdown', function(e){
+    if (!camPop.hidden && !e.target.closest('#camPop') && !e.target.closest('#camBtn')) camPop.hidden = true;
+  });
+  document.getElementById('camAddKey').addEventListener('click', function(){
+    var x = parseFloat(document.getElementById('camX').value);
+    var y = parseFloat(document.getElementById('camY').value);
+    var z = parseFloat(document.getElementById('camZoom').value);
+    addCameraKey({ t: pb.t,
+                   x: isFinite(x) ? x : camState.x,
+                   y: isFinite(y) ? y : camState.y,
+                   zoom: isFinite(z) ? z : camState.zoom,
+                   ease: document.getElementById('camEase').value });
+    say('<b>camera key added</b> at ' + fmtT(pb.t) + 's.');
+  });
+  document.getElementById('camZoomSel').addEventListener('click', function(){
+    var z = parseFloat(document.getElementById('camZoom').value);
+    var k = selEl ? zoomTo(selEl, { duration: 1.2, zoom: isFinite(z) ? z : 1.6,
+                                    ease: document.getElementById('camEase').value }) : null;
+    say(k ? '<b>camera will zoom</b> to the selected element.' : '<b>select an element first</b>, then zoom to it.');
+  });
+  document.getElementById('camClear').addEventListener('click', function(){
+    clearCamera();
+    say('<b>camera cleared</b> — static camera.');
   });
   elFile.addEventListener('change', function(){
     var f = elFile.files && elFile.files[0];
@@ -3193,6 +6003,52 @@
     depthBlurBtn.textContent = 'Depth blur: ' + (on ? 'on' : 'off');
   });
 
+  /* ---------- project fonts: per-element font families ----------
+     A project may carry a `fonts` registry: [{family, src, weight?,
+     style?}] with the files living under fonts/. On load, each entry
+     becomes an @font-face in a dedicated style element (replaced
+     wholesale on every load) and its load is kicked off immediately,
+     so the deterministic renderer — which awaits document.fonts.ready
+     after loadState — never captures a fallback face. A text element
+     with `font: '<family>'` renders in that family (its own weight /
+     italic fields still apply); without `font`, the piece's global
+     type style applies, exactly as before. */
+  function sanitizeFontEntry(f){
+    if (!f || typeof f !== 'object') return null;
+    var family = String(f.family || '').replace(/["'\\;{}()]/g, '').trim().slice(0, 80);
+    var src = String(f.src || '').trim();
+    if (!family || !src) return null;
+    if (!/^[A-Za-z0-9._%\/-]+$/.test(src) || src.indexOf('..') !== -1) return null;
+    var out = { family: family, src: src };
+    if (typeof f.weight === 'string' && /^\d{1,3}\s+\d{1,3}$/.test(f.weight)) out.weight = f.weight;
+    else if (isFinite(+f.weight) && +f.weight >= 1 && +f.weight <= 1000) out.weight = Math.round(+f.weight);
+    if (f.style === 'italic' || f.style === 'oblique') out.style = f.style;
+    return out;
+  }
+  function applyProjectFonts(){
+    var tag = document.getElementById('motiqProjectFonts');
+    if (!tag){
+      tag = document.createElement('style');
+      tag.id = 'motiqProjectFonts';
+      document.head.appendChild(tag);
+    }
+    var css = '';
+    (proj.fonts || []).forEach(function(f){
+      css += "@font-face{font-family:'" + f.family + "';src:url('" + f.src +
+             "') format('truetype');font-display:swap;" +
+             (f.weight != null ? 'font-weight:' + f.weight + ';' : '') +
+             (f.style ? 'font-style:' + f.style + ';' : '') + '}\n';
+    });
+    tag.textContent = css;
+    if (document.fonts && document.fonts.load){
+      (proj.fonts || []).forEach(function(f){
+        var w = (typeof f.weight === 'string') ? 400 : (f.weight || 400);
+        var desc = (f.style === 'italic' ? 'italic ' : '') + w + ' 16px "' + f.family + '"';
+        try { document.fonts.load(desc, 'Ag'); } catch (e) {}
+      });
+    }
+  }
+
   /* ---------- project state: get / load ---------- */
   function setWord(text){
     var w = String(text || '').replace(/[^a-zA-Z0-9 ]/g, '').trim().slice(0, 14);
@@ -3203,23 +6059,30 @@
   }
   function getState(){
     return JSON.parse(JSON.stringify({
-      version: 2,
+      version: 3,
       word: baseWord,
       theme: state.theme,
       type: state.type,
       duration: proj.duration,
+      stage: proj.stage,
       selection: selRange,
       bg: proj.bg,
       motion: proj.motion,
       fx: proj.fx,
       words: proj.words,
       elements: proj.elements,
+      camera: proj.camera,
+      rings: proj.rings,
+      ringClips: proj.ringClips,
+      fonts: proj.fonts,
+      post: proj.post,
+      audio: proj.audio,
       ui: { italic: state.italic, scale: state.scale, speed: state.speed,
             neon: state.neon, rainbow: state.rainbow, colorIdx: state.colorIdx,
             wordColor: (typeof wordColor !== 'undefined' ? wordColor : null),
             wordShadow: (typeof wordShadow !== 'undefined' ? wordShadow : null),
             wordPos: (typeof wordPos !== 'undefined' ? wordPos : { x:0, y:0 }) }
-    }));
+    }, function(k, v){ return k.charAt(0) === '_' ? undefined : v; }));
   }
   function loadState(s){
     if (!s || typeof s !== 'object') return;
@@ -3240,14 +6103,27 @@
       wordShadow = (s.ui && s.ui.wordShadow) || null;
       if (wordShadow) buildWord(baseWord);
     }
-    proj.duration = clamp(Math.round(+s.duration || 10), 5, 30);
-    proj.bg = Array.isArray(s.bg) ? s.bg : [];
+    proj.duration = clamp(Math.round((+s.duration || 10) * 1000) / 1000, 5, 30);
+    proj.stage = s.stage === 'portrait' ? 'portrait' : 'landscape';
+    fitFrame();
+    proj.bg = Array.isArray(s.bg) ? s.bg.map(sanitizeBgSeg).filter(Boolean) : [];
+    proj.rings = Array.isArray(s.rings) ? s.rings.map(sanitizeRing).filter(Boolean) : [];
+    proj.ringClips = Array.isArray(s.ringClips) ? s.ringClips.map(sanitizeRingClip).filter(Boolean) : [];
+    proj.fonts = Array.isArray(s.fonts) ? s.fonts.map(sanitizeFontEntry).filter(Boolean) : [];
+    applyProjectFonts();
+    proj.post = sanitizePost(s.post);
+    applyPostPreview();
+    proj.audio = sanitizeAudio(s.audio);
+    syncAudioEl();
     proj.motion = Array.isArray(s.motion) ? s.motion : [];
     proj.fx = Array.isArray(s.fx) ? s.fx : [];
     proj.words = Array.isArray(s.words) ? s.words : [];
+    proj.camera = Array.isArray(s.camera) ? s.camera.map(sanitizeCameraKey).filter(Boolean) : [];
+    proj.camera.sort(function(a, b){ return a.t - b.t; });
     proj.elements = Array.isArray(s.elements) ? s.elements : [];
     proj.elements.forEach(function(el){
       if (!Array.isArray(el.motions)) el.motions = [];
+      if (el.react) el.react = sanitizeReact(el.react);
       var m = /^el(\d+)$/.exec(el.id || '');
       if (m) elSeq = Math.max(elSeq, +m[1] + 1);
     });
@@ -3255,9 +6131,261 @@
     selRange = (s.selection && s.selection.b != null) ? normRange(s.selection) : null;
     if (selRange && selRange.b - selRange.a < 0.05) selRange = null;
     selEl = null; selClip = null; clipDelBtn.hidden = true;
-    renderElements(); renderTimeline(); syncElPanel();
+    renderElements(); renderTimeline(); syncElPanel(); syncCamInfo();
     seek(0);
     say('<b>project loaded.</b>');
+  }
+
+  /* ---------- components + templates (Speed wave) ----------
+     A COMPONENT is a named group of elements — full element state
+     (clips, keys, masks, motion/audio fields) plus the FX clips
+     targeted at them, the rings they ride and the font entries they
+     use — extracted from a project so it can be instantiated into
+     any other project in one call. The MCP server owns the on-disk
+     library (components/<slug>.json beside this page, the fonts/ +
+     audio/ asset pattern); the page owns extraction/instantiation.
+     Instantiation assigns EVERY element a fresh id and remaps all
+     internal references (follow leaders, FX targets, cursor-pulse
+     targets, ring membership) to the new instances; a reference
+     that points outside the component is dropped, never left
+     dangling at a source-project id.
+     A TEMPLATE is a whole project state (or a time-range slice of
+     one, re-based to 0) that a new project can be created from in
+     one call. The server stores templates/<slug>.json wrappers
+     { kind, name, title, state }; applyTemplate is loadState with
+     title/duration overrides. */
+  function spCopy(o){
+    return JSON.parse(JSON.stringify(o, function(k, v){
+      return k.charAt(0) === '_' ? undefined : v;
+    }));
+  }
+  function spR3(v){ return Math.round(v * 1000) / 1000; }
+  function compSlug(name){
+    return String(name || '').toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+  /* shift every absolute time in an element fragment by dt and
+     every absolute position by (dx, dy). Motion-path points are
+     absolute stage positions (they shift); their t is relative to
+     the clip start (it does not). */
+  function shiftElementTimes(el, dt, dx, dy){
+    el.a = spR3(el.a + dt); el.b = spR3(el.b + dt);
+    el.x += dx; el.y += dy;
+    (el.motions || []).forEach(function(m){
+      m.a = spR3(m.a + dt); m.b = spR3(m.b + dt);
+      (m.points || []).forEach(function(p){ p.x += dx; p.y += dy; });
+    });
+    if (el.keys) el.keys.forEach(function(k){
+      k.t = spR3(k.t + dt); k.x += dx; k.y += dy; });
+    if (el.masks) el.masks.forEach(function(m){
+      m.a = spR3(m.a + dt); m.b = spR3(m.b + dt); });
+    if (el.tilts) el.tilts.forEach(function(c){
+      c.a = spR3(c.a + dt); c.b = spR3(c.b + dt); });
+    if (el.rots) el.rots.forEach(function(c){
+      c.a = spR3(c.a + dt); c.b = spR3(c.b + dt); });
+    if (el.orbit) el.orbit.forEach(function(k){ k.t = spR3(k.t + dt); });
+    if (el.flips) el.flips.forEach(function(f){ f.t = spR3(f.t + dt); });
+    if (el.presses) el.presses = el.presses.map(function(t){ return spR3(t + dt); });
+    if (el.clicks) el.clicks = el.clicks.map(function(c){
+      return typeof c === 'number' ? spR3(c + dt)
+        : (c.t = spR3(c.t + dt), c); });
+  }
+  function saveComponent(name, ids){
+    var els;
+    if (Array.isArray(ids) && ids.length){
+      els = proj.elements.filter(function(el){
+        return ids.indexOf(el.id) !== -1; });
+    } else if (selRange){
+      els = proj.elements.filter(function(el){
+        return el.b > selRange.a && el.a < selRange.b; });
+    } else {
+      els = proj.elements.slice();
+    }
+    if (!els.length) return null;
+    var inSet = {};
+    els.forEach(function(el){ inSet[el.id] = true; });
+    var ringIds = {};
+    els.forEach(function(el){ if (el.ring) ringIds[el.ring] = true; });
+    var fx = proj.fx.filter(function(c){ return c.target && inSet[c.target]; });
+    var t0 = Infinity;
+    els.forEach(function(el){ t0 = Math.min(t0, el.a); });
+    fx.forEach(function(c){ t0 = Math.min(t0, c.a); });
+    var fams = {};
+    els.forEach(function(el){ if (el.font) fams[el.font] = true; });
+    return {
+      kind: 'motiq-component', version: 1,
+      name: compSlug(name) || 'component', t0: spR3(t0),
+      elements: spCopy(els), fx: spCopy(fx),
+      rings: spCopy(proj.rings.filter(function(g){ return ringIds[g.id]; })),
+      ringClips: spCopy(proj.ringClips.filter(function(c){
+        return ringIds[c.ring]; })),
+      fonts: spCopy((proj.fonts || []).filter(function(f){
+        return fams[f.family]; }))
+    };
+  }
+  function instantiateComponent(comp, opts){
+    opts = opts || {};
+    if (!comp || !Array.isArray(comp.elements) || !comp.elements.length)
+      return null;
+    var t0 = isFinite(+comp.t0) ? +comp.t0 : 0;
+    var dt = (opts.at != null && isFinite(+opts.at) ? +opts.at : t0) - t0;
+    var dx = +opts.dx || 0, dy = +opts.dy || 0;
+    /* rings first: keep the saved id when it is free in this
+       project, else suffix it — the definition is copied either
+       way, so membership always resolves inside this project */
+    var usedRings = {};
+    proj.rings.forEach(function(g){ usedRings[g.id] = true; });
+    var ringMap = {}, newRings = [];
+    (comp.rings || []).forEach(function(g){
+      var ng = sanitizeRing(spCopy(g));
+      if (!ng) return;
+      var nid = g.id, k = 2;
+      while (usedRings[nid]) nid = g.id + '-' + (k++);
+      usedRings[nid] = true; ringMap[g.id] = nid;
+      ng.id = nid; ng.cx += dx; ng.cy += dy;
+      newRings.push(ng);
+    });
+    var idMap = {};
+    var newEls = comp.elements.map(function(src){
+      var el = spCopy(src);
+      idMap[src.id] = 'el' + (elSeq++);
+      el.id = idMap[src.id];
+      if (el.ring){
+        if (ringMap[el.ring]) el.ring = ringMap[el.ring];
+        else delete el.ring;
+      }
+      if (el.follow){
+        if (el.follow.leader && idMap[el.follow.leader])
+          el.follow.leader = idMap[el.follow.leader];
+        else delete el.follow;
+      }
+      if (el.clicks) el.clicks = el.clicks.map(function(c){
+        if (typeof c === 'number' || !c.pulse) return c;
+        if (idMap[c.pulse]) c.pulse = idMap[c.pulse];
+        else delete c.pulse;
+        return c;
+      });
+      shiftElementTimes(el, dt, dx, dy);
+      if (!Array.isArray(el.motions)) el.motions = [];
+      if (el.react) el.react = sanitizeReact(el.react);
+      return el;
+    });
+    newRings.forEach(function(ng){ proj.rings.push(ng); });
+    (comp.ringClips || []).forEach(function(c){
+      if (!ringMap[c.ring]) return;
+      var nc = sanitizeRingClip(spCopy(c));
+      if (!nc) return;
+      nc.ring = ringMap[c.ring];
+      nc.a = spR3(nc.a + dt); nc.b = spR3(nc.b + dt);
+      proj.ringClips.push(nc);
+    });
+    var newFx = [];
+    (comp.fx || []).forEach(function(c){
+      if (!c.target || !idMap[c.target]) return;
+      var nc = spCopy(c);
+      nc.target = idMap[c.target];
+      nc.a = spR3(nc.a + dt); nc.b = spR3(nc.b + dt);
+      proj.fx.push(nc); newFx.push(nc);
+    });
+    (comp.fonts || []).forEach(function(f){
+      var have = (proj.fonts || []).some(function(x){
+        return x.family === f.family && x.src === f.src; });
+      if (!have) proj.fonts.push(spCopy(f));
+    });
+    if ((comp.fonts || []).length) applyProjectFonts();
+    newEls.forEach(function(el){ proj.elements.push(el); });
+    var end = 0;
+    newEls.forEach(function(el){ end = Math.max(end, el.b); });
+    newFx.forEach(function(c){ end = Math.max(end, c.b); });
+    if (end > proj.duration)
+      proj.duration = clamp(spR3(end), 5, 30);
+    renderElements(); renderTimeline(); syncElPanel();
+    say('<b>component inserted.</b> ' + newEls.length +
+        ' elements from “' + (comp.name || 'component') + '”.');
+    return { ids: idMap, rings: ringMap, elements: newEls.length,
+             fx: newFx.length };
+  }
+  /* prompt-bar lane: "insert the <name> component at 3s" — the
+     library lives beside the page, so fetch the entry by slug */
+  function insertComponentByName(rawName, at){
+    var slug = compSlug(rawName);
+    if (!slug){ say('name the component to insert.'); return; }
+    say('<b>loading component…</b> ' + slug);
+    fetch('components/' + slug + '.json')
+      .then(function(r){
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      })
+      .then(function(comp){
+        var res = instantiateComponent(comp,
+          at != null ? { at: at } : {});
+        if (!res) say('component <b>' + slug + '</b> looks empty.');
+      })
+      .catch(function(){
+        say('no component named <b>' + slug +
+            '</b> in the library (components/' + slug + '.json).');
+      });
+  }
+  /* slice the {a, b} items of a track list into [a, b], re-based */
+  function sliceSegs(list, a, b){
+    var out = [];
+    (list || []).forEach(function(sg){
+      if (sg.b <= a || sg.a >= b) return;
+      var c = spCopy(sg);
+      c.a = spR3(Math.max(sg.a, a) - a);
+      c.b = spR3(Math.min(sg.b, b) - a);
+      out.push(c);
+    });
+    return out;
+  }
+  function extractTemplate(range){
+    var s = getState();
+    if (!range || range.a == null || range.b == null) return s;
+    var a = Math.min(+range.a, +range.b), b = Math.max(+range.a, +range.b);
+    if (!(b - a > 0.05)) return s;
+    var dur = spR3(b - a);
+    s.bg = sliceSegs(s.bg, a, b);
+    s.motion = sliceSegs(s.motion, a, b);
+    s.fx = sliceSegs(s.fx, a, b);
+    s.words = sliceSegs(s.words, a, b);
+    s.ringClips = sliceSegs(s.ringClips, a, b);
+    var cams = (s.camera || []).filter(function(k){
+        return k.t > a && k.t < b; })
+      .map(function(k){ k.t = spR3(k.t - a); return k; });
+    if ((s.camera || []).length){
+      var c0 = cameraAt(a);
+      if (c0) cams.unshift({ t: 0, x: c0.x, y: c0.y, zoom: c0.zoom });
+    }
+    s.camera = cams;
+    var keptRings = {};
+    s.elements = (s.elements || []).filter(function(el){
+        return el.b > a && el.a < b; })
+      .map(function(el){
+        shiftElementTimes(el, -a, 0, 0);
+        el.a = Math.max(0, el.a); el.b = Math.min(dur, el.b);
+        if (el.ring) keptRings[el.ring] = true;
+        return el;
+      });
+    s.ringClips = s.ringClips.filter(function(c){
+      return keptRings[c.ring]; });
+    s.rings = (s.rings || []).filter(function(g){
+      return keptRings[g.id]; });
+    s.duration = dur;
+    s.selection = null;
+    s.audio = null;   // a slice cannot carry the track honestly
+    return s;
+  }
+  function applyTemplate(tpl, opts){
+    opts = opts || {};
+    var s = spCopy(tpl && tpl.state ? tpl.state : tpl);
+    if (!s || typeof s !== 'object') return null;
+    if (opts.duration != null && isFinite(+opts.duration))
+      s.duration = +opts.duration;
+    loadState(s);
+    return { title: opts.title || (tpl && tpl.title) ||
+             (tpl && tpl.name) || 'template',
+             duration: proj.duration,
+             elements: proj.elements.length };
   }
 
   /* ---------- studio init ---------- */
@@ -3459,6 +6587,29 @@
     removeElement: removeElement,
     recordPath: recordPath,
     addEffectClip: addEffectClip,
+    addCameraKey: addCameraKey,
+    listCameraKeys: listCameraKeys,
+    clearCamera: clearCamera,
+    zoomTo: zoomTo,
+    cameraAt: function(t){ return cameraAt(t == null ? pb.t : t); },
+    addTiltClip: addTiltClip,
+    addRotClip: addRotClip,
+    addMask: addMask,
+    maskCssAt: function(id, t){ var el = findEl(id); return el ? maskCssAt(el, t == null ? pb.t : t) : null; },
+    setPost: setPost,
+    setAudio: setAudio,
+    getAudio: function(){ return proj.audio; },
+    audioEnvAt: function(t){ return audioEnvAt(t == null ? pb.t : t); },
+    audioBeatAt: function(t){ return audioBeatAt(t == null ? pb.t : t); },
+    reactAt: function(id, t){ var el = findEl(id); return el ? reactApplied(el, t == null ? pb.t : t) : null; },
+    addOrbitKey: addOrbitKey,
+    orbitAt: function(id, t){ var el = findEl(id); return el ? orbitAt(el, t == null ? pb.t : t) : null; },
+    keysAt: function(id, t){ var el = findEl(id); return el ? keysAt(el, t == null ? pb.t : t) : null; },
+    wiggleAt: function(id, t){ var el = findEl(id); return el ? wiggleAt(el, t == null ? pb.t : t) : null; },
+    setPresetAccent: setPresetAccent,
+    addRing: addRing,
+    addRingClip: addRingClip,
+    ringAngleAt: ringAngleAt,
     runElementEffect: function(name, id){ var el = findEl(id); if (el) runElementEffect(name, el); },
     selectElement: function(id){
       if (id && findEl(id)) selectElement(id);
@@ -3473,6 +6624,10 @@
     seek: seek,
     getState: getState,
     loadState: loadState,
+    saveComponent: saveComponent,
+    instantiateComponent: instantiateComponent,
+    extractTemplate: extractTemplate,
+    applyTemplate: applyTemplate,
     getTime: function(){ return pb.t; },
     isPlaying: function(){ return pb.playing; }
   };
